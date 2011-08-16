@@ -4,8 +4,8 @@
 package fr.jmmc.smprun;
 
 import fr.jmmc.mcs.gui.App;
-import fr.jmmc.mcs.gui.StatusBar;
 import fr.jmmc.mcs.gui.SwingSettings;
+import fr.jmmc.mcs.interop.SampCapability;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Logger;
 
@@ -34,7 +34,8 @@ public class AppLauncher extends App {
     }
 
     /** Initialize application objects */
-    protected void init(String[] args) {      
+    @Override
+    protected void init(String[] args) {
 
         try {
             // Using invokeAndWait to be in sync with the main thread :
@@ -43,6 +44,7 @@ public class AppLauncher extends App {
                 /**
                  * Initializes the swing components with their actions in EDT
                  */
+                @Override
                 public void run() {
 
                     // Insert your code here...
@@ -65,8 +67,11 @@ public class AppLauncher extends App {
     }
 
     /** Execute application body */
+    @Override
     protected void execute() {
         // Insert your code here...
+        new ClientStub("toto", SampCapability.LOAD_VO_TABLE);
+        new ClientStub("tata", SampCapability.LOAD_VO_TABLE);
     }
 
     /** Handle operations before closing application */
@@ -85,7 +90,7 @@ public class AppLauncher extends App {
     public static void main(final String[] args) {
 
         // init swing application for science
-        SwingSettings.setup();        
+        SwingSettings.setup();
 
         new AppLauncher(args);
     }
