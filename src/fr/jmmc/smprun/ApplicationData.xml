@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ApplicationData link="http://www.jmmc.fr/AppLauncher">
+  <program name="AppLauncher" version="1.0"/>
+  <compilation date="16/08/2011" compiler="JDK 1.5.0_16"/>
+  <text>JMMC SAMP hub to automatically start capable applications when triggered</text>
+  <dependences>
+    <package name="AppleJavaExtensions" description="toolkit to provide better user interface on Mac, provided by Apple, Inc." link="http://developer.apple.com/samplecode/AppleJavaExtensions/index.html"/>
+    <package name="jMCS" description="JMMC toolkit to provide better user interface and platform integration across Mac, Linux and Windows" link="http://www.jmmc.fr/jmcs"/>
+  </dependences>
+  <menubar>
+    <menu label="Interop">
+      <!--<menu label="Send All Calibrators to..." classpath="fr.jmmc.scalib.sclgui.VirtualObservatory" action="_shareCalibratorsThroughSAMPAction"/>-->
+    </menu>
+  </menubar>
+  <releasenotes>
+    <release version="1.0">
+      <prerelease version="1.0d1" tag="AR_V1_0_d1">
+        <change>First release.</change>
+      </prerelease>          
+    </release>
+  </releasenotes>
+  <acknowledgment><![CDATA[This tool makes extended use of jSAMP form M. TAYLOR.]]></acknowledgment>
+</ApplicationData>
