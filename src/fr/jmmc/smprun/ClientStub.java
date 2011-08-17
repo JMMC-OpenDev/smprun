@@ -20,6 +20,13 @@ import org.astrogrid.samp.client.SampException;
 import org.astrogrid.samp.gui.GuiHubConnector;
 import org.astrogrid.samp.hub.Hub;
 import org.astrogrid.samp.hub.HubServiceMode;
+/*
+import org.ivoa.util.runner.RootContext;
+import org.ivoa.util.runner.RunContext;
+import org.ivoa.util.runner.process.ProcessContext;
+import org.ivoa.util.runner.process.ProcessRunner;
+import org.ivoa.util.runner.process.RingBuffer;
+*/
 
 /**
  * Registers a fake App to the hub, and later dispatch any received message to the freshly started recipient.
@@ -30,10 +37,8 @@ public final class ClientStub {
 
     /** Gui hub connector */
     private GuiHubConnector _connector;
-
     /** Store desired stub application name */
     private String _applicationName;
-
     /** Store desired stub SAMP capability */
     private SampCapability _mType;
 
@@ -125,14 +130,25 @@ public final class ClientStub {
 
                 System.out.println("Stub '" + _applicationName + "' received '" + this.handledMType() + "' message from '" + senderId + "' : '" + message + "'.");
 
-                System.out.print("Stub '" + _applicationName + "' unregistering from hub ... ");
-                // @TODO : Unregister stub from hub to make room for the recipient
-                System.out.println("FAILED.");
+                // Unregister stub from hub to make room for the recipient
+                unregisterCapability(this);
 
                 System.out.print("Stub '" + _applicationName + "' launching recipient '" + _applicationName + "' ... ");
                 // @TODO : Launch recipient if missing and known (otherwise error message)
+                // @see http://code.google.com/p/vo-urp
+/*
+                String tmpDir = System.getProperty("java.io.tmpdir");
+                RootContext rCtx = new RootContext("AppLauncher", new Long(0), tmpDir);
+                RingBuffer ringBuf = new RingBuffer(1000, null);
+                rCtx.setRing(ringBuf);
+                String cmd[] = {"id"};
+                ProcessContext pCtx = new ProcessContext(rCtx, "uname", new Long(1), cmd);
+                System.out.println("Stub '" + _applicationName + "' : pCtx = " + pCtx );
+                ProcessRunner.execute(pCtx);
+                System.out.println("Stub '" + _applicationName + "' :\n" + ringBuf.getContent());
+                 */
                 // @TODO : Get back newly launched recipient id.
-                String recipient = "c25";
+                String recipient = "c2";
                 System.out.println("FAILED.");
 
                 // Forward recevied message to recipient
@@ -143,6 +159,9 @@ public final class ClientStub {
                     Logger.getLogger(ClientStub.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 System.out.println("DONE.");
+
+                // Kills the stub client
+                _connector.setActive(false);
             }
         });
     }
@@ -173,6 +192,20 @@ public final class ClientStub {
         _connector.addMessageHandler(handler);
 
         System.out.println("Stub '" + _applicationName + "' registered SAMP capability for mType '" + handler.handledMType() + "'.");
+
+        // This step required even if no custom message handlers added.
+        _connector.declareSubscriptions(_connector.computeSubscriptions());
+    }
+
+    /**
+     * Unregister an app-specific capability
+     * @param handler message handler
+     */
+    public void unregisterCapability(final SampMessageHandler handler) {
+
+        _connector.removeMessageHandler(handler);
+
+        System.out.println("Stub '" + _applicationName + "' unregistered SAMP capability for mType '" + handler.handledMType() + "'.");
 
         // This step required even if no custom message handlers added.
         _connector.declareSubscriptions(_connector.computeSubscriptions());
