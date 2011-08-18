@@ -8,6 +8,7 @@ import fr.jmmc.mcs.interop.SampMessageHandler;
 
 import fr.jmmc.mcs.util.Urls;
 import java.io.IOException;
+import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.event.ChangeEvent;
@@ -31,7 +32,7 @@ import org.astrogrid.samp.hub.HubServiceMode;
  *
  * @author Sylvain LAFRASSE
  */
-public final class ClientStub {
+public final class ClientStub extends Observable {
 
     /** GUI hub connector */
     private GuiHubConnector _connector;
@@ -49,6 +50,8 @@ public final class ClientStub {
     private String _recipientId;
     /** Message to forward once recipient appeared */
     private Message _message;
+    /** Message to forward once recipient appeared */
+    private ClientStubState _status;
 
     /**
      * Constructor
@@ -57,6 +60,8 @@ public final class ClientStub {
      * @param mType
      */
     public ClientStub(final Metadata description, final SampCapability[] mTypes, final String jnlpUrl) {
+
+        setState(ClientStubState.INITIALIZING);
 
         // Initialize JSamp env.
         final ClientProfile profile = DefaultClientProfile.getProfile();
@@ -80,7 +85,17 @@ public final class ClientStub {
         listenToRecipientConnections();
     }
 
+    private void setState(ClientStubState status) {
+
+        _status = status;
+
+        setChanged();
+        notifyObservers(_status);
+    }
+
     private void connectToHub() {
+
+        setState(ClientStubState.CONNECTING);
 
         System.out.print("Stub '" + _applicationName + "' connecting to hub ... ");
 
@@ -114,6 +129,8 @@ public final class ClientStub {
 
     private void registerStubCapabilities() {
 
+        setState(ClientStubState.REGISTERING);
+
         for (final SampCapability mType : _mTypes) {
 
             // Add handler for each stub capability
@@ -128,6 +145,8 @@ public final class ClientStub {
                  */
                 protected void processMessage(final String senderId, final Message message) {
 
+                    setState(ClientStubState.PROCESSING);
+
                     // Backup message for later forward
                     _message = message;
 
@@ -135,6 +154,8 @@ public final class ClientStub {
 
                     // Unregister stub from hub to make room for the recipient
                     unregisterCapability(this);
+
+                    setState(ClientStubState.LAUNCHING);
 
                     System.out.print("Stub '" + _applicationName + "' web-starting JNLP '" + _jnlpUrl + "' ... ");
                     int status = JnlpStarter.exec(_jnlpUrl);
@@ -147,6 +168,8 @@ public final class ClientStub {
     }
 
     private void listenToRecipientConnections() {
+
+        setState(ClientStubState.LISTENING);
 
         System.out.println("Stub '" + _applicationName + "' starting listening to recipient connections ...");
 
@@ -185,6 +208,8 @@ public final class ClientStub {
 
     private void lookForRecipientAvailability() {
 
+        setState(ClientStubState.SEEKING);
+
         System.out.println("Stub '" + _applicationName + "' looking for recipient availability ... ");
 
         // Check each registered clients for the seeked recipient name
@@ -208,6 +233,8 @@ public final class ClientStub {
                             } catch (InterruptedException ex) {
                                 Logger.getLogger(ClientStub.class.getName()).log(Level.SEVERE, null, ex);
                             }
+
+                            setState(ClientStubState.FORWARDING);
                             _connector.getConnection().notify(_recipientId, _message);
                         }
                     } catch (SampException ex) {
@@ -216,6 +243,7 @@ public final class ClientStub {
                     System.out.println("DONE.");
 
                     // Kills the stub client
+                    setState(ClientStubState.DISCONNECTING);
                     _connector.setActive(false);
                 }
             } else {
