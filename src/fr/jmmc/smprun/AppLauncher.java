@@ -5,7 +5,6 @@ package fr.jmmc.smprun;
 
 import fr.jmmc.mcs.gui.App;
 import fr.jmmc.mcs.gui.SwingSettings;
-import fr.jmmc.mcs.interop.SampCapability;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Logger;
 
@@ -36,34 +35,6 @@ public class AppLauncher extends App {
     /** Initialize application objects */
     @Override
     protected void init(String[] args) {
-
-        try {
-            // Using invokeAndWait to be in sync with the main thread :
-            SwingUtilities.invokeAndWait(new Runnable() {
-
-                /**
-                 * Initializes the swing components with their actions in EDT
-                 */
-                @Override
-                public void run() {
-
-                    // Insert your code here...
-
-                    // Build the main window
-                    MainWindow window = new MainWindow();
-                    window.pack();
-                    window.setVisible(true);
-
-                    App.setFrame(window);
-                }
-            });
-        } catch (InterruptedException ie) {
-            // Propagate the exception :
-            throw new IllegalStateException("AppLauncher.init : interrupted", ie);
-        } catch (InvocationTargetException ite) {
-            // Propagate the internal exception :
-            throw new IllegalStateException("AppLauncher.init : exception", ite.getCause());
-        }
     }
 
     /** Execute application body */
