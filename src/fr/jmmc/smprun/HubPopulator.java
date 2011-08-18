@@ -19,14 +19,21 @@ class HubPopulator {
         String jnlpUrl;
 
         md = new Metadata();
-        md.setName("toto");
-        capabilities = new SampCapability[] {SampCapability.LOAD_VO_TABLE};
+        md.setName("LITpro");
+        capabilities = new SampCapability[] {SampCapability.LITPRO_START_SETTING};
         jnlpUrl = "http://jmmc.fr/~swmgr/LITpro/LITpro.jnlp";
         new ClientStub(md, capabilities, jnlpUrl);
 
         md = new Metadata();
-        md.setName("titi");
+        md.setName("topcat");
         capabilities = new SampCapability[] {SampCapability.LOAD_VO_TABLE};
-        ClientStub clientStub = new ClientStub(md, capabilities, "toto");
+        jnlpUrl = "http://www.star.bris.ac.uk/~mbt/topcat/topcat-full.jnlp";
+        new ClientStub(md, capabilities, jnlpUrl);
+
+        md = new Metadata();
+        md.setName("Aladin");
+        capabilities = new SampCapability[] {SampCapability.LOAD_VO_TABLE};
+        jnlpUrl = "http://aladin.u-strasbg.fr/java/nph-aladin.pl?frame=get&id=aladin.jnlp";
+        new ClientStub(md, capabilities, jnlpUrl);
     }
 }
