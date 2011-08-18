@@ -69,15 +69,13 @@ public class AppLauncher extends App {
     /** Execute application body */
     @Override
     protected void execute() {
-        // Insert your code here...
-        new ClientStub("toto", SampCapability.LOAD_VO_TABLE);
-        new ClientStub("tata", SampCapability.LOAD_VO_TABLE);
+        new HubPopulator();
     }
 
     /** Handle operations before closing application */
     @Override
     protected boolean finish() {
-        // Properly disconnect and dispose SAMP hub
+        // @TODO : Properly disconnect and dispose SAMP hub ?
         return true;
     }
 
