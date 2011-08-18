@@ -8,13 +8,10 @@
     <package name="jMCS" description="JMMC toolkit to provide better user interface and platform integration across Mac, Linux and Windows" link="http://www.jmmc.fr/jmcs"/>
   </dependences>
   <menubar>
-    <menu label="Interop">
-      <!--<menu label="Send All Calibrators to..." classpath="fr.jmmc.scalib.sclgui.VirtualObservatory" action="_shareCalibratorsThroughSAMPAction"/>-->
-    </menu>
   </menubar>
   <releasenotes>
     <release version="1.0">
-      <prerelease version="1.0d1" tag="AR_V1_0_d1">
+      <prerelease version="1.0d1" tag="AL_V1_0_d1">
         <change>First release.</change>
       </prerelease>          
     </release>
