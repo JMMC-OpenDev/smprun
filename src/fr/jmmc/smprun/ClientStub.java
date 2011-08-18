@@ -6,6 +6,7 @@ package fr.jmmc.smprun;
 import fr.jmmc.mcs.interop.SampCapability;
 import fr.jmmc.mcs.interop.SampMessageHandler;
 
+import fr.jmmc.mcs.util.Urls;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,13 +21,6 @@ import org.astrogrid.samp.client.SampException;
 import org.astrogrid.samp.gui.GuiHubConnector;
 import org.astrogrid.samp.hub.Hub;
 import org.astrogrid.samp.hub.HubServiceMode;
-/*
-import org.ivoa.util.runner.RootContext;
-import org.ivoa.util.runner.RunContext;
-import org.ivoa.util.runner.process.ProcessContext;
-import org.ivoa.util.runner.process.ProcessRunner;
-import org.ivoa.util.runner.process.RingBuffer;
-*/
 
 /**
  * Registers a fake App to the hub, and later dispatch any received message to the freshly started recipient.
@@ -133,23 +127,13 @@ public final class ClientStub {
                 // Unregister stub from hub to make room for the recipient
                 unregisterCapability(this);
 
-                System.out.print("Stub '" + _applicationName + "' launching recipient '" + _applicationName + "' ... ");
-                // @TODO : Launch recipient if missing and known (otherwise error message)
-                // @see http://code.google.com/p/vo-urp
-/*
-                String tmpDir = System.getProperty("java.io.tmpdir");
-                RootContext rCtx = new RootContext("AppLauncher", new Long(0), tmpDir);
-                RingBuffer ringBuf = new RingBuffer(1000, null);
-                rCtx.setRing(ringBuf);
-                String cmd[] = {"id"};
-                ProcessContext pCtx = new ProcessContext(rCtx, "uname", new Long(1), cmd);
-                System.out.println("Stub '" + _applicationName + "' : pCtx = " + pCtx );
-                ProcessRunner.execute(pCtx);
-                System.out.println("Stub '" + _applicationName + "' :\n" + ringBuf.getContent());
-                 */
+                String jnlpUrl = "http://jmmc.fr/~swmgr/LITpro/LITpro.jnlp";
+                System.out.print("Stub '" + _applicationName + "' web-starting JNLP '" + jnlpUrl + "' ... ");
+                int status = JnlpStarter.exec(jnlpUrl);
+                System.out.println("DONE (with status '" + status + "').");
+
                 // @TODO : Get back newly launched recipient id.
                 String recipient = "c2";
-                System.out.println("FAILED.");
 
                 // Forward recevied message to recipient
                 System.out.print("Stub '" + _applicationName + "' forwarding '" + mType + "' SAMP message to '" + recipient + "' client ... ");
