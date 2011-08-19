@@ -98,11 +98,23 @@ public final class ClientStub extends Observable {
         notifyObservers(_status);
     }
 
+    private void log(String message) {
+        System.out.print("STUB['" + _applicationName + "']: " + message);
+    }
+
+    private void logLine(String message) {
+        log(message + "\n");
+    }
+
+    private void logDone() {
+        System.out.println("DONE.");
+    }
+
     private void connectToHub() {
 
         setState(ClientStubState.CONNECTING);
 
-        System.out.print("Stub '" + _applicationName + "' connecting to hub ... ");
+        log("connecting to hub ... ");
 
         // Set connector up
         _connector.declareMetadata(_description);
@@ -114,7 +126,7 @@ public final class ClientStub extends Observable {
             try {
                 Hub.runHub(HubServiceMode.CLIENT_GUI);
             } catch (IOException ioe) {
-                System.out.println("Stub '" + _applicationName + "'  unable to start internal hub (probably another hub is already running):" + ioe);
+                logLine("unable to start internal hub (probably another hub is already running):" + ioe);
             }
             // retry to connectToHub :
             _connector.setActive(true);
@@ -123,13 +135,13 @@ public final class ClientStub extends Observable {
         // Keep a look out for hubs if initial one shuts down
         _connector.setAutoconnect(5);
         if (!_connector.isConnected()) {
-            System.out.println("Stub '" + _applicationName + "' could not connect to an existing hub or start an internal SAMP hub.");
+            logLine("could not connect to an existing hub or start an internal SAMP hub.");
         }
 
         // This step required even if no message handlers added.
         _connector.declareSubscriptions(_connector.computeSubscriptions());
 
-        System.out.println("DONE.");
+        logDone();
     }
 
     private void registerStubCapabilities() {
@@ -155,18 +167,16 @@ public final class ClientStub extends Observable {
                     // Backup message for later forward
                     _message = message;
 
-                    System.out.println("Stub '" + _applicationName + "' received '" + this.handledMType() + "' message from '" + senderId + "' : '" + _message + "'.");
+                    logLine("received '" + this.handledMType() + "' message from '" + senderId + "' : '" + _message + "'.");
 
                     // Unregister stub from hub to make room for the recipient
                     unregisterCapability(this);
 
                     setState(ClientStubState.LAUNCHING);
 
-                    System.out.print("Stub '" + _applicationName + "' web-starting JNLP '" + _jnlpUrl + "' ... ");
+                    log("web-starting JNLP '" + _jnlpUrl + "' ... ");
                     int status = JnlpStarter.exec(_jnlpUrl);
                     System.out.println("DONE (with status '" + status + "').");
-
-                    // @TODO : show a popup window to ask user patience while webstarting JNLP
                 }
             });
         }
@@ -176,13 +186,13 @@ public final class ClientStub extends Observable {
 
         setState(ClientStubState.LISTENING);
 
-        System.out.println("Stub '" + _applicationName + "' starting listening to recipient connections ...");
+        logLine("starting listening to recipient connections ...");
 
         // Get a dynamic list of SAMP clients able to respond to the specified capability.
         String[] mTypeStrings = new String[_mTypes.length];
         for (int i = 0; i < _mTypes.length; i++) {
             mTypeStrings[i] = _mTypes[i].mType();
-            System.out.println(" - listening for mType '" + mTypeStrings[i] + "'.");
+            System.out.println("   - listening for mType '" + mTypeStrings[i] + "'.");
         }
         _capableClients = new SubscribedClientListModel(_connector, mTypeStrings);
 
@@ -190,22 +200,22 @@ public final class ClientStub extends Observable {
         _capableClients.addListDataListener(new ListDataListener() {
 
             public void contentsChanged(final ListDataEvent e) {
-                System.out.println("Stub '" + _applicationName + "' ListDataListener : contentsChanged.");
+                logLine("ListDataListener : contentsChanged.");
                 lookForRecipientAvailability();
             }
 
             public void intervalAdded(final ListDataEvent e) {
-                System.out.println("Stub '" + _applicationName + "' ListDataListener : intervalAdded.");
+                logLine("ListDataListener : intervalAdded.");
                 lookForRecipientAvailability();
             }
 
             public void intervalRemoved(final ListDataEvent e) {
-                System.out.println("Stub '" + _applicationName + "' ListDataListener : intervalRemoved.");
+                logLine("ListDataListener : intervalRemoved.");
                 lookForRecipientAvailability();
             }
         });
 
-        System.out.println("DONE.");
+        logDone();
 
         // but do one first test if one registered app already handle such capability
         lookForRecipientAvailability();
@@ -213,7 +223,7 @@ public final class ClientStub extends Observable {
 
     private void lookForRecipientAvailability() {
 
-        System.out.println("Stub '" + _applicationName + "' looking for recipient availability ... ");
+        logLine("looking for recipient availability ... ");
 
         // Check each registered clients for the seeked recipient name
         for (int i = 0; i < _capableClients.getSize(); i++) {
@@ -222,7 +232,7 @@ public final class ClientStub extends Observable {
 
             String clientName = client.getMetadata().getName();
             if (clientName.matches(_applicationName)) {
-                System.out.println(" - found candidate '" + clientName + "' recipient with id '" + _recipientId + "'.");
+                System.out.println("   - found candidate '" + clientName + "' recipient with id '" + _recipientId + "'.");
 
                 Object clientStubFlag = client.getMetadata().get("fr.jmmc.applauncher." + clientName);
                 if (clientStubFlag == null) {
@@ -230,7 +240,7 @@ public final class ClientStub extends Observable {
                     setState(ClientStubState.SEEKING);
 
                     // Forward recevied message to recipient (if any)
-                    System.out.print(" - forwarding message (if any) to '" + _recipientId + "' client ... ");
+                    System.out.print("   - forwarding message (if any) to '" + _recipientId + "' client ... ");
                     try {
                         if (_message != null) {
                             try {
@@ -245,18 +255,18 @@ public final class ClientStub extends Observable {
                     } catch (SampException ex) {
                         Logger.getLogger(ClientStub.class.getName()).log(Level.SEVERE, null, ex);
                     }
-                    System.out.println("DONE.");
+                    logDone();
 
                     // Kills the stub client
                     setState(ClientStubState.DISCONNECTING);
                     _connector.setActive(false);
                 }
             } else {
-                System.out.println(" - skipping STUB '" + clientName + "' recipient with id '" + _recipientId + "'.");
+                System.out.println("   - skipping STUB '" + clientName + "' recipient with id '" + _recipientId + "'.");
             }
         }
 
-        System.out.println("DONE.");
+        logDone();
     }
 
     /**
@@ -267,7 +277,7 @@ public final class ClientStub extends Observable {
 
         _connector.addMessageHandler(handler);
 
-        System.out.println("Stub '" + _applicationName + "' registered SAMP capability for mType '" + handler.handledMType() + "'.");
+        logLine("registered SAMP capability for mType '" + handler.handledMType() + "'.");
 
         // This step required even if no custom message handlers added.
         _connector.declareSubscriptions(_connector.computeSubscriptions());
@@ -281,7 +291,7 @@ public final class ClientStub extends Observable {
 
         _connector.removeMessageHandler(handler);
 
-        System.out.println("Stub '" + _applicationName + "' unregistered SAMP capability for mType '" + handler.handledMType() + "'.");
+        logLine("unregistered SAMP capability for mType '" + handler.handledMType() + "'.");
 
         // This step required even if no custom message handlers added.
         _connector.declareSubscriptions(_connector.computeSubscriptions());
