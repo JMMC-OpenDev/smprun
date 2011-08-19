@@ -17,6 +17,8 @@ class HubPopulator {
         SampCapability[] capabilities;
         String jnlpUrl;
 
+        // @TODO : Grab all this from the Web 
+
         md = new Metadata();
         md.setName("LITpro");
         capabilities = new SampCapability[]{SampCapability.LITPRO_START_SETTING};
