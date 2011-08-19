@@ -85,6 +85,11 @@ public final class ClientStub extends Observable {
         listenToRecipientConnections();
     }
 
+    public String getApplicationName() {
+
+        return _applicationName;
+    }
+
     private void setState(ClientStubState status) {
 
         _status = status;
@@ -208,8 +213,6 @@ public final class ClientStub extends Observable {
 
     private void lookForRecipientAvailability() {
 
-        setState(ClientStubState.SEEKING);
-
         System.out.println("Stub '" + _applicationName + "' looking for recipient availability ... ");
 
         // Check each registered clients for the seeked recipient name
@@ -223,6 +226,8 @@ public final class ClientStub extends Observable {
 
                 Object clientStubFlag = client.getMetadata().get("fr.jmmc.applauncher." + clientName);
                 if (clientStubFlag == null) {
+
+                    setState(ClientStubState.SEEKING);
 
                     // Forward recevied message to recipient (if any)
                     System.out.print(" - forwarding message (if any) to '" + _recipientId + "' client ... ");
