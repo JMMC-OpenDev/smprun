@@ -13,8 +13,8 @@ public enum ClientStubState {
     REGISTERING(0, ""),
     LISTENING(0, ""),
     PROCESSING(1, "Received a new message"),
-    LAUNCHING(2, "Starting the recipient"),
-    SEEKING(3, "Looking for the recipient"),
+    LAUNCHING(2, "Downloading the application"),
+    SEEKING(3, "Starting the application"),
     FORWARDING(4, "Forwarding the message"),
     DISCONNECTING(5, "Cleaning up");
     private final int _step;
