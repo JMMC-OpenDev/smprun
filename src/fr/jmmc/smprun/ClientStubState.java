@@ -16,7 +16,8 @@ public enum ClientStubState {
     LAUNCHING(2, "Downloading the application"),
     SEEKING(3, "Starting the application"),
     FORWARDING(4, "Forwarding the message"),
-    DISCONNECTING(5, "Cleaning up");
+    DISCONNECTING(5, "Cleaning up"),
+    DIYING(6, "Done");
     private final int _step;
     private final String _message;
 

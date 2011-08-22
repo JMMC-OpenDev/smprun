@@ -8,9 +8,11 @@ import fr.jmmc.mcs.interop.SampMessageHandler;
 
 import fr.jmmc.mcs.util.Urls;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -34,6 +36,7 @@ import org.astrogrid.samp.hub.HubServiceMode;
  */
 public final class ClientStub extends Observable {
 
+    private boolean _shouldLog = true;
     /** GUI hub connector */
     private GuiHubConnector _connector;
     /** Store desired stub application metadata */
@@ -69,11 +72,11 @@ public final class ClientStub extends Observable {
 
         _description = description;
         _applicationName = description.getName();
+
         // Flag any created STUB for later skipping while looking for recipients
         _description.put("fr.jmmc.applauncher." + _applicationName, "STUB");
 
         _mTypes = mTypes;
-
         _jnlpUrl = jnlpUrl;
 
         _capableClients = null;
@@ -90,6 +93,7 @@ public final class ClientStub extends Observable {
         return _applicationName;
     }
 
+    /** Used to monitor progression */
     private void setState(ClientStubState status) {
 
         _status = status;
@@ -99,7 +103,7 @@ public final class ClientStub extends Observable {
     }
 
     private void log(String message) {
-        System.out.print("STUB['" + _applicationName + "']: " + message);
+        print("STUB['" + _applicationName + "']: " + message);
     }
 
     private void logLine(String message) {
@@ -107,9 +111,28 @@ public final class ClientStub extends Observable {
     }
 
     private void logDone() {
-        System.out.println("DONE.");
+        println("DONE.");
     }
 
+    private void println(String str) {
+        print(str + "\n");
+    }
+
+    private void print(String str) {
+        if (_shouldLog) {
+            System.out.print(str);
+        }
+    }
+
+    private void sleep(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(ClientStub.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /** Set up connection to hub (or a start its own hub if none available) */
     private void connectToHub() {
 
         setState(ClientStubState.CONNECTING);
@@ -144,6 +167,7 @@ public final class ClientStub extends Observable {
         logDone();
     }
 
+    /** Declare STUB capabilities to the hub */
     private void registerStubCapabilities() {
 
         setState(ClientStubState.REGISTERING);
@@ -176,23 +200,22 @@ public final class ClientStub extends Observable {
 
                     log("web-starting JNLP '" + _jnlpUrl + "' ... ");
                     int status = JnlpStarter.exec(_jnlpUrl);
-                    System.out.println("DONE (with status '" + status + "').");
+                    println("DONE (with status '" + status + "').");
                 }
             });
         }
     }
 
+    /** Set up monitoring of new connection to the hub to detect true applications */
     private void listenToRecipientConnections() {
 
         setState(ClientStubState.LISTENING);
-
-        logLine("starting listening to recipient connections ...");
 
         // Get a dynamic list of SAMP clients able to respond to the specified capability.
         String[] mTypeStrings = new String[_mTypes.length];
         for (int i = 0; i < _mTypes.length; i++) {
             mTypeStrings[i] = _mTypes[i].mType();
-            System.out.println("   - listening for mType '" + mTypeStrings[i] + "'.");
+            logLine("listening for mType '" + mTypeStrings[i] + "'.");
         }
         _capableClients = new SubscribedClientListModel(_connector, mTypeStrings);
 
@@ -200,73 +223,87 @@ public final class ClientStub extends Observable {
         _capableClients.addListDataListener(new ListDataListener() {
 
             public void contentsChanged(final ListDataEvent e) {
-                logLine("ListDataListener : contentsChanged.");
                 lookForRecipientAvailability();
             }
 
             public void intervalAdded(final ListDataEvent e) {
-                logLine("ListDataListener : intervalAdded.");
                 lookForRecipientAvailability();
             }
 
             public void intervalRemoved(final ListDataEvent e) {
-                logLine("ListDataListener : intervalRemoved.");
                 lookForRecipientAvailability();
             }
         });
 
-        logDone();
-
         // but do one first test if one registered app already handle such capability
-        lookForRecipientAvailability();
+        SwingUtilities.invokeLater(new Runnable() {
+
+            public void run() {
+                lookForRecipientAvailability();
+            }
+        });
     }
 
+    /**
+     * Decipher whether currently connected applications match STUB personality.
+     * If, so forward any waiting message to the true application.
+     */
     private void lookForRecipientAvailability() {
 
-        logLine("looking for recipient availability ... ");
+        new Thread(new Runnable() {
 
-        // Check each registered clients for the seeked recipient name
-        for (int i = 0; i < _capableClients.getSize(); i++) {
-            final Client client = (Client) _capableClients.getElementAt(i);
-            _recipientId = client.getId();
+            public void run() {
 
-            String clientName = client.getMetadata().getName();
-            if (clientName.matches(_applicationName)) {
-                System.out.println("   - found candidate '" + clientName + "' recipient with id '" + _recipientId + "'.");
+                // Check each registered clients for the seeked recipient name
+                for (int i = 0; i < _capableClients.getSize(); i++) {
+                    final Client client = (Client) _capableClients.getElementAt(i);
+                    _recipientId = client.getId();
 
-                Object clientStubFlag = client.getMetadata().get("fr.jmmc.applauncher." + clientName);
-                if (clientStubFlag == null) {
+                    // If current client name matches seeked one
+                    String clientName = client.getMetadata().getName();
+                    if (clientName.matches(_applicationName)) {
 
-                    setState(ClientStubState.SEEKING);
+                        log("found recipient '" + clientName + "' with id '" + _recipientId + "' ... ");
 
-                    // Forward recevied message to recipient (if any)
-                    System.out.print("   - forwarding message (if any) to '" + _recipientId + "' client ... ");
-                    try {
+                        // If current client is one of our STUB
+                        Object clientStubFlag = client.getMetadata().get("fr.jmmc.applauncher." + clientName);
+                        if (clientStubFlag != null) {
+                            // Skip STUBS
+                            println("SKIPPED STUB.");
+                            return;
+                        }
+
+                        // Forward anyreceived message to recipient (if any)
                         if (_message != null) {
+                            setState(ClientStubState.SEEKING);
+
+                            // Wait a while for application startup to finish...
+                            sleep(1000);
+
+                            // Forward the message
+                            setState(ClientStubState.FORWARDING);
                             try {
-                                Thread.sleep(3000);
-                            } catch (InterruptedException ex) {
+                                _connector.getConnection().notify(_recipientId, _message);
+                            } catch (SampException ex) {
                                 Logger.getLogger(ClientStub.class.getName()).log(Level.SEVERE, null, ex);
                             }
+                            println("FORWARDED MESSAGE.");
 
-                            setState(ClientStubState.FORWARDING);
-                            _connector.getConnection().notify(_recipientId, _message);
+                            setState(ClientStubState.DISCONNECTING);
+                        } else {
+                            println("NOTHING TO FORWARD.");
                         }
-                    } catch (SampException ex) {
-                        Logger.getLogger(ClientStub.class.getName()).log(Level.SEVERE, null, ex);
+
+                        // Kill the stub client
+                        _connector.setActive(false);
+                        log("dying ... ");
+                        setState(ClientStubState.DIYING);
+                        logDone();
                     }
-                    logDone();
-
-                    // Kills the stub client
-                    setState(ClientStubState.DISCONNECTING);
-                    _connector.setActive(false);
                 }
-            } else {
-                System.out.println("   - skipping STUB '" + clientName + "' recipient with id '" + _recipientId + "'.");
+                // @TODO : restart the STUB if the recipient disapear ?
             }
-        }
-
-        logDone();
+        }).start();
     }
 
     /**
