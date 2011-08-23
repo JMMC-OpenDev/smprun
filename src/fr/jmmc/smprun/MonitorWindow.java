@@ -10,8 +10,8 @@
 package fr.jmmc.smprun;
 
 /**
- *
- * @author lafrasse
+ * Display progress of stub internal state.
+ * @author Sylvain LAFRASSE
  */
 public class MonitorWindow extends javax.swing.JFrame {
 

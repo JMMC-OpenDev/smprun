@@ -55,10 +55,11 @@ public final class ClientStub extends Observable {
     private ClientStubState _status;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param applicationName
-     * @param mType
+     * @param description metadata about the stub app
+     * @param mTypes handled mtypes
+     * @param jnlpUrl URL of Java WebStart recipient
      */
     public ClientStub(final Metadata description, final SampCapability[] mTypes, final String jnlpUrl) {
 
@@ -86,12 +87,19 @@ public final class ClientStub extends Observable {
         listenToRecipientConnections();
     }
 
+    /**
+     * @return the name of the emulated application
+     */
     public String getApplicationName() {
 
         return _applicationName;
     }
 
-    /** Used to monitor progression */
+    /**
+     * Used to follow stub internal state progression
+     * 
+     * @param status the current state
+     */
     private void setState(ClientStubState status) {
 
         _status = status;
@@ -183,6 +191,7 @@ public final class ClientStub extends Observable {
                  * @throws SampException if any error occurred while message processing
                  */
                 //protected void processMessage(final String senderId, final Message message) {
+                @Override
                 public final Map<?, ?> processCall(final HubConnection connection, final String senderId, final Message message) throws SampException {
 
                     setState(ClientStubState.PROCESSING);
@@ -199,11 +208,12 @@ public final class ClientStub extends Observable {
                     setState(ClientStubState.LAUNCHING);
 
                     log("web-starting JNLP '" + _jnlpUrl + "' ... ");
-                    int status = JnlpStarter.exec(_jnlpUrl);
+                    int status = JnlpStarter.launch(_jnlpUrl);
                     println("DONE (with status '" + status + "').");
                     return null;
                 }
             });
+
             logLine("registered SAMP capability for mType '" + mType.mType() + "'.");
         }
     }
@@ -224,14 +234,17 @@ public final class ClientStub extends Observable {
         // Monitor any modification to the capable clients list
         _capableClients.addListDataListener(new ListDataListener() {
 
+            @Override
             public void contentsChanged(final ListDataEvent e) {
                 lookForRecipientAvailability();
             }
 
+            @Override
             public void intervalAdded(final ListDataEvent e) {
                 lookForRecipientAvailability();
             }
 
+            @Override
             public void intervalRemoved(final ListDataEvent e) {
                 lookForRecipientAvailability();
             }
@@ -240,6 +253,7 @@ public final class ClientStub extends Observable {
         // but do one first test if one registered app already handle such capability
         SwingUtilities.invokeLater(new Runnable() {
 
+            @Override
             public void run() {
                 lookForRecipientAvailability();
             }
@@ -254,6 +268,7 @@ public final class ClientStub extends Observable {
 
         new Thread(new Runnable() {
 
+            @Override
             public void run() {
 
                 // Check each registered clients for the seeked recipient name

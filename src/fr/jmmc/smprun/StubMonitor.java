@@ -9,21 +9,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 /**
- *
+ * Monitor Window controller.
  * @author Sylvain LAFRASSE
  */
 public class StubMonitor implements Observer {
 
+    /** the GUI */
     MonitorWindow _window;
 
+    /**
+     * Set up the GUI
+     */
     public StubMonitor() {
         super();
 
@@ -32,6 +34,7 @@ public class StubMonitor implements Observer {
             /**
              * Synchronized by EDT
              */
+            @Override
             public void run() {
                 _window = new MonitorWindow();
                 _window.setTitle("JMMC AppLauncher");
@@ -42,6 +45,11 @@ public class StubMonitor implements Observer {
         });
     }
 
+    /**
+     * @see java.util.Observer
+     * @param o
+     * @param arg
+     */
     @Override
     public void update(Observable o, Object arg) {
 
@@ -59,6 +67,7 @@ public class StubMonitor implements Observer {
             /**
              * Synchronized by EDT
              */
+            @Override
             public void run() {
                 // bring this application to front :
                 App.showFrameToFront();
@@ -94,6 +103,7 @@ public class StubMonitor implements Observer {
 
                 boolean alreadyDisposed = false;
 
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     if (_window.isDisplayable()) {
                         alreadyDisposed = true;

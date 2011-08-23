@@ -4,6 +4,7 @@
 package fr.jmmc.smprun;
 
 /**
+ * Enumeration of all the internal states a stub can go through.
  * @author Sylvain LAFRASSE
  */
 public enum ClientStubState {
@@ -18,22 +19,40 @@ public enum ClientStubState {
     FORWARDING(4, "Forwarding the message"),
     DISCONNECTING(5, "Cleaning up"),
     DIYING(6, "Done");
+    
+    /** the numerical order of the internal progress (steps equal to zero don't trigger GUI updates) */
     private final int _step;
+    /** the user displayable text to explain the internal state */
     private final String _message;
 
+    /**
+     * Constructor
+     * @param step the numerical order of the internal progress (steps equal to zero don't trigger GUI updates)
+     * @param message the user displayable text to explain the internal state
+     */
     ClientStubState(int step, String message) {
         _step = step;
         _message = message;
     }
 
+    /**
+     * @return the internal numerical progression.
+     */
     public int step() {
         return _step;
     }
 
+    /**
+     * @return the user displayable text to explain the internal state
+     */
     public String message() {
         return _message;
     }
 
+    /**
+     * For unit testing purpose only.
+     * @param args
+     */
     public static void main(String[] args) {
         for (ClientStubState s : ClientStubState.values()) {
             System.out.println("State '" + s + "' = [" + s.step() + ", '" + s.message() + "'].");

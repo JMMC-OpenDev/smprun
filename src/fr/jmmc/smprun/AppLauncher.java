@@ -5,13 +5,12 @@ package fr.jmmc.smprun;
 
 import fr.jmmc.mcs.gui.App;
 import fr.jmmc.mcs.gui.SwingSettings;
-import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Logger;
 
-import javax.swing.SwingUtilities;
 
 /**
- * AppLauncher main
+ * AppLauncher main class.
+ * 
  * @author Sylvain LAFRASSE
  */
 public class AppLauncher extends App {

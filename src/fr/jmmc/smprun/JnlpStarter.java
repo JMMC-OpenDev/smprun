@@ -4,13 +4,12 @@
 package fr.jmmc.smprun;
 
 import org.ivoa.util.runner.RootContext;
-import org.ivoa.util.runner.RunContext;
 import org.ivoa.util.runner.process.ProcessContext;
 import org.ivoa.util.runner.process.ProcessRunner;
 import org.ivoa.util.runner.process.RingBuffer;
 
 /**
- *
+ * Wrapper on http://code.google.com/p/vo-urp/ task runner
  * @author Sylvain LAFRASSE
  */
 public class JnlpStarter {
@@ -19,7 +18,13 @@ public class JnlpStarter {
     private JnlpStarter() {
     }
 
-    public static int exec(String jnlpUrl) {
+    /**
+     * Launch a given Java WebStart application in another process.
+     * 
+     * @param jnlpUrl the URL of the Java WebStart application to launch.
+     * @return the execution status code.
+     */
+    public static int launch(String jnlpUrl) {
 
         String tmpDir = System.getProperty("java.io.tmpdir");
 

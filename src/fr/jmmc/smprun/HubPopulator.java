@@ -7,17 +7,20 @@ import fr.jmmc.mcs.interop.SampCapability;
 import org.astrogrid.samp.Metadata;
 
 /**
- *
- * @author lafrasse
+ * Instanciate all known stubs.
+ * @author Sylvain LAFRASSE
  */
-class HubPopulator {
+public class HubPopulator {
 
+    /**
+     * Constructor
+     */
     public HubPopulator() {
         Metadata md;
         SampCapability[] capabilities;
         String jnlpUrl;
 
-        // @TODO : Grab all this from the Web 
+        // @TODO : Grab all this from the Web/OV
 
         md = new Metadata();
         md.setName("LITpro");
