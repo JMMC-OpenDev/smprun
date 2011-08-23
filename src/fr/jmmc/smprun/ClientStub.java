@@ -4,25 +4,23 @@
 package fr.jmmc.smprun;
 
 import fr.jmmc.mcs.interop.SampCapability;
-import fr.jmmc.mcs.interop.SampMessageHandler;
 
-import fr.jmmc.mcs.util.Urls;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import org.astrogrid.samp.Client;
 import org.astrogrid.samp.Message;
 import org.astrogrid.samp.Metadata;
+import org.astrogrid.samp.client.AbstractMessageHandler;
 import org.astrogrid.samp.client.ClientProfile;
 import org.astrogrid.samp.client.DefaultClientProfile;
+import org.astrogrid.samp.client.HubConnection;
 import org.astrogrid.samp.client.SampException;
 import org.astrogrid.samp.gui.GuiHubConnector;
 import org.astrogrid.samp.gui.SubscribedClientListModel;
@@ -175,7 +173,7 @@ public final class ClientStub extends Observable {
         for (final SampCapability mType : _mTypes) {
 
             // Add handler for each stub capability
-            registerCapability(new SampMessageHandler(mType) {
+            registerCapability(new AbstractMessageHandler(mType.mType()) {
 
                 /**
                  * Implements message processing
@@ -184,25 +182,29 @@ public final class ClientStub extends Observable {
                  * @param message message with MType this handler is subscribed to
                  * @throws SampException if any error occurred while message processing
                  */
-                protected void processMessage(final String senderId, final Message message) {
+                //protected void processMessage(final String senderId, final Message message) {
+                public final Map<?, ?> processCall(final HubConnection connection, final String senderId, final Message message) throws SampException {
 
                     setState(ClientStubState.PROCESSING);
 
                     // Backup message for later forward
                     _message = message;
 
-                    logLine("received '" + this.handledMType() + "' message from '" + senderId + "' : '" + _message + "'.");
+                    logLine("received '" + mType.mType() + "' message from '" + senderId + "' : '" + _message + "'.");
 
                     // Unregister stub from hub to make room for the recipient
                     unregisterCapability(this);
+                    logLine("unregistered SAMP capability for mType '" + mType.mType() + "'.");
 
                     setState(ClientStubState.LAUNCHING);
 
                     log("web-starting JNLP '" + _jnlpUrl + "' ... ");
                     int status = JnlpStarter.exec(_jnlpUrl);
                     println("DONE (with status '" + status + "').");
+                    return null;
                 }
             });
+            logLine("registered SAMP capability for mType '" + mType.mType() + "'.");
         }
     }
 
@@ -310,11 +312,9 @@ public final class ClientStub extends Observable {
      * Register an app-specific capability
      * @param handler message handler
      */
-    private void registerCapability(final SampMessageHandler handler) {
+    private void registerCapability(final AbstractMessageHandler handler) {
 
         _connector.addMessageHandler(handler);
-
-        logLine("registered SAMP capability for mType '" + handler.handledMType() + "'.");
 
         // This step required even if no custom message handlers added.
         _connector.declareSubscriptions(_connector.computeSubscriptions());
@@ -324,11 +324,9 @@ public final class ClientStub extends Observable {
      * Unregister an app-specific capability
      * @param handler message handler
      */
-    private void unregisterCapability(final SampMessageHandler handler) {
+    private void unregisterCapability(final AbstractMessageHandler handler) {
 
         _connector.removeMessageHandler(handler);
-
-        logLine("unregistered SAMP capability for mType '" + handler.handledMType() + "'.");
 
         // This step required even if no custom message handlers added.
         _connector.declareSubscriptions(_connector.computeSubscriptions());
