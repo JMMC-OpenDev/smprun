@@ -31,7 +31,7 @@ public class JnlpStarter {
         RootContext rCtx = new RootContext("AppLauncher", new Long(0), tmpDir);
 
         String cmd[] = {"javaws", jnlpUrl};
-        ProcessContext pCtx = new ProcessContext(rCtx, "uname", new Long(1), cmd);
+        ProcessContext pCtx = new ProcessContext(rCtx, "javaws", new Long(1), cmd);
         RingBuffer ringBuf = new RingBuffer(1000, null);
         pCtx.setRing(ringBuf);
 
