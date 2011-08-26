@@ -271,12 +271,12 @@ public final class ClientStub extends Observable {
             @Override
             public void run() {
 
-                // Check each registered clients for the seeked recipient name
+                // Check each registered clients for the sought recipient name
                 for (int i = 0; i < _capableClients.getSize(); i++) {
                     final Client client = (Client) _capableClients.getElementAt(i);
                     _recipientId = client.getId();
 
-                    // If current client name matches seeked one
+                    // If current client name matches sought one
                     String clientName = client.getMetadata().getName();
                     if (clientName.matches(_applicationName)) {
 
