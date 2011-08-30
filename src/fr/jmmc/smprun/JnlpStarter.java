@@ -13,6 +13,9 @@ import org.ivoa.util.runner.process.RingBuffer;
  * @author Sylvain LAFRASSE
  */
 public class JnlpStarter {
+    
+    
+    public static RingBuffer ringBuf = new RingBuffer(1000, null);
 
     /** Forbidden constructor */
     private JnlpStarter() {
@@ -30,10 +33,12 @@ public class JnlpStarter {
 
         RootContext rCtx = new RootContext("AppLauncher", new Long(0), tmpDir);
 
-        String cmd[] = {"javaws", jnlpUrl};
+        String cmd[] = {"javaws", "-verbose", jnlpUrl};
         ProcessContext pCtx = new ProcessContext(rCtx, "javaws", new Long(1), cmd);
-        RingBuffer ringBuf = new RingBuffer(1000, null);
+
         pCtx.setRing(ringBuf);
+        
+        // #TODO : catch ERROR in RingBuffer to detect crash at launch !!
 
         return ProcessRunner.execute(pCtx);
     }
