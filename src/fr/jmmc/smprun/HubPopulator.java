@@ -3,7 +3,7 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
-import fr.jmmc.mcs.interop.SampCapability;
+import fr.jmmc.jmcs.network.interop.SampCapability;
 import org.astrogrid.samp.Metadata;
 
 /**

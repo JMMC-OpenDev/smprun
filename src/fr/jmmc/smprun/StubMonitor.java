@@ -3,8 +3,8 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
-import fr.jmmc.mcs.gui.App;
-import fr.jmmc.mcs.gui.WindowCenterer;
+import fr.jmmc.jmcs.App;
+import fr.jmmc.jmcs.gui.WindowCenterer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;

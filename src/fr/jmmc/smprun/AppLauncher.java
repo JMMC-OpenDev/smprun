@@ -3,8 +3,8 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
-import fr.jmmc.mcs.gui.App;
-import fr.jmmc.mcs.gui.SwingSettings;
+import fr.jmmc.jmcs.App;
+import fr.jmmc.jmcs.gui.SwingSettings;
 import java.util.logging.Logger;
 
 
