@@ -3,6 +3,8 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
+import fr.jmmc.smprun.stub.StubMonitor;
+import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import org.astrogrid.samp.Metadata;
 

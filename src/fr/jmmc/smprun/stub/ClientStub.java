@@ -1,10 +1,11 @@
 /*******************************************************************************
  * JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
  ******************************************************************************/
-package fr.jmmc.smprun;
+package fr.jmmc.smprun.stub;
 
 import fr.jmmc.jmcs.network.interop.SampCapability;
 
+import fr.jmmc.smprun.JnlpStarter;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Observable;

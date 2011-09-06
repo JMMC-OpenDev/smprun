@@ -1,7 +1,7 @@
 /*******************************************************************************
  * JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
  ******************************************************************************/
-package fr.jmmc.smprun;
+package fr.jmmc.smprun.stub;
 
 /**
  * Enumeration of all the internal states a stub can go through.

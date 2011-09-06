@@ -7,7 +7,7 @@
  *
  * Created on Aug 16, 2011, 2:35:42 PM
  */
-package fr.jmmc.smprun;
+package fr.jmmc.smprun.stub;
 
 /**
  * Display progress of stub internal state.

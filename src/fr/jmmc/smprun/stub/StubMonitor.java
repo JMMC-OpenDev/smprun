@@ -1,7 +1,7 @@
 /*******************************************************************************
  * JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
  ******************************************************************************/
-package fr.jmmc.smprun;
+package fr.jmmc.smprun.stub;
 
 import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.WindowCenterer;
