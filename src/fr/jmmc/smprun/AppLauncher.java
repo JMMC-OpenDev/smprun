@@ -7,7 +7,6 @@ import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.SwingSettings;
 import java.util.logging.Logger;
 
-
 /**
  * AppLauncher main class.
  * 
@@ -34,6 +33,8 @@ public class AppLauncher extends App {
     /** Initialize application objects */
     @Override
     protected void init(String[] args) {
+        //DockWindow window = new DockWindow();
+        //App.setFrame(window);
     }
 
     /** Execute application body */
