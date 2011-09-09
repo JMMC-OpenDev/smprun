@@ -35,6 +35,8 @@ public class AppLauncher extends App {
     protected void init(String[] args) {
         //DockWindow window = new DockWindow();
         //App.setFrame(window);
+
+        // @TODO : Handle JMMC app mimetypes to open our apps !!!
     }
 
     /** Execute application body */

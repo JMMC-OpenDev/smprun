@@ -84,6 +84,8 @@ public class DockWindow extends JFrame {
         pack();
         setVisible(true);
 
+        // @TODO : Put it in System Tray ??
+
         // previous adapter manages the windowClosing(event) :
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
