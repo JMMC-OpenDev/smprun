@@ -7,21 +7,26 @@ import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.StatusBar;
 import fr.jmmc.jmcs.gui.WindowCenterer;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
+import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import javax.swing.SwingUtilities;
 
 /**
  * Main window. This class is at one central point and play the mediator role.
@@ -30,9 +35,10 @@ public class DockWindow extends JFrame {
 
     /** Logger */
     private static final Logger _logger = Logger.getLogger(DockWindow.class.getName());
-    JLabel[] labels = null;
+    JButton[] labels = null;
     Dimension _dimension = new Dimension(640, 160);
     HubPopulator _clients = null;
+    HashMap<JButton, ClientStub> _clientButton = new HashMap<JButton, ClientStub>();
 
     /**
      * Constructor.
@@ -43,9 +49,8 @@ public class DockWindow extends JFrame {
 
         _clients = clients;
 
-        labels = new JLabel[_clients.getClientList().size()];
+        labels = new JButton[_clients.getClientList().size()];
 
-        //setSize(_dimension);
         setMinimumSize(_dimension);
         setMaximumSize(_dimension);
 
@@ -72,12 +77,12 @@ public class DockWindow extends JFrame {
         // Show the user the app is ready to be used
         StatusBar.show("application ready.");
 
-
         // previous adapter manages the windowClosing(event) :
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         // Properly quit the application when main window close button is clicked
         addWindowListener(new WindowAdapter() {
+
             @Override
             public void windowClosing(final WindowEvent e) {
                 // callback on exit :
@@ -86,21 +91,52 @@ public class DockWindow extends JFrame {
         });
     }
 
-    public final JScrollPane buildPanelOfLabels(JLabel[] labels) {
+    public final JScrollPane buildPanelOfLabels(JButton[] buttons) {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 
         for (int i = 0; i < _clients.getClientList().size(); i++) {
-            URL iconURL = _clients.getClientList().get(i).getApplicationIcon();
+
+            JButton button = buttons[i];
+            ClientStub client = _clients.getClientList().get(i);
+
+            ImageIcon imageIcon = null; // @TODO : Use a placeholder when no icon is available...
+            URL iconURL = client.getApplicationIcon();
             if (iconURL != null) {
-                ImageIcon imageIcon = new ImageIcon(iconURL);
-                // #TODO : resize all incons to 64*64
-                labels[i] = new JLabel(imageIcon);
-                // @TODO : add a 10 pixel border around each icon
-                panel.add(labels[i]);
+                imageIcon = new ImageIcon(iconURL);
+                // @TODO : handle NPE
+                // @TODO : resize all incons to 64*64
             }
-            // @TODO : Use a placeholder when no con is available...
+
+            button = new JButton(imageIcon);
+
+            // #TODO : handle NPE
+            _clientButton.put(button, client);
+
+            // @TODO : add a 10 pixel border around each icon
+            panel.add(button);
+            button.addActionListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent e) {
+                    JButton button = (JButton) e.getSource();
+                    // @TODO : handle NPE
+                    final ClientStub client = _clientButton.get(button);
+                    StatusBar.show("Starting " + client.getApplicationName() + "...");
+
+                    // @TODO : handle NPE
+                    SwingUtilities.invokeLater(new Runnable() {
+
+                        public void run() {
+                            // Here, we can safely update the GUI
+                            // because we'll be called from the
+                            // event dispatch thread
+                            client.startTrueApplication();
+                            StatusBar.show("Started " + client.getApplicationName() + ".");
+                        }
+                    });
+                }
+            });
         }
 
         JScrollPane scrlP = new JScrollPane(panel);
