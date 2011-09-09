@@ -9,14 +9,12 @@ import fr.jmmc.jmcs.gui.WindowCenterer;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
@@ -36,7 +34,7 @@ public class DockWindow extends JFrame {
     /** Logger */
     private static final Logger _logger = Logger.getLogger(DockWindow.class.getName());
     JButton[] labels = null;
-    Dimension _dimension = new Dimension(640, 160);
+    Dimension _windowDimension = new Dimension(640, 160);
     HubPopulator _clients = null;
     HashMap<JButton, ClientStub> _clientButton = new HashMap<JButton, ClientStub>();
 
@@ -45,22 +43,32 @@ public class DockWindow extends JFrame {
      */
     public DockWindow(HubPopulator clients) {
 
-        super("AppLauncher Dock");
+        super("AppLauncher");
 
         _clients = clients;
 
         labels = new JButton[_clients.getClientList().size()];
 
-        setMinimumSize(_dimension);
-        setMaximumSize(_dimension);
+        prepareFrame();
+        preparePane();
+        finalizeFrame();
+
+        // Show the user the app is ready to be used
+        StatusBar.show("application ready.");
+    }
+
+    private void prepareFrame() {
+        setMinimumSize(_windowDimension);
+        setMaximumSize(_windowDimension);
 
         WindowCenterer.centerOnMainScreen(this);
+    }
 
+    private void preparePane() {
         Container _mainPane = getContentPane();
         _mainPane.setLayout(new BorderLayout());
-        _mainPane.setBackground(Color.yellow);
 
-        _mainPane.add(buildPanelOfLabels(labels), BorderLayout.CENTER);
+        _mainPane.add(buildScrollPane(labels), BorderLayout.CENTER);
         //_mainPane.add(dockPane, BorderLayout.CENTER);
 
         StatusBar _statusBar = new StatusBar();
@@ -69,13 +77,12 @@ public class DockWindow extends JFrame {
 
         // Add the Status bar
         _mainPane.add(_statusBar, BorderLayout.SOUTH);
+    }
 
+    private void finalizeFrame() {
         // Set the GUI up
         pack();
         setVisible(true);
-
-        // Show the user the app is ready to be used
-        StatusBar.show("application ready.");
 
         // previous adapter manages the windowClosing(event) :
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -91,40 +98,38 @@ public class DockWindow extends JFrame {
         });
     }
 
-    public final JScrollPane buildPanelOfLabels(JButton[] buttons) {
+    public final JScrollPane buildScrollPane(JButton[] buttons) {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 
         for (int i = 0; i < _clients.getClientList().size(); i++) {
 
-            JButton button = buttons[i];
-            ClientStub client = _clients.getClientList().get(i);
-
-            ImageIcon imageIcon = null; // @TODO : Use a placeholder when no icon is available...
-            URL iconURL = client.getApplicationIcon();
-            if (iconURL != null) {
-                imageIcon = new ImageIcon(iconURL);
-                // @TODO : handle NPE
-                // @TODO : resize all incons to 64*64
-            }
-
-            button = new JButton(imageIcon);
-
+            final ClientStub client = _clients.getClientList().get(i);
             // #TODO : handle NPE
+            final ImageIcon clientIcon = client.getApplicationIcon();
+            // #TODO : handle NPE
+            final String clientName = client.getApplicationName();
+            // #TODO : handle NPE
+
+            final JButton button = new JButton(clientIcon);
+            button.setText(clientName);
+            // @TODO : add a 10 pixel border around each button
+
             _clientButton.put(button, client);
 
-            // @TODO : add a 10 pixel border around each icon
             panel.add(button);
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
+                    StatusBar.show("Starting " + clientName + "...");
+
                     JButton button = (JButton) e.getSource();
                     // @TODO : handle NPE
-                    final ClientStub client = _clientButton.get(button);
-                    StatusBar.show("Starting " + client.getApplicationName() + "...");
 
+                    final ClientStub client = _clientButton.get(button);
                     // @TODO : handle NPE
+
                     SwingUtilities.invokeLater(new Runnable() {
 
                         public void run() {
@@ -132,22 +137,22 @@ public class DockWindow extends JFrame {
                             // because we'll be called from the
                             // event dispatch thread
                             client.startTrueApplication();
-                            StatusBar.show("Started " + client.getApplicationName() + ".");
+                            StatusBar.show("Started " + clientName + ".");
                         }
                     });
                 }
             });
         }
 
-        JScrollPane scrlP = new JScrollPane(panel);
-        scrlP.setPreferredSize(_dimension);
-        scrlP.setMinimumSize(_dimension);
-        scrlP.setMaximumSize(_dimension);
+        JScrollPane scrollPane = new JScrollPane(panel);
+        scrollPane.setPreferredSize(_windowDimension);
+        scrollPane.setMinimumSize(_windowDimension);
+        scrollPane.setMaximumSize(_windowDimension);
 
-        JViewport view = scrlP.getViewport();
+        JViewport view = scrollPane.getViewport();
         view.add(panel);
 
-        return scrlP;
+        return scrollPane;
     }
 
     public static void main(String[] args) {
