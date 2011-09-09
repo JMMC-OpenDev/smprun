@@ -216,16 +216,19 @@ public final class ClientStub extends Observable {
                     logLine("unregistered SAMP capability for mType '" + mType.mType() + "'.");
 
                     setState(ClientStubState.LAUNCHING);
-
-                    log("web-starting JNLP '" + _jnlpUrl + "' ... ");
-                    int status = JnlpStarter.launch(_jnlpUrl);
-                    println("DONE (with status '" + status + "').");
+                    startTrueApplication();
                     return null;
                 }
             });
 
             logLine("registered SAMP capability for mType '" + mType.mType() + "'.");
         }
+    }
+
+    public void startTrueApplication() {
+        log("web-starting JNLP '" + _jnlpUrl + "' ... ");
+        int status = JnlpStarter.launch(_jnlpUrl);
+        println("DONE (with status '" + status + "').");
     }
 
     /** Set up monitoring of new connection to the hub to detect true applications */
