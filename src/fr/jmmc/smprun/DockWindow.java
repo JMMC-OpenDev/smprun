@@ -13,6 +13,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.net.URL;
 import java.util.logging.Logger;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -91,8 +92,15 @@ public class DockWindow extends JFrame {
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 
         for (int i = 0; i < _clients.getClientList().size(); i++) {
-            labels[i] = new JLabel(new ImageIcon(_clients.getClientList().get(i).getApplicationIcon()));
-            panel.add(labels[i]);
+            URL iconURL = _clients.getClientList().get(i).getApplicationIcon();
+            if (iconURL != null) {
+                ImageIcon imageIcon = new ImageIcon(iconURL);
+                // #TODO : resize all incons to 64*64
+                labels[i] = new JLabel(imageIcon);
+                // @TODO : add a 10 pixel border around each icon
+                panel.add(labels[i]);
+            }
+            // @TODO : Use a placeholder when no con is available...
         }
 
         JScrollPane scrlP = new JScrollPane(panel);
