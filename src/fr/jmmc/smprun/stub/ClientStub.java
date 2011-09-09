@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Observable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.SwingUtilities;
 
 import javax.swing.event.ListDataEvent;
@@ -98,11 +99,17 @@ public final class ClientStub extends Observable {
     }
 
     /**
-     * @return the URL if the icon if any (null ptherwise)
+     * @return the URL if the icon if any (null otherwise)
      */
-    public URL getApplicationIcon() {
-
-        return _description.getIconUrl();
+    public ImageIcon getApplicationIcon() {
+        ImageIcon imageIcon = null; // @TODO : Use a generic app icon as placeholder when none available...
+        URL iconURL = _description.getIconUrl();
+        if (iconURL != null) {
+            imageIcon = new ImageIcon(iconURL);
+            // @TODO : handle NPE
+            // @TODO : resize all incons to 64*64
+        }
+        return imageIcon;
     }
 
     /**
