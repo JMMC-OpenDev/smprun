@@ -7,6 +7,7 @@ import fr.jmmc.jmcs.network.interop.SampCapability;
 
 import fr.jmmc.smprun.JnlpStarter;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 import java.util.Observable;
 import java.util.logging.Level;
@@ -94,6 +95,14 @@ public final class ClientStub extends Observable {
     public String getApplicationName() {
 
         return _applicationName;
+    }
+
+    /**
+     * @return the URL if the icon if any (null ptherwise)
+     */
+    public URL getApplicationIcon() {
+
+        return _description.getIconUrl();
     }
 
     /**
