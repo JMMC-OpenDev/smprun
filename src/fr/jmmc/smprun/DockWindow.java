@@ -11,12 +11,14 @@ import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
 import java.util.logging.Logger;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -24,7 +26,11 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.EtchedBorder;
 
 /**
  * Main window. This class is at one central point and play the mediator role.
@@ -104,41 +110,68 @@ public class DockWindow extends JFrame {
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        panel.add(Box.createRigidArea(new Dimension(10, 0)));
 
         for (int i = 0; i < _clients.getClientList().size(); i++) {
 
-            final ClientStub client = _clients.getClientList().get(i);
             // #TODO : handle NPE
-            final ImageIcon clientIcon = client.getApplicationIcon();
+            final ClientStub client = _clients.getClientList().get(i);
+
             // #TODO : handle NPE
             final String clientName = client.getApplicationName();
-            // #TODO : handle NPE
 
+            // #TODO : handle NPE
+            ImageIcon clientIcon = client.getApplicationIcon();
+            Image image = clientIcon.getImage();
+            final int iconHeight = clientIcon.getIconHeight();
+            int newHeight = Math.min(iconHeight, 64);
+            System.out.println("newHeight[" + clientName + "] = " + newHeight + " (was " + iconHeight + ").");
+            final int iconWidth = clientIcon.getIconWidth();
+            int newWidth = Math.min(iconWidth, 64);
+            System.out.println("newWidth[" + clientName + "] = " + newWidth + " (was " + iconWidth + ").");
+            Image newImage = image.getScaledInstance(newHeight, newWidth, java.awt.Image.SCALE_SMOOTH);
+            clientIcon = new ImageIcon(newImage);
+            System.out.println("height = " + clientIcon.getIconHeight());
+            System.out.println("width = " + clientIcon.getIconWidth());
+
+            // @TODO : fill blank for icons less than 64*64
+            int midHorizontalMargin = (68 - newWidth) / 2;
+            System.out.println("horizontalMargin[" + clientName + "] = " + midHorizontalMargin);
+            int topVerticalMargin = (68 - newHeight) / 2;
+            System.out.println("verticalMargin[" + clientName + "] = " + topVerticalMargin);
+            Border border = new EmptyBorder(topVerticalMargin, midHorizontalMargin, topVerticalMargin, midHorizontalMargin);
+            border = new EtchedBorder();
+
+            // Place Application name centered below its icon
             final JButton button = new JButton(clientIcon);
             button.setText(clientName);
+            button.setVerticalTextPosition(SwingConstants.BOTTOM);
+            button.setHorizontalTextPosition(SwingConstants.CENTER);
+            button.setBorder(border);
+
             // @TODO : add a 10 pixel border around each button
 
             _clientButton.put(button, client);
 
             panel.add(button);
+            panel.add(Box.createRigidArea(new Dimension(10, 0)));
+
+            // Start clein application when its icon is clicked
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
                     StatusBar.show("Starting " + clientName + "...");
 
+                    // @TODO : handle NPE
                     JButton button = (JButton) e.getSource();
-                    // @TODO : handle NPE
 
-                    final ClientStub client = _clientButton.get(button);
                     // @TODO : handle NPE
+                    final ClientStub client = _clientButton.get(button);
 
                     SwingUtilities.invokeLater(new Runnable() {
 
                         public void run() {
-                            // Here, we can safely update the GUI
-                            // because we'll be called from the
-                            // event dispatch thread
-                            client.startTrueApplication();
+                            client.launchApplication();
                             StatusBar.show("Started " + clientName + ".");
                         }
                     });
