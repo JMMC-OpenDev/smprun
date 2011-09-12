@@ -106,8 +106,8 @@ public final class ClientStub extends Observable {
         URL iconURL = _description.getIconUrl();
         if (iconURL != null) {
             imageIcon = new ImageIcon(iconURL);
+
             // @TODO : handle NPE
-            // @TODO : resize all incons to 64*64
         }
         return imageIcon;
     }
@@ -223,7 +223,7 @@ public final class ClientStub extends Observable {
                     logLine("unregistered SAMP capability for mType '" + mType.mType() + "'.");
 
                     setState(ClientStubState.LAUNCHING);
-                    startTrueApplication();
+                    launchApplication();
                     return null;
                 }
             });
@@ -232,7 +232,7 @@ public final class ClientStub extends Observable {
         }
     }
 
-    public void startTrueApplication() {
+    public void launchApplication() {
         log("web-starting JNLP '" + _jnlpUrl + "' ... ");
         int status = JnlpStarter.launch(_jnlpUrl);
         println("DONE (with status '" + status + "').");
