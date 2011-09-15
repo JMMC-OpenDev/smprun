@@ -9,6 +9,7 @@ import fr.jmmc.jmcs.gui.WindowCenterer;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Image;
@@ -39,9 +40,9 @@ public class DockWindow extends JFrame {
 
     /** Logger */
     private static final Logger _logger = Logger.getLogger(DockWindow.class.getName());
-    JButton[] labels = null;
-    Dimension _windowDimension = new Dimension(640, 160);
+    Dimension _windowDimension = new Dimension(640, 140);
     HubPopulator _clients = null;
+    JButton[] _buttons = null;
     HashMap<JButton, ClientStub> _clientButton = new HashMap<JButton, ClientStub>();
 
     /**
@@ -53,7 +54,7 @@ public class DockWindow extends JFrame {
 
         _clients = clients;
 
-        labels = new JButton[_clients.getClientList().size()];
+        _buttons = new JButton[clients.getClientList().size()];
 
         prepareFrame();
         preparePane();
@@ -74,14 +75,10 @@ public class DockWindow extends JFrame {
         Container _mainPane = getContentPane();
         _mainPane.setLayout(new BorderLayout());
 
-        _mainPane.add(buildScrollPane(labels), BorderLayout.CENTER);
-        //_mainPane.add(dockPane, BorderLayout.CENTER);
+        _mainPane.add(buildScrollPane(_buttons), BorderLayout.CENTER);
 
         StatusBar _statusBar = new StatusBar();
-        // Show all the GUI
         _statusBar.setVisible(true);
-
-        // Add the Status bar
         _mainPane.add(_statusBar, BorderLayout.SOUTH);
     }
 
@@ -92,7 +89,7 @@ public class DockWindow extends JFrame {
 
         // @TODO : Put it in System Tray ??
 
-        // previous adapter manages the windowClosing(event) :
+        // Previous adapter manages the windowClosing(event) :
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         // Properly quit the application when main window close button is clicked
@@ -100,7 +97,7 @@ public class DockWindow extends JFrame {
 
             @Override
             public void windowClosing(final WindowEvent e) {
-                // callback on exit :
+                // Callback on exit :
                 App.quitAction().actionPerformed(null);
             }
         });
@@ -108,9 +105,12 @@ public class DockWindow extends JFrame {
 
     public final JScrollPane buildScrollPane(JButton[] buttons) {
 
-        JPanel panel = new JPanel();
+        final JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-        panel.add(Box.createRigidArea(new Dimension(10, 0)));
+
+        // @TODO : fixes spaces to actually work !!!
+        final Component emptyRigidArea = Box.createRigidArea(new Dimension(100, 0));
+        panel.add(emptyRigidArea);
 
         for (int i = 0; i < _clients.getClientList().size(); i++) {
 
@@ -122,48 +122,43 @@ public class DockWindow extends JFrame {
 
             // #TODO : handle NPE
             ImageIcon clientIcon = client.getApplicationIcon();
-            Image image = clientIcon.getImage();
+
+            // Resize the icon up to 64*64 pixels
+            final Image image = clientIcon.getImage();
             final int iconHeight = clientIcon.getIconHeight();
-            int newHeight = Math.min(iconHeight, 64);
-            System.out.println("newHeight[" + clientName + "] = " + newHeight + " (was " + iconHeight + ").");
+            final int newHeight = Math.min(iconHeight, 64);
             final int iconWidth = clientIcon.getIconWidth();
-            int newWidth = Math.min(iconWidth, 64);
-            System.out.println("newWidth[" + clientName + "] = " + newWidth + " (was " + iconWidth + ").");
-            Image newImage = image.getScaledInstance(newHeight, newWidth, java.awt.Image.SCALE_SMOOTH);
+            final int newWidth = Math.min(iconWidth, 64);
+            final Image newImage = image.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
             clientIcon = new ImageIcon(newImage);
-            System.out.println("height = " + clientIcon.getIconHeight());
-            System.out.println("width = " + clientIcon.getIconWidth());
 
-            // @TODO : fill blank for icons less than 64*64
-            int midHorizontalMargin = (68 - newWidth) / 2;
-            System.out.println("horizontalMargin[" + clientName + "] = " + midHorizontalMargin);
-            int topVerticalMargin = (68 - newHeight) / 2;
-            System.out.println("verticalMargin[" + clientName + "] = " + topVerticalMargin);
-            Border border = new EmptyBorder(topVerticalMargin, midHorizontalMargin, topVerticalMargin, midHorizontalMargin);
-            border = new EtchedBorder();
+            // Horizontally center the icon, and bottom-aligned them all vertically
+            final int squareSize = 68;
+            final int borderSize = 2;
+            final int midHorizontalMargin = (squareSize - newWidth) / 2;
+            final int topVerticalMargin = squareSize - borderSize - newHeight; // Space to fill above if the icon is smaller than 64 pixels
+            final Border border = new EmptyBorder(topVerticalMargin, midHorizontalMargin, borderSize, midHorizontalMargin);
 
-            // Place Application name centered below its icon
+            // Horizontally center application name below its icon
             final JButton button = new JButton(clientIcon);
             button.setText(clientName);
             button.setVerticalTextPosition(SwingConstants.BOTTOM);
             button.setHorizontalTextPosition(SwingConstants.CENTER);
             button.setBorder(border);
 
-            // @TODO : add a 10 pixel border around each button
-
             _clientButton.put(button, client);
 
             panel.add(button);
-            panel.add(Box.createRigidArea(new Dimension(10, 0)));
+            panel.add(emptyRigidArea);
 
-            // Start clein application when its icon is clicked
+            // Start client application when its icon is clicked
             button.addActionListener(new ActionListener() {
 
                 public void actionPerformed(ActionEvent e) {
                     StatusBar.show("Starting " + clientName + "...");
 
                     // @TODO : handle NPE
-                    JButton button = (JButton) e.getSource();
+                    final JButton button = (JButton) e.getSource();
 
                     // @TODO : handle NPE
                     final ClientStub client = _clientButton.get(button);
