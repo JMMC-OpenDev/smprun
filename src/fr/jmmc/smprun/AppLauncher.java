@@ -33,8 +33,8 @@ public class AppLauncher extends App {
     /** Initialize application objects */
     @Override
     protected void init(String[] args) {
-        //DockWindow window = new DockWindow();
-        //App.setFrame(window);
+        DockWindow window = new DockWindow();
+        App.setFrame(window);
 
         // @TODO : Handle JMMC app mimetypes to open our apps !!!
     }
