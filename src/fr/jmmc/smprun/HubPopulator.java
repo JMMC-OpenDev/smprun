@@ -28,6 +28,24 @@ public class HubPopulator {
         ClientStub client;
 
         // @TODO : Grab all this from the Web/OV
+        
+        md = new Metadata();
+        md.setName("Aspro2");
+        md.setIconUrl("http://www.jmmc.fr/searchcal/images/aspro2-6464.png");
+        capabilities = new SampCapability[]{SampCapability.LOAD_VO_TABLE};
+        jnlpUrl = "http://apps.jmmc.fr/~swmgr/Aspro2/Aspro2.jnlp";
+        client = new ClientStub(md, capabilities, jnlpUrl);
+        client.addObserver(new StubMonitor());
+        clients.add(client);
+
+        md = new Metadata();
+        md.setName("SearchCal");
+        md.setIconUrl("http://apps.jmmc.fr/~sclws/SearchCal/AppIcon.png");
+        capabilities = new SampCapability[]{SampCapability.SEARCHCAL_START_QUERY};
+        jnlpUrl = "http://apps.jmmc.fr/~sclws/SearchCal/SearchCal.jnlp";
+        client = new ClientStub(md, capabilities, jnlpUrl);
+        client.addObserver(new StubMonitor());
+        clients.add(client);
 
         md = new Metadata();
         md.setName("LITpro");
