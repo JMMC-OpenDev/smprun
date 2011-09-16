@@ -168,7 +168,8 @@ man : do_man
 #	jmcsHTML2HelpSet JMMC-MAN-2600-0001
 #	@echo " . . . user documentation done"
 
-install : ../lib/smprun-doc.jar install_all
+#install : ../lib/smprun-doc.jar install_all
+install : install_all
 	@echo "......jnlps:"
 	jmcsDeployJnlp AppLauncher.jnlp    
 	@echo " . . . installation done"
