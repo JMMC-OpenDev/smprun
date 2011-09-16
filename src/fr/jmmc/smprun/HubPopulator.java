@@ -6,7 +6,9 @@ package fr.jmmc.smprun;
 import fr.jmmc.smprun.stub.StubMonitor;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.jmcs.network.interop.SampCapability;
+import fr.jmmc.smprun.stub.ClientStubFamily;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import org.astrogrid.samp.Metadata;
 
@@ -16,12 +18,14 @@ import org.astrogrid.samp.Metadata;
  */
 public class HubPopulator {
 
-    private List<ClientStub> clients = new ArrayList<ClientStub>();
+    private EnumMap<ClientStubFamily, List<ClientStub>> familyLists = new EnumMap<ClientStubFamily, List<ClientStub>>(ClientStubFamily.class);
 
+    /** NetBeans singleton stuff */
     public static HubPopulator getInstance() {
         return HubPopulatorHolder.INSTANCE;
     }
     
+    /** NetBeans singleton stuff */
     private static class HubPopulatorHolder {
 
         private static final HubPopulator INSTANCE = new HubPopulator();
@@ -35,9 +39,12 @@ public class HubPopulator {
         SampCapability[] capabilities;
         String jnlpUrl;
         ClientStub client;
+        List<ClientStub> clients;
 
         // @TODO : Grab all this from the Web/OV
         
+        clients = new ArrayList<ClientStub>();
+
         md = new Metadata();
         md.setName("Aspro2");
         md.setIconUrl("http://www.jmmc.fr/searchcal/images/aspro2-6464.png");
@@ -65,6 +72,10 @@ public class HubPopulator {
         client.addObserver(new StubMonitor());
         clients.add(client);
 
+        familyLists.put(ClientStubFamily.JMMC, clients);
+
+        clients = new ArrayList<ClientStub>();
+
         md = new Metadata();
         md.setName("Aladin");
         md.setIconUrl("http://aladin.u-strasbg.fr/aladin_large.gif");
@@ -82,10 +93,11 @@ public class HubPopulator {
         client = new ClientStub(md, capabilities, jnlpUrl);
         client.addObserver(new StubMonitor());
         clients.add(client);
+
+        familyLists.put(ClientStubFamily.GENERAL, clients);
     }
 
-    public List<ClientStub> getClientList() {
-        getInstance();
-        return clients;
+    public List<ClientStub> getClientList(ClientStubFamily family) {
+        return familyLists.get(family);
     }
 }
