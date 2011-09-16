@@ -93,7 +93,7 @@ public final class ClientStub extends Observable {
     /**
      * @return the name of the emulated application
      */
-    public String getApplicationName() {
+    public String toString() {
 
         return _applicationName;
     }

@@ -53,7 +53,7 @@ public class StubMonitor implements Observer {
     @Override
     public void update(Observable o, Object arg) {
 
-        final String applicationName = ((ClientStub) o).getApplicationName();
+        final String applicationName = ((ClientStub) o).toString();
 
         final ClientStubState state = ((ClientStubState) arg);
         final String message = state.message();
