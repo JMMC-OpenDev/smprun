@@ -64,8 +64,6 @@ public class DockWindow extends JFrame {
     private void prepareFrame() {
         setMinimumSize(_windowDimension);
         setMaximumSize(_windowDimension);
-
-        WindowCenterer.centerOnMainScreen(this);
     }
 
     private void preparePane() {
@@ -98,6 +96,8 @@ public class DockWindow extends JFrame {
         // Set the GUI up
         pack();
         setVisible(true);
+
+        WindowCenterer.centerOnMainScreen(this);
 
         // @TODO : Put it in System Tray ??
 
