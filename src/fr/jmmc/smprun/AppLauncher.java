@@ -42,7 +42,7 @@ public class AppLauncher extends App {
     /** Execute application body */
     @Override
     protected void execute() {
-        new HubPopulator();
+        HubPopulator.getInstance();
     }
 
     /** Handle operations before closing application */

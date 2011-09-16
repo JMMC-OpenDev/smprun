@@ -18,10 +18,19 @@ public class HubPopulator {
 
     private List<ClientStub> clients = new ArrayList<ClientStub>();
 
+    public static HubPopulator getInstance() {
+        return HubPopulatorHolder.INSTANCE;
+    }
+    
+    private static class HubPopulatorHolder {
+
+        private static final HubPopulator INSTANCE = new HubPopulator();
+    }
+
     /**
      * Constructor
      */
-    public HubPopulator() {
+    private HubPopulator() {
         Metadata md;
         SampCapability[] capabilities;
         String jnlpUrl;
@@ -76,6 +85,7 @@ public class HubPopulator {
     }
 
     public List<ClientStub> getClientList() {
+        getInstance();
         return clients;
     }
 }

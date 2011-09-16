@@ -31,7 +31,6 @@ import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 
 /**
  * Main window. This class is at one central point and play the mediator role.
@@ -48,13 +47,13 @@ public class DockWindow extends JFrame {
     /**
      * Constructor.
      */
-    public DockWindow(HubPopulator clients) {
+    public DockWindow() {
 
         super("AppLauncher");
 
-        _clients = clients;
+        _clients = HubPopulator.getInstance();
 
-        _buttons = new JButton[clients.getClientList().size()];
+        _buttons = new JButton[_clients.getClientList().size()];
 
         prepareFrame();
         preparePane();
@@ -154,6 +153,7 @@ public class DockWindow extends JFrame {
             // Start client application when its icon is clicked
             button.addActionListener(new ActionListener() {
 
+                @Override
                 public void actionPerformed(ActionEvent e) {
                     StatusBar.show("Starting " + clientName + "...");
 
@@ -165,6 +165,7 @@ public class DockWindow extends JFrame {
 
                     SwingUtilities.invokeLater(new Runnable() {
 
+                        @Override
                         public void run() {
                             client.launchApplication();
                             StatusBar.show("Started " + clientName + ".");
@@ -186,7 +187,7 @@ public class DockWindow extends JFrame {
     }
 
     public static void main(String[] args) {
-        new DockWindow(new HubPopulator());
+        new DockWindow();
     }
 
     /**
