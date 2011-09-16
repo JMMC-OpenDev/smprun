@@ -8,6 +8,7 @@ import fr.jmmc.jmcs.gui.StatusBar;
 import fr.jmmc.jmcs.gui.WindowCenterer;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.smprun.stub.ClientStub;
+import fr.jmmc.smprun.stub.ClientStubFamily;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -18,14 +19,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Logger;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
@@ -39,9 +43,7 @@ public class DockWindow extends JFrame {
 
     /** Logger */
     private static final Logger _logger = Logger.getLogger(DockWindow.class.getName());
-    Dimension _windowDimension = new Dimension(640, 140);
-    HubPopulator _clients = null;
-    JButton[] _buttons = null;
+    Dimension _windowDimension = new Dimension(640, 110);
     HashMap<JButton, ClientStub> _clientButton = new HashMap<JButton, ClientStub>();
 
     /**
@@ -50,10 +52,6 @@ public class DockWindow extends JFrame {
     public DockWindow() {
 
         super("AppLauncher");
-
-        _clients = HubPopulator.getInstance();
-
-        _buttons = new JButton[_clients.getClientList().size()];
 
         prepareFrame();
         preparePane();
@@ -74,7 +72,22 @@ public class DockWindow extends JFrame {
         Container _mainPane = getContentPane();
         _mainPane.setLayout(new BorderLayout());
 
-        _mainPane.add(buildScrollPane(_buttons), BorderLayout.CENTER);
+        final JPanel verticalListPane = new JPanel();
+        verticalListPane.setLayout(new BoxLayout(verticalListPane, BoxLayout.Y_AXIS));
+
+        for (ClientStubFamily clientFamily : ClientStubFamily.values()) {
+            JLabel familyLabel = new JLabel("<html><b>" + clientFamily.family() + "</b></html>");
+            verticalListPane.add(familyLabel);
+
+            JScrollPane iconPane = buildScrollPane(clientFamily);
+            iconPane.setAlignmentX(0.01f);
+            verticalListPane.add(iconPane);
+
+            JSeparator separator = new JSeparator();
+            verticalListPane.add(separator);
+        }
+
+        _mainPane.add(verticalListPane, BorderLayout.CENTER);
 
         StatusBar _statusBar = new StatusBar();
         _statusBar.setVisible(true);
@@ -102,60 +115,30 @@ public class DockWindow extends JFrame {
         });
     }
 
-    public final JScrollPane buildScrollPane(JButton[] buttons) {
+    public final JScrollPane buildScrollPane(ClientStubFamily family) {
 
-        final JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        final JPanel horizontalRowPane = new JPanel();
+        horizontalRowPane.setLayout(new BoxLayout(horizontalRowPane, BoxLayout.X_AXIS));
 
         // @TODO : fixes spaces to actually work !!!
         final Component emptyRigidArea = Box.createRigidArea(new Dimension(100, 0));
-        panel.add(emptyRigidArea);
+        horizontalRowPane.add(emptyRigidArea);
 
-        for (int i = 0; i < _clients.getClientList().size(); i++) {
+        List<ClientStub> clients = HubPopulator.getInstance().getClientList(family);
+        for (final ClientStub client : clients) {
 
-            // #TODO : handle NPE
-            final ClientStub client = _clients.getClientList().get(i);
-
-            // #TODO : handle NPE
-            final String clientName = client.getApplicationName();
-
-            // #TODO : handle NPE
-            ImageIcon clientIcon = client.getApplicationIcon();
-
-            // Resize the icon up to 64*64 pixels
-            final Image image = clientIcon.getImage();
-            final int iconHeight = clientIcon.getIconHeight();
-            final int newHeight = Math.min(iconHeight, 64);
-            final int iconWidth = clientIcon.getIconWidth();
-            final int newWidth = Math.min(iconWidth, 64);
-            final Image newImage = image.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
-            clientIcon = new ImageIcon(newImage);
-
-            // Horizontally center the icon, and bottom-aligned them all vertically
-            final int squareSize = 68;
-            final int borderSize = 2;
-            final int midHorizontalMargin = (squareSize - newWidth) / 2;
-            final int topVerticalMargin = squareSize - borderSize - newHeight; // Space to fill above if the icon is smaller than 64 pixels
-            final Border border = new EmptyBorder(topVerticalMargin, midHorizontalMargin, borderSize, midHorizontalMargin);
-
-            // Horizontally center application name below its icon
-            final JButton button = new JButton(clientIcon);
-            button.setText(clientName);
-            button.setVerticalTextPosition(SwingConstants.BOTTOM);
-            button.setHorizontalTextPosition(SwingConstants.CENTER);
-            button.setBorder(border);
-
+            JButton button = buildClientButton(client);
             _clientButton.put(button, client);
 
-            panel.add(button);
-            panel.add(emptyRigidArea);
+            horizontalRowPane.add(button);
+            horizontalRowPane.add(emptyRigidArea);
 
             // Start client application when its icon is clicked
             button.addActionListener(new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    StatusBar.show("Starting " + clientName + "...");
+                    StatusBar.show("Starting " + client + "...");
 
                     // @TODO : handle NPE
                     final JButton button = (JButton) e.getSource();
@@ -168,22 +151,56 @@ public class DockWindow extends JFrame {
                         @Override
                         public void run() {
                             client.launchApplication();
-                            StatusBar.show("Started " + clientName + ".");
+                            StatusBar.show("Started " + client + ".");
                         }
                     });
                 }
             });
         }
 
-        JScrollPane scrollPane = new JScrollPane(panel);
+        horizontalRowPane.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        JScrollPane scrollPane = new JScrollPane(horizontalRowPane);
+        scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
         scrollPane.setPreferredSize(_windowDimension);
         scrollPane.setMinimumSize(_windowDimension);
         scrollPane.setMaximumSize(_windowDimension);
 
         JViewport view = scrollPane.getViewport();
-        view.add(panel);
+        view.add(horizontalRowPane);
 
         return scrollPane;
+    }
+
+    private JButton buildClientButton(final ClientStub client) {
+        // #TODO : handle NPE
+        final String clientName = client.toString();
+
+        // #TODO : handle NPE
+        ImageIcon clientIcon = client.getApplicationIcon();
+
+        // Resize the icon up to 64*64 pixels
+        final Image image = clientIcon.getImage();
+        final int iconHeight = clientIcon.getIconHeight();
+        final int newHeight = Math.min(iconHeight, 64);
+        final int iconWidth = clientIcon.getIconWidth();
+        final int newWidth = Math.min(iconWidth, 64);
+        final Image newImage = image.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
+        clientIcon = new ImageIcon(newImage);
+        // Horizontally center the icon, and bottom-aligned them all vertically
+        final int squareSize = 68;
+        final int borderSize = 2;
+        final int midHorizontalMargin = (squareSize - newWidth) / 2;
+        final int topVerticalMargin = squareSize - borderSize - newHeight; // Space to fill above if the icon is smaller than 64 pixels
+        final Border border = new EmptyBorder(topVerticalMargin, midHorizontalMargin, borderSize, midHorizontalMargin);
+        // Horizontally center application name below its icon
+        final JButton button = new JButton(clientIcon);
+        button.setText(clientName);
+        button.setVerticalTextPosition(SwingConstants.BOTTOM);
+        button.setHorizontalTextPosition(SwingConstants.CENTER);
+        button.setBorder(border);
+
+        return button;
     }
 
     public static void main(String[] args) {
