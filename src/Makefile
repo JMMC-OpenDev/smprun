@@ -100,7 +100,7 @@ JARFILES       = smprun
 #
 # <brief description of smprun jar files>
 smprun_DIRS     = fr
-smprun_EXTRAS   = fr/jmmc/smprun/ApplicationData.xml
+smprun_EXTRAS   = fr/jmmc/smprun/resource/ApplicationData.xml
 
 #
 # Java programs
@@ -164,13 +164,13 @@ clean : clean_all
 man : do_man 
 	@echo " . . . man page(s) done"
 
-../lib/smprun-doc.jar:
-	jmcsHTML2HelpSet JMMC-MAN-2600-0001
-	@echo " . . . user documentation done"
+#../lib/smprun-doc.jar:
+#	jmcsHTML2HelpSet JMMC-MAN-2600-0001
+#	@echo " . . . user documentation done"
 
 install : ../lib/smprun-doc.jar install_all
 	@echo "......jnlps:"
-	jmcsDeployJnlp SearchCal.jnlp    
+	jmcsDeployJnlp AppLauncher.jnlp    
 	@echo " . . . installation done"
 
 

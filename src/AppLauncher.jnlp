@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<jnlp spec="1.0+" codebase="@GENERATED@" href="@GENERATED@">
+    <information>
+        <title>AppLauncher</title>
+        <vendor>JMMC (Jean-Marie MARIOTTI Center)</vendor>
+        <homepage href="http://www.jmmc.fr/applauncher"/>
+        <description kind="tooltip">AppLauncher</description>
+        <description kind="short">JMMC (and SAMP) app hub</description>
+        <!--<icon href="AppIcon.png"/>-->
+        <offline-allowed/> 
+        <shortcut>
+            <desktop/>
+        </shortcut>
+    </information>
+    <security>
+        <all-permissions/>
+    </security>
+    <resources>
+        <j2se version="1.5+" initial-heap-size="64m" max-heap-size="128m"/>
+
+        <!-- Application module first (main class) -->
+        <jar href="jar/smprun.jar" />
+
+        <!-- JMMC modules -->
+        <jar href="jar/jmcs.jar" />
+
+        <!-- JMMC libs -->
+        <extension href="../JmcsLibs/JmcsLibs.jnlp"/>
+        
+    </resources>
+    <application-desc main-class="fr.jmmc.smprun.AppLauncher"/>
+</jnlp>
