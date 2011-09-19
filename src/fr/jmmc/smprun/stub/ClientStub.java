@@ -222,7 +222,6 @@ public final class ClientStub extends Observable {
                     unregisterCapability(this);
                     logLine("unregistered SAMP capability for mType '" + mType.mType() + "'.");
 
-                    setState(ClientStubState.LAUNCHING);
                     launchApplication();
                     return null;
                 }
@@ -233,6 +232,7 @@ public final class ClientStub extends Observable {
     }
 
     public void launchApplication() {
+        setState(ClientStubState.LAUNCHING);
         log("web-starting JNLP '" + _jnlpUrl + "' ... ");
         int status = JnlpStarter.launch(_jnlpUrl);
         println("DONE (with status '" + status + "').");

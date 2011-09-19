@@ -142,6 +142,7 @@ public class DockWindow extends JFrame {
 
                     // @TODO : handle NPE
                     final JButton button = (JButton) e.getSource();
+                    button.setEnabled(false);
 
                     // @TODO : handle NPE
                     final ClientStub client = _clientButton.get(button);
@@ -150,8 +151,15 @@ public class DockWindow extends JFrame {
 
                         @Override
                         public void run() {
-                            client.launchApplication();
+                            new Thread(new Runnable() {
+
+                                @Override
+                                public void run() {
+                                    client.launchApplication();
+                                }
+                            }).start();
                             StatusBar.show("Started " + client + ".");
+                            button.setEnabled(true);
                         }
                     });
                 }
