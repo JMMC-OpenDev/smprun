@@ -79,7 +79,13 @@ public class HubPopulator {
         md = new Metadata();
         md.setName("Aladin");
         md.setIconUrl("http://aladin.u-strasbg.fr/aladin_large.gif");
-        capabilities = new SampCapability[]{SampCapability.LOAD_VO_TABLE};
+        capabilities = new SampCapability[]{SampCapability.LOAD_VO_TABLE,
+                                            SampCapability.POINT_COORDINATES,
+                                            SampCapability.LOAD_FITS_IMAGE,
+                                            SampCapability.HIGHLIGHT_ROW,
+                                            SampCapability.LOAD_FITS_TABLE,
+                                            SampCapability.LOAD_VO_TABLE,
+                                            SampCapability.SELECT_LIST};
         jnlpUrl = "http://aladin.u-strasbg.fr/java/nph-aladin.pl?frame=get&id=aladin.jnlp";
         client = new ClientStub(md, capabilities, jnlpUrl);
         client.addObserver(new StubMonitor());
@@ -88,7 +94,12 @@ public class HubPopulator {
         md = new Metadata();
         md.setName("topcat");
         md.setIconUrl("http://www.star.bris.ac.uk/~mbt/topcat/tc3.gif");
-        capabilities = new SampCapability[]{SampCapability.LOAD_VO_TABLE};
+        capabilities = new SampCapability[]{SampCapability.LOAD_VO_TABLE,
+                                            SampCapability.POINT_COORDINATES,
+                                            SampCapability.HIGHLIGHT_ROW,
+                                            SampCapability.LOAD_FITS_TABLE,
+                                            SampCapability.LOAD_VO_TABLE,
+                                            SampCapability.SELECT_LIST};
         jnlpUrl = "http://www.star.bris.ac.uk/~mbt/topcat/topcat-full.jnlp";
         client = new ClientStub(md, capabilities, jnlpUrl);
         client.addObserver(new StubMonitor());
