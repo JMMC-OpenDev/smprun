@@ -170,6 +170,7 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     private void sleep(int milliseconds) {
+        logLine("sleeping "+ milliseconds + " ms.");
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException ex) {
@@ -311,7 +312,7 @@ public final class ClientStub extends Observable implements JobListener {
             if (_status == ClientStubState.LISTENING || _status == ClientStubState.PROCESSING) {
 
                 DockWindow.getInstance().defineButtonEnabled(this, false);
-                
+
                 setState(ClientStubState.LAUNCHING);
 
                 logLine("web-starting JNLP '" + _jnlpUrl + "' ... ");
@@ -373,11 +374,12 @@ public final class ClientStub extends Observable implements JobListener {
      * If, so forward any waiting message to the true application.
      */
     private void lookForRecipientAvailability() {
-        
+
         final ClientStub thisClient = this;
 
         // TODO: concurrency issues on state ?? (samp thread, EDT, Job thread) ...
 
+        // TODO: Use thread pools ...
         new Thread(new Runnable() {
 
             @Override
@@ -458,8 +460,8 @@ public final class ClientStub extends Observable implements JobListener {
 
                 // Jnlp process done
                 if (logger.isLoggable(Level.INFO)) {
-                    logger.info("ClientStub.performJobEvent : Jnlp execution status: " + jobContext.getState());
-                    logger.info(jobContext.getRing().getContent("Ring buffer:\n"));
+                    logger.info("ClientStub.performJobEvent : Jnlp execution status: " + jobContext.getState()
+                            + "\n" + jobContext.getRing().getContent("Ring buffer:\n"));
                 }
 
                 pCtx = (ProcessContext) jobContext.getChildContexts().get(0);
@@ -469,7 +471,7 @@ public final class ClientStub extends Observable implements JobListener {
                 StatusBar.show("Started " + toString() + ".");
 
                 DockWindow.getInstance().defineButtonEnabled(this, true);
-                
+
                 // reset job context:
                 _jobContext = null;
                 break;
@@ -477,8 +479,8 @@ public final class ClientStub extends Observable implements JobListener {
             case STATE_FINISHED_ERROR:
                 // Jnlp process failed
                 if (logger.isLoggable(Level.INFO)) {
-                    logger.info("ClientStub.performJobEvent : Jnlp execution status: " + jobContext.getState());
-                    logger.info(jobContext.getRing().getContent("Ring buffer:\n"));
+                    logger.info("ClientStub.performJobEvent : Jnlp execution status: " + jobContext.getState()
+                            + "\n" + jobContext.getRing().getContent("Ring buffer:\n"));
                 }
 
                 pCtx = (ProcessContext) jobContext.getChildContexts().get(0);
@@ -494,7 +496,7 @@ public final class ClientStub extends Observable implements JobListener {
                 StatusBar.show("Failed to start " + toString() + ".");
 
                 DockWindow.getInstance().defineButtonEnabled(this, true);
-                
+
                 // report failure
                 setState(ClientStubState.FAILING);
 
