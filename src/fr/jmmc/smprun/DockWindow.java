@@ -5,6 +5,7 @@ package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.StatusBar;
+import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.gui.WindowCenterer;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.smprun.stub.ClientStub;
@@ -41,10 +42,27 @@ import javax.swing.border.EmptyBorder;
  */
 public class DockWindow extends JFrame {
 
+    /** default serial UID for Serializable interface */
+    private static final long serialVersionUID = 1;
     /** Logger */
     private static final Logger _logger = Logger.getLogger(DockWindow.class.getName());
-    Dimension _windowDimension = new Dimension(640, 110);
-    HashMap<JButton, ClientStub> _clientButton = new HashMap<JButton, ClientStub>();
+    /** DockWindow singleton */
+    private static DockWindow instance = null;
+    /* members */
+    /** window dimensions */
+    private static final Dimension _windowDimension = new Dimension(640, 120);
+    /** button / client map */
+    private final HashMap<JButton, ClientStub> _clientButtons = new HashMap<JButton, ClientStub>(8);
+    /** client / button map */
+    private final HashMap<ClientStub, JButton> _buttonClients = new HashMap<ClientStub, JButton>(8);
+
+    /**
+     * Return the DockWindow singleton 
+     * @return DockWindow singleton
+     */
+    public static DockWindow getInstance() {
+        return instance;
+    }
 
     /**
      * Constructor.
@@ -52,6 +70,9 @@ public class DockWindow extends JFrame {
     public DockWindow() {
 
         super("AppLauncher");
+
+        // TODO: apply proper singleton pattern (factory)
+        instance = this;
 
         prepareFrame();
         preparePane();
@@ -87,15 +108,10 @@ public class DockWindow extends JFrame {
 
         _mainPane.add(verticalListPane, BorderLayout.CENTER);
 
-        StatusBar _statusBar = new StatusBar();
-        _statusBar.setVisible(true);
-        _mainPane.add(_statusBar, BorderLayout.SOUTH);
+        _mainPane.add(new StatusBar(), BorderLayout.SOUTH);
     }
 
     private void finalizeFrame() {
-        // Set the GUI up
-        pack();
-        setVisible(true);
 
         WindowCenterer.centerOnMainScreen(this);
 
@@ -128,7 +144,8 @@ public class DockWindow extends JFrame {
         for (final ClientStub client : clients) {
 
             JButton button = buildClientButton(client);
-            _clientButton.put(button, client);
+            _clientButtons.put(button, client);
+            _buttonClients.put(client, button);
 
             horizontalRowPane.add(button);
             horizontalRowPane.add(emptyRigidArea);
@@ -142,77 +159,72 @@ public class DockWindow extends JFrame {
 
                     // @TODO : handle NPE
                     final JButton button = (JButton) e.getSource();
-                    button.setEnabled(false);
 
                     // @TODO : handle NPE
-                    final ClientStub client = _clientButton.get(button);
+                    final ClientStub client = _clientButtons.get(button);
 
-                    SwingUtilities.invokeLater(new Runnable() {
-
-                        @Override
-                        public void run() {
-                            new Thread(new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    client.launchApplication();
-                                }
-                            }).start();
-                            StatusBar.show("Started " + client + ".");
-                            button.setEnabled(true);
-                        }
-                    });
+                    // start application in background:
+                    client.launchApplication();
                 }
             });
         }
 
-        horizontalRowPane.setBorder(new EmptyBorder(10, 10, 10, 10));
+        horizontalRowPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-        JScrollPane scrollPane = new JScrollPane(horizontalRowPane);
+        JScrollPane scrollPane = new JScrollPane(horizontalRowPane,
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
         scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
         scrollPane.setPreferredSize(_windowDimension);
-        scrollPane.setMinimumSize(_windowDimension);
-        scrollPane.setMaximumSize(_windowDimension);
-
-        JViewport view = scrollPane.getViewport();
-        view.add(horizontalRowPane);
 
         return scrollPane;
     }
 
+    /**
+     * Create the button representing one client stub (application)
+     * @param client client stub instance
+     * @return created button
+     */
     private JButton buildClientButton(final ClientStub client) {
         // #TODO : handle NPE
         final String clientName = client.toString();
 
         // #TODO : handle NPE
-        ImageIcon clientIcon = client.getApplicationIcon();
+        final ImageIcon clientIcon = client.getApplicationIcon();
 
         // Resize the icon up to 64*64 pixels
         final Image image = clientIcon.getImage();
-        final int iconHeight = clientIcon.getIconHeight();
-        final int newHeight = Math.min(iconHeight, 64);
         final int iconWidth = clientIcon.getIconWidth();
+        final int iconHeight = clientIcon.getIconHeight();
+
         final int newWidth = Math.min(iconWidth, 64);
-        final Image newImage = image.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
-        clientIcon = new ImageIcon(newImage);
+        final int newHeight = Math.min(iconHeight, 64);
+
+        // TODO: keep image ratio:
+        final Image scaledImage;
+
+        if (iconWidth != 64 && iconHeight != 64) {
+            scaledImage = image.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
+        } else {
+            scaledImage = image;
+        }
+
         // Horizontally center the icon, and bottom-aligned them all vertically
-        final int squareSize = 68;
-        final int borderSize = 2;
+        final int squareSize = 75;
+        final int borderSize = 4;
         final int midHorizontalMargin = (squareSize - newWidth) / 2;
         final int topVerticalMargin = squareSize - borderSize - newHeight; // Space to fill above if the icon is smaller than 64 pixels
         final Border border = new EmptyBorder(topVerticalMargin, midHorizontalMargin, borderSize, midHorizontalMargin);
+
         // Horizontally center application name below its icon
-        final JButton button = new JButton(clientIcon);
+        final JButton button = new JButton(new ImageIcon(scaledImage));
         button.setText(clientName);
         button.setVerticalTextPosition(SwingConstants.BOTTOM);
         button.setHorizontalTextPosition(SwingConstants.CENTER);
         button.setBorder(border);
 
         return button;
-    }
-
-    public static void main(String[] args) {
-        new DockWindow();
     }
 
     /**
@@ -223,7 +235,13 @@ public class DockWindow extends JFrame {
         /** default serial UID for Serializable interface */
         private static final long serialVersionUID = 1;
 
-        ShowPreferencesAction(String classPath, String fieldName) {
+        /**
+         * Action constructor
+         * @param classPath the path of the class containing the field pointing to
+         * the action, in the form returned by 'getClass().getName();'.
+         * @param fieldName the name of the field pointing to the action.
+         */
+        ShowPreferencesAction(final String classPath, final String fieldName) {
             super(classPath, fieldName);
             flagAsPreferenceAction();
         }
@@ -234,6 +252,24 @@ public class DockWindow extends JFrame {
 
             // Show the Preferences window
             //_preferencesView.setVisible(true);
+        }
+    }
+
+    /**
+     * Callback to reenable the button representing the client stub
+     * @param client client stub to reenable
+     * @param enabled button state
+     */
+    public void defineButtonEnabled(final ClientStub client, final boolean enabled) {
+        final JButton button = _buttonClients.get(client);
+        if (button != null) {
+            SwingUtils.invokeEDT(new Runnable() {
+               
+                @Override
+                public void run() {
+                    button.setEnabled(enabled);
+                }
+            });
         }
     }
 }
