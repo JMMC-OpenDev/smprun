@@ -18,7 +18,8 @@ public enum ClientStubState {
     SEEKING(3, "Starting the application"),
     FORWARDING(4, "Forwarding the message"),
     DISCONNECTING(5, "Cleaning up"),
-    DIYING(6, "Done");
+    DIYING(6, "Done"),
+    FAILING(7, "Failed to start the application");
     
     /** the numerical order of the internal progress (steps equal to zero don't trigger GUI updates) */
     private final int _step;
@@ -40,6 +41,15 @@ public enum ClientStubState {
      */
     public int step() {
         return _step;
+    }
+     
+    /**
+     * Return true if this state is before the given state
+     * @param state state to compare with
+     * @return true if this state is before the given state 
+     */
+    public boolean before(final ClientStubState state) {
+        return _step < state.step();
     }
 
     /**
