@@ -4,14 +4,14 @@
 package fr.jmmc.smprun.stub;
 
 import fr.jmmc.jmcs.App;
+import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.gui.WindowCenterer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
-import javax.swing.JLabel;
+import java.util.logging.Level;
 import javax.swing.JProgressBar;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 /**
@@ -20,8 +20,11 @@ import javax.swing.Timer;
  */
 public class StubMonitor implements Observer {
 
-    /** the GUI */
-    MonitorWindow _window;
+    /** Class logger */
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(StubMonitor.class.getName());
+
+    /** Monitor GUI */
+    private MonitorWindow _window;
 
     /**
      * Set up the GUI
@@ -29,7 +32,7 @@ public class StubMonitor implements Observer {
     public StubMonitor() {
         super();
 
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtils.invokeEDT(new Runnable() {
 
             /**
              * Synchronized by EDT
@@ -46,74 +49,79 @@ public class StubMonitor implements Observer {
     }
 
     /**
+     * Handle the observable event
      * @see java.util.Observer
-     * @param o
-     * @param arg
+     * @param obj ClientStub instance
+     * @param arg ClientStubState instance
      */
     @Override
-    public void update(Observable o, Object arg) {
+    public void update(final Observable obj, final Object arg) {
 
-        final String applicationName = ((ClientStub) o).toString();
+        final String applicationName = ((ClientStub) obj).toString();
 
-        final ClientStubState state = ((ClientStubState) arg);
+        final ClientStubState state = (ClientStubState) arg;
         final String message = state.message();
         final int step = state.step();
         final int maxStep = ClientStubState.DIYING.step();
 
-        // System.out.println("monitor['" + applicationName + "'] : '" + state.message() + "' (" + state.step() + "/" + maxStep + ").");
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine("StubMonitor['" + applicationName + "'] : '" + state.message() + "' (" + state.step() + "/" + maxStep + ").");
+        }
 
-        SwingUtilities.invokeLater(new Runnable() {
+        SwingUtils.invokeEDT(new Runnable() {
 
             /**
              * Synchronized by EDT
              */
             @Override
             public void run() {
+                
                 // bring this application to front :
                 App.showFrameToFront();
 
                 if (step > 0) {
 
-                    JLabel label = _window.getLabel();
-                    label.setText("Redirecting to " + applicationName + ":");
+                    _window.getLabel().setText("Redirecting to " + applicationName + ":");
 
-                    JProgressBar bar = _window.getProgressBar();
+                    final JProgressBar bar = _window.getProgressBar();
 
                     bar.setMinimum(0);
                     bar.setMaximum(maxStep);
                     bar.setValue(state.step());
 
-                    bar.setStringPainted(true);
-                    if (!message.isEmpty()) {
+                    if (message.isEmpty()) {
+                        bar.setStringPainted(false);
+                        bar.setString(null);
+                    } else {
+                        bar.setStringPainted(true);
                         bar.setString(message + "...");
                     }
 
-                    if (step < maxStep) {
+                    if (!_window.isVisible() && step < ClientStubState.DISCONNECTING.step()) {
                         _window.setVisible(true);
                     }
                 }
             }
         });
 
-        // Should the window close ?
-        if (step == maxStep) {
+        // Should the window be hidden ?
+        if (step >= maxStep) {
 
-            // Postpone closing to let the user see the last message
-            ActionListener task = new ActionListener() {
-
-                boolean alreadyDisposed = false;
+            // Postpone hiding to let the user see the last message
+            final ActionListener hideTask = new ActionListener() {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (_window.isDisplayable()) {
-                        alreadyDisposed = true;
-                        _window.dispose();
+                    if (_window.isVisible()) {
+                        _window.setVisible(false);
                     }
                 }
             };
-            Timer timer = new Timer(1500, task); // Fire after 1.5 second
-            timer.setRepeats(false);
-            timer.start();
+            
+            // Fire after 1.5 second
+            final Timer hideTaskTimer = new Timer(1500, hideTask); 
+            hideTaskTimer.setRepeats(false);
+            hideTaskTimer.start();
         }
     }
 }
