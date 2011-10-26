@@ -3,43 +3,61 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
+import fr.jmmc.jmcs.util.FileUtils;
+import fr.jmmc.smprun.stub.ClientStub;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import org.ivoa.util.runner.LocalLauncher;
 import org.ivoa.util.runner.RootContext;
 import org.ivoa.util.runner.process.ProcessContext;
-import org.ivoa.util.runner.process.ProcessRunner;
-import org.ivoa.util.runner.process.RingBuffer;
 
 /**
  * Wrapper on http://code.google.com/p/vo-urp/ task runner
  * @author Sylvain LAFRASSE
  */
 public class JnlpStarter {
-    
-    
-    public static RingBuffer ringBuf = new RingBuffer(1000, null);
+
+    /** Class logger */
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(JnlpStarter.class.getName());
+    /** application identifier for LocalLauncher */
+    public final static String APP_NAME = "JnlpStarter";
+    /** user for LocalLauncher */
+    public final static String USER_NAME = "AppLauncher";
+    /** task identifier for LocalLauncher */
+    public final static String TASK_NAME = "JavaWebStart";
 
     /** Forbidden constructor */
     private JnlpStarter() {
     }
 
     /**
-     * Launch a given Java WebStart application in another process.
+     * Launch the Java WebStart application associated to the given client stub in another process.
      * 
-     * @param jnlpUrl the URL of the Java WebStart application to launch.
-     * @return the execution status code.
+     * @param client given client strub to launch the corresponding Jnlp application
+     * @return the job context
+     * @throws IllegalStateException if the job can not be submitted to the job queue
      */
-    public static int launch(String jnlpUrl) {
+    public static RootContext launch(final ClientStub client) throws IllegalStateException {
 
-        String tmpDir = System.getProperty("java.io.tmpdir");
-
-        RootContext rCtx = new RootContext("AppLauncher", new Long(0), tmpDir);
-
-        String cmd[] = {"javaws", "-verbose", jnlpUrl};
-        ProcessContext pCtx = new ProcessContext(rCtx, "javaws", new Long(1), cmd);
-
-        pCtx.setRing(ringBuf);
+        final String jnlpUrl = client.getJnlpUrl();
         
-        // #TODO : catch ERROR in RingBuffer to detect crash at launch !!
+        if (logger.isLoggable(Level.INFO)) {
+            logger.info("launch: " + jnlpUrl);
+        }
 
-        return ProcessRunner.execute(pCtx);
+        // create the execution context without log file:
+        final RootContext jobContext = LocalLauncher.prepareMainJob(APP_NAME, USER_NAME, FileUtils.getTempDir(), null);
+
+        // command line: 'javaws -verbose <jnlpUrl>'
+        LocalLauncher.prepareChildJob(jobContext, TASK_NAME, new String[]{"javaws", "-verbose", jnlpUrl});
+
+        // puts the job in the job queue :
+        // can throw IllegalStateException if job not queued :
+        LocalLauncher.startJob(jobContext, client);
+        
+        return jobContext;
     }
 }
