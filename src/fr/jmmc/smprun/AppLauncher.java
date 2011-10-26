@@ -5,7 +5,10 @@ package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.SwingSettings;
-import java.util.logging.Logger;
+import fr.jmmc.jmcs.gui.SwingUtils;
+import fr.jmmc.smprun.stub.ClientStub;
+import java.util.logging.Level;
+import org.ivoa.util.runner.LocalLauncher;
 
 /**
  * AppLauncher main class.
@@ -14,9 +17,8 @@ import java.util.logging.Logger;
  */
 public class AppLauncher extends App {
 
-    /** Logger */
-    private static final Logger _logger = Logger.getLogger(
-            "fr.jmmc.smprun.AppLauncher");
+    /** Class logger */
+    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AppLauncher.class.getName());
 
     /**
      * Launch the AppLauncher application.
@@ -26,30 +28,91 @@ public class AppLauncher extends App {
      *
      * @param args command-line options.
      */
-    public AppLauncher(String[] args) {
+    public AppLauncher(final String[] args) {
         super(args);
     }
 
-    /** Initialize application objects */
+    /**
+     * Initialize application objects
+     * @param args ignored arguments
+     *
+     * @throws RuntimeException if the AppLauncher initialisation failed
+     */
     @Override
-    protected void init(String[] args) {
-        DockWindow window = new DockWindow();
-        App.setFrame(window);
+    protected void init(final String[] args) {
 
-        // @TODO : Handle JMMC app mimetypes to open our apps !!!
+        // Initialize job runner:
+        LocalLauncher.startUp();
+
+        // Initialize first the Client descriptions:
+        HubPopulator.getInstance();
+
+        // Using invokeAndWait to be in sync with this thread :
+        // note: invokeAndWaitEDT throws an IllegalStateException if any exception occurs
+        SwingUtils.invokeAndWaitEDT(new Runnable() {
+
+            /**
+             * Initializes the swing components with their actions in EDT
+             */
+            @Override
+            public void run() {
+                App.setFrame(new DockWindow());
+
+                // @TODO : Handle JMMC app mimetypes to open our apps !!!
+            }
+        });
     }
 
-    /** Execute application body */
+    /**
+     * Execute application body = make the application frame visible
+     */
     @Override
     protected void execute() {
-        HubPopulator.getInstance();
+        SwingUtils.invokeLaterEDT(new Runnable() {
+
+            /**
+             * Show the application frame using EDT
+             */
+            @Override
+            public void run() {
+                logger.fine("AppLauncher.ready : handler called.");
+
+                getFrame().setVisible(true);
+            }
+        });
     }
 
-    /** Handle operations before closing application */
+    /**
+     * Hook to handle operations before closing application.
+     *
+     * @return should return true if the application can exit, false otherwise
+     * to cancel exit.
+     */
     @Override
     protected boolean finish() {
-        // @TODO : Properly disconnect and dispose SAMP hub ?
+
+        // TODO: confirm dialog to inform the user that SAMP interoperability can fail 
+        // if hub (living inside this JVM) is stopped
+
         return true;
+    }
+
+    /**
+     * Hook to handle operations when exiting application.
+     * @see App#exit(int)
+     */
+    @Override
+    public void onFinish() {
+
+        // Properly disconnect and dispose SAMP hub:
+        for (ClientStub client: HubPopulator.getInstance().getClients()) {
+            client.disconnectFromHub();
+        }
+        
+        // Stop job runner:
+        LocalLauncher.shutdown();
+
+        super.onFinish();
     }
 
     /**
@@ -63,7 +126,17 @@ public class AppLauncher extends App {
         // init swing application for science
         SwingSettings.setup();
 
-        new AppLauncher(args);
+        final long start = System.nanoTime();
+        try {
+            // Start application with the command line arguments
+            new AppLauncher(args);
+        } finally {
+            final long time = (System.nanoTime() - start);
+
+            if (logger.isLoggable(Level.INFO)) {
+                logger.info("startup : duration = " + 1e-6d * time + " ms.");
+            }
+        }
     }
 }
 /*___oOo___*/
