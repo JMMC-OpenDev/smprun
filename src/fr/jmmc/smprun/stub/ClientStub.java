@@ -309,7 +309,10 @@ public final class ClientStub extends Observable implements JobListener {
 
         // TODO: reentrance / concurrency checks
         synchronized (this) {
-            if (_status == ClientStubState.LISTENING || _status == ClientStubState.PROCESSING) {
+// Not correct: when the javaws does not start correctly the application => it will never connect to SAMP; let the user retry ...
+//            if (_status == ClientStubState.LISTENING || _status == ClientStubState.PROCESSING) {
+
+if (_status != ClientStubState.LAUNCHING) {
 
                 DockWindow.getInstance().defineButtonEnabled(this, false);
 
