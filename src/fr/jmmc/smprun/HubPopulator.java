@@ -12,7 +12,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import org.astrogrid.samp.Metadata;
 
@@ -23,17 +26,17 @@ import org.astrogrid.samp.Metadata;
 public class HubPopulator {
 
     /** Class logger */
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(HubPopulator.class.getName());
-
+    private static final java.util.logging.Logger _logger = java.util.logging.Logger.getLogger(HubPopulator.class.getName());
     /** HubPopulator singleton */
     private static final HubPopulator INSTANCE = new HubPopulator();
-    
     /* members */
     /** Client family  / client stub mapping */
     private EnumMap<ClientStubFamily, List<ClientStub>> _familyLists = new EnumMap<ClientStubFamily, List<ClientStub>>(ClientStubFamily.class);
     /** all client stubs */
     private final List<ClientStub> _clients = new ArrayList<ClientStub>(5);
-    
+    private HashMap<String, ClientStub> _stubsMap = new HashMap<String, ClientStub>();
+    private HashSet<SampCapability> _mTypeSet = new HashSet<SampCapability>();
+
     /**
      * Return the HubPopulator singleton
      * @return HubPopulator singleton
@@ -47,6 +50,8 @@ public class HubPopulator {
      */
     private HubPopulator() {
         Metadata md;
+        String name;
+        SampCapability[] capabilities;
         String jnlpUrl;
         ClientStub client;
         List<ClientStub> clients;
@@ -54,44 +59,47 @@ public class HubPopulator {
         // @TODO : Grab all this from the Web/OV
 
         // Note: Use Icon URL pointing to files extracted from Jar file (see resource package)
-        
+
         clients = new ArrayList<ClientStub>(3);
 
         // --- ASPRO2 ---
         md = new Metadata();
-        md.setName("Aspro2");
-//        md.setIconUrl("http://www.jmmc.fr/searchcal/images/aspro2-6464.png");
-        md.setIconUrl(extractResource("aspro2-6464.png"));
+        name = "Aspro2";
+        md.setName(name);
+        md.setIconUrl(extractResource("aspro2-6464.png")); // http://www.jmmc.fr/searchcal/images/aspro2-6464.png
         jnlpUrl = "http://apps.jmmc.fr/~swmgr/Aspro2/Aspro2.jnlp";
-        
-        client = new ClientStub(md, jnlpUrl,
-                new SampCapability[]{SampCapability.LOAD_VO_TABLE});
+        capabilities = new SampCapability[]{SampCapability.LOAD_VO_TABLE};
+        _mTypeSet.addAll(Arrays.asList(capabilities));
+        client = new ClientStub(md, jnlpUrl, capabilities);
         client.addObserver(new StubMonitor());
         clients.add(client);
+        _stubsMap.put(name, client);
 
         // --- SEARCHCAL ---
         md = new Metadata();
-        md.setName("SearchCal");
-//        md.setIconUrl("http://apps.jmmc.fr/~sclws/SearchCal/AppIcon.png");
-        md.setIconUrl(extractResource("searchcal-6464.png"));
+        name = "SearchCal";
+        md.setName(name);
+        md.setIconUrl(extractResource("searchcal-6464.png")); // http://apps.jmmc.fr/~sclws/SearchCal/AppIcon.png
         jnlpUrl = "http://apps.jmmc.fr/~sclws/SearchCal/SearchCal.jnlp";
-
-        client = new ClientStub(md, jnlpUrl,
-                new SampCapability[]{SampCapability.SEARCHCAL_START_QUERY});
+        capabilities = new SampCapability[]{SampCapability.SEARCHCAL_START_QUERY};
+        _mTypeSet.addAll(Arrays.asList(capabilities));
+        client = new ClientStub(md, jnlpUrl, capabilities);
         client.addObserver(new StubMonitor());
         clients.add(client);
+        _stubsMap.put(name, client);
 
         // --- LITPRO ---
         md = new Metadata();
-        md.setName("LITpro");
-//        md.setIconUrl("http://www.jmmc.fr/images/litpro6464ws.jpg");
-        md.setIconUrl(extractResource("litpro-6464.png"));
+        name = "LITpro";
+        md.setName(name);
+        md.setIconUrl(extractResource("litpro-6464.png")); // http://www.jmmc.fr/images/litpro6464ws.jpg
         jnlpUrl = "http://jmmc.fr/~swmgr/LITpro/LITpro.jnlp";
-        
-        client = new ClientStub(md, jnlpUrl,
-                new SampCapability[]{SampCapability.LITPRO_START_SETTING});
+        capabilities = new SampCapability[]{SampCapability.LITPRO_START_SETTING};
+        _mTypeSet.addAll(Arrays.asList(capabilities));
+        client = new ClientStub(md, jnlpUrl, capabilities);
         client.addObserver(new StubMonitor());
         clients.add(client);
+        _stubsMap.put(name, client);
 
         _familyLists.put(ClientStubFamily.JMMC, clients);
         _clients.addAll(clients);
@@ -107,41 +115,55 @@ public class HubPopulator {
 
         // --- ALADIN ---
         md = new Metadata();
-        md.setName("Aladin");
-//        md.setIconUrl("http://aladin.u-strasbg.fr/aladin_large.gif");
-        md.setIconUrl(extractResource("aladin-6464.png"));
+        name = "Aladin";
+        md.setName(name);
+        md.setIconUrl(extractResource("aladin-6464.png")); // http://aladin.u-strasbg.fr/aladin_large.gif
         jnlpUrl = "http://aladin.u-strasbg.fr/java/nph-aladin.pl?frame=get&id=aladin.jnlp";
-        
-        client = new ClientStub(md, jnlpUrl,
-                new SampCapability[]{SampCapability.LOAD_VO_TABLE,
-                    /* SampCapability.POINT_COORDINATES, */
-                    SampCapability.LOAD_FITS_IMAGE,
-                    /* SampCapability.HIGHLIGHT_ROW, */
-                    SampCapability.LOAD_FITS_TABLE, /* SampCapability.SELECT_LIST */});
+        capabilities = new SampCapability[]{SampCapability.LOAD_VO_TABLE,
+            /* SampCapability.POINT_COORDINATES, */
+            SampCapability.LOAD_FITS_IMAGE,
+            /* SampCapability.HIGHLIGHT_ROW, */
+            SampCapability.LOAD_FITS_TABLE, /* SampCapability.SELECT_LIST */};
+        _mTypeSet.addAll(Arrays.asList(capabilities));
+        client = new ClientStub(md, jnlpUrl, capabilities);
         client.addObserver(new StubMonitor());
         clients.add(client);
+        _stubsMap.put(name, client);
 
         // --- TOPCAT ---
         md = new Metadata();
-        md.setName("topcat");
-//        md.setIconUrl("http://www.star.bris.ac.uk/~mbt/topcat/tc3.gif");
-        md.setIconUrl(extractResource("topcat-6464.png"));
+        name = "topcat";
+        md.setName(name);
+        md.setIconUrl(extractResource("topcat-6464.png")); // "http://www.star.bris.ac.uk/~mbt/topcat/tc3.gif"
         jnlpUrl = "http://www.star.bris.ac.uk/~mbt/topcat/topcat-full.jnlp";
-        
-        client = new ClientStub(md, jnlpUrl,
-                new SampCapability[]{
-                    SampCapability.LOAD_VO_TABLE,
-                    /* SampCapability.POINT_COORDINATES, */
-                    /* SampCapability.HIGHLIGHT_ROW, */
-                    SampCapability.LOAD_FITS_TABLE, /* SampCapability.SELECT_LIST */});
+        capabilities = new SampCapability[]{
+            SampCapability.LOAD_VO_TABLE,
+            /* SampCapability.POINT_COORDINATES, */
+            /* SampCapability.HIGHLIGHT_ROW, */
+            SampCapability.LOAD_FITS_TABLE, /* SampCapability.SELECT_LIST */};
+        _mTypeSet.addAll(Arrays.asList(capabilities));
+        client = new ClientStub(md, jnlpUrl, capabilities);
         client.addObserver(new StubMonitor());
         clients.add(client);
+        _stubsMap.put(name, client);
 
         _familyLists.put(ClientStubFamily.GENERAL, clients);
         _clients.addAll(clients);
-        
-        logger.info("configuration: " + _familyLists);
-        logger.info("clients:       " + _clients);
+
+        _logger.info("configuration: " + _familyLists);
+        _logger.info("clients:       " + _clients);
+    }
+
+    public HashSet<SampCapability> getMTypeSet() {
+        return _mTypeSet;
+    }
+
+    public ClientStub getClientStub(String name) {
+        return _stubsMap.get(name);
+    }
+
+    public HashMap<String, ClientStub> getStubsMap() {
+        return _stubsMap;
     }
 
     /**
@@ -160,7 +182,7 @@ public class HubPopulator {
     public List<ClientStub> getClients() {
         return _clients;
     }
-    
+
     /**
      * TODO: move that code into FileUtils
      * Extract the given resource given its file name in the Jar archive at /fr/jmmc/smprun/resource/
@@ -170,19 +192,19 @@ public class HubPopulator {
      * @throws IllegalStateException if the given resource does not exist
      */
     private static String extractResource(final String resourceFile) throws IllegalStateException {
-        
-          // use the class loader resource resolver
-          final URL url = FileUtils.getResource("fr/jmmc/smprun/resource/" + resourceFile);
 
-          final File tmpFile = FileUtils.getTempFile(resourceFile);
-          
-          try {
+        // use the class loader resource resolver
+        final URL url = FileUtils.getResource("fr/jmmc/smprun/resource/" + resourceFile);
+
+        final File tmpFile = FileUtils.getTempFile(resourceFile);
+
+        try {
             FileUtils.saveStream(url.openStream(), tmpFile);
-            
-              return tmpFile.toURI().toString();
-            
-          } catch (IOException ioe) {
-              throw new IllegalStateException("unable to save file: "+ tmpFile + " for url: " + url, ioe);
-          }
+
+            return tmpFile.toURI().toString();
+
+        } catch (IOException ioe) {
+            throw new IllegalStateException("unable to save file: " + tmpFile + " for url: " + url, ioe);
+        }
     }
 }

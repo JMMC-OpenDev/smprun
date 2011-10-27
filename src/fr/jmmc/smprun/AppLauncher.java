@@ -8,6 +8,7 @@ import fr.jmmc.jmcs.gui.SwingSettings;
 import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.smprun.stub.ClientStub;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.ivoa.util.runner.LocalLauncher;
 
 /**
@@ -17,8 +18,8 @@ import org.ivoa.util.runner.LocalLauncher;
  */
 public class AppLauncher extends App {
 
-    /** Class logger */
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(AppLauncher.class.getName());
+    /** Logger */
+    private static final Logger _logger = Logger.getLogger(AppLauncher.class.getName());
 
     /**
      * Launch the AppLauncher application.
@@ -75,11 +76,13 @@ public class AppLauncher extends App {
              */
             @Override
             public void run() {
-                logger.fine("AppLauncher.ready : handler called.");
+                _logger.fine("AppLauncher.ready : handler called.");
 
                 getFrame().setVisible(true);
             }
         });
+
+        //HubMonitor.getInstance();
     }
 
     /**
@@ -133,8 +136,8 @@ public class AppLauncher extends App {
         } finally {
             final long time = (System.nanoTime() - start);
 
-            if (logger.isLoggable(Level.INFO)) {
-                logger.info("startup : duration = " + 1e-6d * time + " ms.");
+            if (_logger.isLoggable(Level.INFO)) {
+                _logger.info("startup : duration = " + 1e-6d * time + " ms.");
             }
         }
     }

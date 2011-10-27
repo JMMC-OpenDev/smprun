@@ -170,7 +170,7 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     private void sleep(int milliseconds) {
-        logLine("sleeping "+ milliseconds + " ms.");
+        logLine("sleeping " + milliseconds + " ms.");
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException ex) {
@@ -312,7 +312,7 @@ public final class ClientStub extends Observable implements JobListener {
 // Not correct: when the javaws does not start correctly the application => it will never connect to SAMP; let the user retry ...
 //            if (_status == ClientStubState.LISTENING || _status == ClientStubState.PROCESSING) {
 
-if (_status != ClientStubState.LAUNCHING) {
+            if (_status != ClientStubState.LAUNCHING) {
 
                 DockWindow.getInstance().defineButtonEnabled(this, false);
 
@@ -409,7 +409,6 @@ if (_status != ClientStubState.LAUNCHING) {
 
                         // reentrance check
                         synchronized (thisClient) {
-
                             // Forward any received message to recipient (if any)
                             if (_message != null) {
                                 setState(ClientStubState.SEEKING);
@@ -564,8 +563,6 @@ if (_status != ClientStubState.LAUNCHING) {
 
         _recipientId = null;
         _message = null;
-
         _jobContext = null;
-
     }
 }

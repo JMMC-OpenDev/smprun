@@ -46,6 +46,7 @@ public class DockWindow extends JFrame {
     private static final long serialVersionUID = 1;
     /** Logger */
     private static final Logger _logger = Logger.getLogger(DockWindow.class.getName());
+
     /** DockWindow singleton */
     private static DockWindow instance = null;
     /* members */
