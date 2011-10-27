@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ApplicationData link="http://www.jmmc.fr/AppLauncher">
-  <program name="AppLauncher" version="1.0d1"/>
-  <compilation date="16/08/2011" compiler="JDK 1.5.0_16"/>
+  <program name="AppLauncher" version="1.0d2"/>
+  <compilation date="27/10/2011" compiler="JDK 1.5.0_16"/>
   <text>JMMC SAMP hub to automatically start capable applications when triggered</text>
   <dependences>
     <package name="AppleJavaExtensions" description="toolkit to provide better user interface on Mac, provided by Apple, Inc." link="http://developer.apple.com/samplecode/AppleJavaExtensions/index.html"/>
@@ -11,7 +11,11 @@
   </menubar>
   <releasenotes>
     <release version="1.0">
-      <prerelease version="1.0d1" tag="AL_V1_0_d1">
+      <prerelease version="1.0d2" tag="AL_V1_0d2">
+        <change  type="CHANGE">Better process launching.</change>
+        <change  type="CHANGE">Better EDT handling.</change>
+      </prerelease>          
+      <prerelease version="1.0d1" tag="AL_V1_0d1">
         <change>First release.</change>
       </prerelease>          
     </release>
