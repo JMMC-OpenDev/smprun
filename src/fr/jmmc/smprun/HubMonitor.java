@@ -80,7 +80,7 @@ public final class HubMonitor {
         });
 
         // Create deidcated thread executor:
-        this._executor = ThreadExecutors.getSingleExecutor(getClass().getSimpleName());
+        this._executor = ThreadExecutors.getSingleExecutor(getClass().getSimpleName() + "ThreadPool");
 
         // Analize already registered samp clients:
         submitHubEvent();
@@ -195,7 +195,7 @@ public final class HubMonitor {
                         _logger.info("\t found recipient '" + clientName + "' [" + recipientId + "] : real application.");
 
                         // perform callback on client stub:
-                        stub.performRegistration(recipientId);
+                        submitRegistration(stub, recipientId);
                     }
 
                     // do not exit from loop as we can have two samp clients having the same application name ??
@@ -226,5 +226,24 @@ public final class HubMonitor {
             // remove this one
             it.remove();
         }
+    }
+
+    /**
+     * Process application registration in background using the generic thread executor
+     * @param stub client stub to invoke
+     * @param recipientId recipient identifier of the real application 
+     */
+    private void submitRegistration(final ClientStub stub, final String recipientId) {
+
+        ThreadExecutors.getGenericExecutor().submit(new Runnable() {
+
+            /**
+             * Process application registration using dedicated thread (may sleep for few seconds ...)
+             */
+            @Override
+            public void run() {
+                stub.performRegistration(recipientId);
+            }
+        });
     }
 }
