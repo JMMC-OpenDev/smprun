@@ -49,6 +49,8 @@ public final class ClientStub extends Observable implements JobListener {
     private final SampCapability[] _mTypes;
     /** Store desired JNLP URL */
     private final String _jnlpUrl;
+    /** sleep delay in milliseconds before sending the samp message (application startup workaround) */
+    private final long _sleepDelayBeforeNotify;
     /** log prefix */
     private final String _logPrefix;
     /* state objects */
@@ -72,8 +74,10 @@ public final class ClientStub extends Observable implements JobListener {
      * @param description metadata about the stub app
      * @param jnlpUrl URL of Java WebStart recipient
      * @param mTypes handled mtypes
+     * @param sleepDelayBeforeNotify sleep delay in milliseconds before sending the samp message
      */
-    public ClientStub(final Metadata description, final String jnlpUrl, final SampCapability[] mTypes) {
+    public ClientStub(final Metadata description, final String jnlpUrl, final SampCapability[] mTypes,
+            final long sleepDelayBeforeNotify) {
 
         _description = description;
         _applicationName = description.getName();
@@ -85,6 +89,7 @@ public final class ClientStub extends Observable implements JobListener {
 
         _mTypes = mTypes;
         _jnlpUrl = jnlpUrl;
+        _sleepDelayBeforeNotify = sleepDelayBeforeNotify;
 
         setState(ClientStubState.UNDEFINED);
 
@@ -173,9 +178,7 @@ public final class ClientStub extends Observable implements JobListener {
             if (_status == ClientStubState.UNDEFINED || _status == ClientStubState.DIYING) {
                 setState(ClientStubState.INITIALIZING);
 
-                if (connectToHub()) {
-                    registerStubCapabilities();
-                } else {
+                if (!connectToHub()) {
                     disconnect();
                 }
             }
@@ -312,11 +315,10 @@ public final class ClientStub extends Observable implements JobListener {
         // Keep a look out for hubs if initial one shuts down
         _connector.setAutoconnect(5);
 
-        // This step required even if no message handlers added.
-        _connector.declareSubscriptions(_connector.computeSubscriptions());
-
         _logger.info(_logPrefix + "connected.");
-        
+
+        registerStubCapabilities();
+
         return true;
     }
 
@@ -374,12 +376,12 @@ public final class ClientStub extends Observable implements JobListener {
 
         // This step required to update message handlers into the hub:
         _connector.declareSubscriptions(_connector.computeSubscriptions());
-        
+
         setState(ClientStubState.LISTENING);
     }
 
     /** 
-     * TODO: implement callback from HubMonitor when the real application is detected ...
+     * Implements callback from HubMonitor when the real application is detected ...
      * @param recipientId recipient identifier of the real application 
      */
     public void performRegistration(final String recipientId) {
@@ -394,12 +396,14 @@ public final class ClientStub extends Observable implements JobListener {
                 if (_message != null) {
                     setState(ClientStubState.SEEKING);
 
-                    _logger.info(_logPrefix + "waiting 1s before forwarding the SAMP message ...");
-                    
-                    // Wait a while for application startup to finish...
+                    if (_sleepDelayBeforeNotify > 0l) {
+                        _logger.info(_logPrefix + "waiting " + _sleepDelayBeforeNotify + " millis before forwarding the SAMP message ...");
 
-                    // TODO: use dedicated thread queue to delay the delivery
-                    ThreadExecutors.sleep(1000l);
+                        // Wait a while for application startup to finish...
+
+                        // TODO: use dedicated thread queue to delay the delivery
+                        ThreadExecutors.sleep(_sleepDelayBeforeNotify);
+                    }
 
                     if (_message != null) {
                         // Forward the message
