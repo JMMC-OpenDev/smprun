@@ -9,6 +9,8 @@
  */
 package fr.jmmc.smprun.stub;
 
+import javax.swing.JButton;
+
 /**
  * Display progress of stub internal state.
  * @author Sylvain LAFRASSE
@@ -33,32 +35,44 @@ public class MonitorWindow extends javax.swing.JFrame {
     private void initComponents() {
         java.awt.GridBagConstraints gridBagConstraints;
 
-        jProgressBar1 = new javax.swing.JProgressBar();
-        jLabel1 = new javax.swing.JLabel();
+        jProgressBar = new javax.swing.JProgressBar();
+        jLabelMessage = new javax.swing.JLabel();
+        jButtonCancel = new javax.swing.JButton();
 
+        setMinimumSize(new java.awt.Dimension(350, 100));
         getContentPane().setLayout(new java.awt.GridBagLayout());
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 1;
-        gridBagConstraints.gridwidth = 2;
-        gridBagConstraints.ipadx = 352;
+        gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        gridBagConstraints.weightx = 1.0;
         gridBagConstraints.insets = new java.awt.Insets(12, 20, 16, 18);
-        getContentPane().add(jProgressBar1, gridBagConstraints);
+        getContentPane().add(jProgressBar, gridBagConstraints);
 
-        jLabel1.setText("jLabel1");
+        jLabelMessage.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabelMessage.setText("TEXT");
         gridBagConstraints = new java.awt.GridBagConstraints();
         gridBagConstraints.gridx = 0;
         gridBagConstraints.gridy = 0;
-        gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints.insets = new java.awt.Insets(20, 20, 0, 0);
-        getContentPane().add(jLabel1, gridBagConstraints);
+        gridBagConstraints.fill = java.awt.GridBagConstraints.BOTH;
+        gridBagConstraints.insets = new java.awt.Insets(20, 0, 0, 0);
+        getContentPane().add(jLabelMessage, gridBagConstraints);
+
+        jButtonCancel.setText("Cancel");
+        jButtonCancel.setToolTipText("Interrupt the application launching (if possible)");
+        gridBagConstraints = new java.awt.GridBagConstraints();
+        gridBagConstraints.gridx = 0;
+        gridBagConstraints.gridy = 2;
+        gridBagConstraints.insets = new java.awt.Insets(0, 0, 20, 0);
+        getContentPane().add(jButtonCancel, gridBagConstraints);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JProgressBar jProgressBar1;
+    private javax.swing.JButton jButtonCancel;
+    private javax.swing.JLabel jLabelMessage;
+    private javax.swing.JProgressBar jProgressBar;
     // End of variables declaration//GEN-END:variables
 
     /**
@@ -66,14 +80,22 @@ public class MonitorWindow extends javax.swing.JFrame {
      * @return Progress bar object
      */
     javax.swing.JProgressBar getProgressBar() {
-        return jProgressBar1;
+        return jProgressBar;
     }
 
     /**
      * Return the label object
      * @return label object
      */
-    javax.swing.JLabel getLabel() {
-        return jLabel1;
+    javax.swing.JLabel getLabelMessage() {
+        return jLabelMessage;
+    }
+
+    /**
+     * Return the cancel button object
+     * @return cancel button object
+     */
+    public JButton getButtonCancel() {
+        return jButtonCancel;
     }
 }

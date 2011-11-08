@@ -11,6 +11,7 @@ import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
 import java.util.logging.Level;
+import javax.swing.JButton;
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
 
@@ -21,8 +22,11 @@ import javax.swing.Timer;
 public class StubMonitor implements Observer {
 
     /** Class logger */
-    private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(StubMonitor.class.getName());
-
+    private static final java.util.logging.Logger _logger = java.util.logging.Logger.getLogger(StubMonitor.class.getName());
+    /** auto hide delay in milliseconds */
+    public final static int AUTO_HIDE_DELAY = 3000;
+    
+    /* members */
     /** Monitor GUI */
     private MonitorWindow _window;
 
@@ -31,7 +35,7 @@ public class StubMonitor implements Observer {
      */
     public StubMonitor() {
         super();
-
+        
         SwingUtils.invokeEDT(new Runnable() {
 
             /**
@@ -56,72 +60,99 @@ public class StubMonitor implements Observer {
      */
     @Override
     public void update(final Observable obj, final Object arg) {
-
-        final String applicationName = ((ClientStub) obj).toString();
-
+        final ClientStub client = (ClientStub) obj;
+        final String applicationName = client.getApplicationName();
+        
         final ClientStubState state = (ClientStubState) arg;
         final String message = state.message();
         final int step = state.step();
+        
+        final int minStep = ClientStubState.LISTENING.step();
         final int maxStep = ClientStubState.DIYING.step();
-
-        if (logger.isLoggable(Level.FINE)) {
-            logger.fine("StubMonitor['" + applicationName + "'] : '" + state.message() + "' (" + state.step() + "/" + maxStep + ").");
+        
+        if (_logger.isLoggable(Level.FINE)) {
+            _logger.fine("StubMonitor['" + applicationName + "'] : '" + state.message() + "' (" + step + " / " + maxStep + ").");
         }
 
-        SwingUtils.invokeEDT(new Runnable() {
+        // Do not display initialization statuses:
+        if (step > minStep) {
+            
+            SwingUtils.invokeEDT(new Runnable() {
 
-            /**
-             * Synchronized by EDT
-             */
-            @Override
-            public void run() {
-                
-                // bring this application to front :
-                App.showFrameToFront();
+                /**
+                 * Synchronized by EDT
+                 */
+                @Override
+                public void run() {
 
-                if (step > 0) {
+                    // Add cancel button action:
+                    final JButton cancelButton = _window.getButtonCancel();
+                    
+                    final boolean isLaunching = (step == ClientStubState.LAUNCHING.step());
+                    
+                    if (isLaunching && cancelButton.getActionListeners().length == 0) {
+                        cancelButton.addActionListener(new ActionListener() {
 
-                    _window.getLabel().setText("Redirecting to " + applicationName + ":");
+                            /**
+                             * Kill the application if the button is clicked
+                             * TODO: may not work as javaws can not be killed easily ...
+                             */
+                            @Override
+                            public void actionPerformed(final ActionEvent e) {
+                                client.killApplication();
+                                
+                                // disable cancel button:
+                                cancelButton.setEnabled(false);
+                            }
+                        });
+                    }
+                    
+                    cancelButton.setEnabled(isLaunching);
 
+                    // bring this application to front :
+                    App.showFrameToFront();
+                    
+                    _window.getLabelMessage().setText("Redirecting to " + applicationName + ":");
+                    
                     final JProgressBar bar = _window.getProgressBar();
-
+                    
                     bar.setMinimum(0);
                     bar.setMaximum(maxStep);
                     bar.setValue(state.step());
-
+                    
                     if (message.isEmpty()) {
                         bar.setStringPainted(false);
                         bar.setString(null);
                     } else {
                         bar.setStringPainted(true);
-                        bar.setString(message + "...");
+                        bar.setString(message + " ...");
                     }
-
+                    
                     if (!_window.isVisible() && step < ClientStubState.DISCONNECTING.step()) {
                         _window.setVisible(true);
                     }
                 }
-            }
-        });
+            });
 
-        // Should the window be hidden ?
-        if (step >= maxStep) {
+            // Should the window be hidden (DYING or FAILING states) ?
+            if (step >= maxStep) {
 
-            // Postpone hiding to let the user see the last message
-            final ActionListener hideTask = new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (_window.isVisible()) {
-                        _window.setVisible(false);
+                // Postpone hiding to let the user see the last message
+                final ActionListener hideTask = new ActionListener() {
+                    
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        if (_window.isVisible()) {
+                            _window.setVisible(false);
+                        }
                     }
-                }
-            };
-            
-            // Fire after 1.5 second
-            final Timer hideTaskTimer = new Timer(1500, hideTask); 
-            hideTaskTimer.setRepeats(false);
-            hideTaskTimer.start();
+                };
+
+                // Fire after 1.5 second
+                final Timer hideTaskTimer = new Timer(AUTO_HIDE_DELAY, hideTask);
+                hideTaskTimer.setRepeats(false);
+                hideTaskTimer.start();
+            }
         }
     }
 }
