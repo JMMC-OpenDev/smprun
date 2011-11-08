@@ -50,15 +50,12 @@ public class AppLauncher extends App {
         if (!SampManager.isConnected()) {
             throw new IllegalStateException("Unable to connect to an existing hub or start an internal SAMP hub !");
         }
-        
+
         // Initialize job runner:
         LocalLauncher.startUp();
 
         // First initialize the Client descriptions:
         HubPopulator.getInstance();
-
-        // Then initialize the Hub monitor which starts client stubs if necessary
-        HubMonitor.getInstance();
 
         // Using invokeAndWait to be in sync with this thread :
         // note: invokeAndWaitEDT throws an IllegalStateException if any exception occurs
@@ -77,6 +74,15 @@ public class AppLauncher extends App {
     }
 
     /**
+     * Create SAMP Message handlers
+     */
+    @Override
+    protected void declareInteroperability() {
+        // Initialize the Hub monitor which starts client stubs if necessary
+        HubMonitor.getInstance();
+    }
+
+    /**
      * Execute application body = make the application frame visible
      */
     @Override
@@ -91,7 +97,7 @@ public class AppLauncher extends App {
                 _logger.fine("AppLauncher.ready : handler called.");
 
                 final JFrame frame = getFrame();
-                
+
                 WindowCenterer.centerOnMainScreen(frame);
 
                 frame.setVisible(true);
@@ -122,10 +128,10 @@ public class AppLauncher extends App {
     public void onFinish() {
 
         // Properly disconnect connected clients:
-        for (ClientStub client: HubPopulator.getInstance().getClients()) {
+        for (ClientStub client : HubPopulator.getInstance().getClients()) {
             client.disconnect();
         }
-        
+
         // Stop job runner:
         LocalLauncher.shutdown();
 
