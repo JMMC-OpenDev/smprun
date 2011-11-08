@@ -31,6 +31,10 @@ public class HubPopulator {
     private static final java.util.logging.Logger _logger = java.util.logging.Logger.getLogger(HubPopulator.class.getName());
     /** HubPopulator singleton */
     private static final HubPopulator INSTANCE = new HubPopulator();
+    /** no sleeping delay before sending the samp message */
+    public final static long WAIT_NO = -1l;
+    /** 1 second sleeping delay before sending the samp message */
+    public final static long WAIT_1_SECOND = 1000l;
     /* members */
     /** all client stubs */
     private final List<ClientStub> _clients = new ArrayList<ClientStub>();
@@ -69,7 +73,8 @@ public class HubPopulator {
 
         clientsJMMC.add(addClientStub(md,
                 "http://apps.jmmc.fr/~swmgr/Aspro2/Aspro2.jnlp",
-                new SampCapability[]{SampCapability.LOAD_VO_TABLE}));
+                new SampCapability[]{SampCapability.LOAD_VO_TABLE}, 
+                WAIT_NO));
 
         // --- SEARCHCAL ---
         md = new Metadata();
@@ -78,7 +83,8 @@ public class HubPopulator {
 
         clientsJMMC.add(addClientStub(md,
                 "http://apps.jmmc.fr/~sclws/SearchCal/SearchCal.jnlp",
-                new SampCapability[]{SampCapability.SEARCHCAL_START_QUERY}));
+                new SampCapability[]{SampCapability.SEARCHCAL_START_QUERY}, 
+                WAIT_NO));
 
         // --- LITPRO ---
         md = new Metadata();
@@ -87,7 +93,8 @@ public class HubPopulator {
 
         clientsJMMC.add(addClientStub(md,
                 "http://jmmc.fr/~swmgr/LITpro/LITpro.jnlp",
-                new SampCapability[]{SampCapability.LITPRO_START_SETTING}));
+                new SampCapability[]{SampCapability.LITPRO_START_SETTING}, 
+                WAIT_NO));
 
         // Update JMMC ClientStubFamily:
         _familyLists.put(ClientStubFamily.JMMC, clientsJMMC);
@@ -115,7 +122,8 @@ public class HubPopulator {
                     /* SampCapability.HIGHLIGHT_ROW, */
                     SampCapability.LOAD_FITS_TABLE
                 /* SampCapability.SELECT_LIST */
-                }));
+                },
+                WAIT_1_SECOND));
 
         // --- TOPCAT ---
         md = new Metadata();
@@ -129,7 +137,8 @@ public class HubPopulator {
                     /* SampCapability.HIGHLIGHT_ROW, */
                     SampCapability.LOAD_FITS_TABLE
                 /* SampCapability.SELECT_LIST */
-                }));
+                },
+                WAIT_NO));
 
         // Update GENERAL ClientStubFamily:
         _familyLists.put(ClientStubFamily.GENERAL, clientsGeneric);
@@ -143,10 +152,12 @@ public class HubPopulator {
      * @param md SAMP meta data
      * @param jnlpUrl jnlp url
      * @param capabilities samp capabilities
+     * @param sleepDelayBeforeNotify sleep delay in milliseconds before sending the samp message
      * @return client stub 
      */
-    private ClientStub addClientStub(final Metadata md, final String jnlpUrl, final SampCapability[] capabilities) {
-        final ClientStub client = new ClientStub(md, jnlpUrl, capabilities);
+    private ClientStub addClientStub(final Metadata md, final String jnlpUrl, final SampCapability[] capabilities,
+            final long sleepDelayBeforeNotify) {
+        final ClientStub client = new ClientStub(md, jnlpUrl, capabilities, sleepDelayBeforeNotify);
         client.addObserver(new StubMonitor());
 
         _clients.add(client);
