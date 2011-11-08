@@ -54,10 +54,10 @@ public class AppLauncher extends App {
         // Initialize job runner:
         LocalLauncher.startUp();
 
-        // Initialize first the Client descriptions:
+        // First initialize the Client descriptions:
         HubPopulator.getInstance();
 
-        // Initialize the Hub monitor which starts client stubs if necessary
+        // Then initialize the Hub monitor which starts client stubs if necessary
         HubMonitor.getInstance();
 
         // Using invokeAndWait to be in sync with this thread :
