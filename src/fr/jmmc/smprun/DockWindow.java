@@ -6,7 +6,6 @@ package fr.jmmc.smprun;
 import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.StatusBar;
 import fr.jmmc.jmcs.gui.SwingUtils;
-import fr.jmmc.jmcs.gui.WindowCenterer;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.ClientStubFamily;
@@ -31,9 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
-import javax.swing.JViewport;
 import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 
@@ -46,12 +43,13 @@ public class DockWindow extends JFrame {
     private static final long serialVersionUID = 1;
     /** Logger */
     private static final Logger _logger = Logger.getLogger(DockWindow.class.getName());
-
     /** DockWindow singleton */
     private static DockWindow instance = null;
-    /* members */
     /** window dimensions */
     private static final Dimension _windowDimension = new Dimension(640, 120);
+    
+    /* members */
+    // TODO: use application name
     /** button / client map */
     private final HashMap<JButton, ClientStub> _clientButtons = new HashMap<JButton, ClientStub>(8);
     /** client / button map */
@@ -62,59 +60,32 @@ public class DockWindow extends JFrame {
      * @return DockWindow singleton
      */
     public static DockWindow getInstance() {
+        if (instance == null) {
+            instance = new DockWindow();
+        }
         return instance;
     }
 
     /**
      * Constructor.
      */
-    public DockWindow() {
+    private DockWindow() {
 
         super("AppLauncher");
 
-        // TODO: apply proper singleton pattern (factory)
-        instance = this;
-
         prepareFrame();
         preparePane();
-        finalizeFrame();
 
         // Show the user the app is ready to be used
         StatusBar.show("application ready.");
     }
 
+    /**
+     * Prepare the frame
+     */
     private void prepareFrame() {
         setMinimumSize(_windowDimension);
         setMaximumSize(_windowDimension);
-    }
-
-    private void preparePane() {
-        Container _mainPane = getContentPane();
-        _mainPane.setLayout(new BorderLayout());
-
-        final JPanel verticalListPane = new JPanel();
-        verticalListPane.setLayout(new BoxLayout(verticalListPane, BoxLayout.Y_AXIS));
-
-        for (ClientStubFamily clientFamily : ClientStubFamily.values()) {
-            JLabel familyLabel = new JLabel("<html><b>" + clientFamily.family() + "</b></html>");
-            verticalListPane.add(familyLabel);
-
-            JScrollPane iconPane = buildScrollPane(clientFamily);
-            iconPane.setAlignmentX(0.01f);
-            verticalListPane.add(iconPane);
-
-            JSeparator separator = new JSeparator();
-            verticalListPane.add(separator);
-        }
-
-        _mainPane.add(verticalListPane, BorderLayout.CENTER);
-
-        _mainPane.add(new StatusBar(), BorderLayout.SOUTH);
-    }
-
-    private void finalizeFrame() {
-
-        WindowCenterer.centerOnMainScreen(this);
 
         // @TODO : Put it in System Tray ??
 
@@ -132,7 +103,39 @@ public class DockWindow extends JFrame {
         });
     }
 
-    public final JScrollPane buildScrollPane(ClientStubFamily family) {
+    /**
+     * Prepare the content pane
+     */
+    private void preparePane() {
+        final Container mainPane = getContentPane();
+        mainPane.setLayout(new BorderLayout());
+
+        final JPanel verticalListPane = new JPanel();
+        verticalListPane.setLayout(new BoxLayout(verticalListPane, BoxLayout.Y_AXIS));
+
+        JLabel familyLabel;
+        JScrollPane iconPane;
+        for (ClientStubFamily clientFamily : ClientStubFamily.values()) {
+            familyLabel = new JLabel("<html><b>" + clientFamily.GetFamily() + "</b></html>");
+            verticalListPane.add(familyLabel);
+
+            iconPane = buildScrollPane(clientFamily);
+            iconPane.setAlignmentX(0.01f);
+            verticalListPane.add(iconPane);
+
+            verticalListPane.add(new JSeparator());
+        }
+
+        mainPane.add(verticalListPane, BorderLayout.CENTER);
+        mainPane.add(new StatusBar(), BorderLayout.SOUTH);
+    }
+
+    /**
+     * Create one scroll pane per client family
+     * @param family client family
+     * @return scroll pane
+     */
+    public final JScrollPane buildScrollPane(final ClientStubFamily family) {
 
         final JPanel horizontalRowPane = new JPanel();
         horizontalRowPane.setLayout(new BoxLayout(horizontalRowPane, BoxLayout.X_AXIS));
@@ -141,38 +144,46 @@ public class DockWindow extends JFrame {
         final Component emptyRigidArea = Box.createRigidArea(new Dimension(100, 0));
         horizontalRowPane.add(emptyRigidArea);
 
-        List<ClientStub> clients = HubPopulator.getInstance().getClientList(family);
+        final List<ClientStub> clients = HubPopulator.getInstance().getClientList(family);
+        
+        // Create the button action listener once:
+        final ActionListener buttonActionListener = new ActionListener() {
+
+            /**
+             * Start client application when its icon is clicked
+             */
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+
+                if (e.getSource() instanceof JButton) {
+                    final JButton button = (JButton) e.getSource();
+
+                    final ClientStub client = _clientButtons.get(button);
+
+                    if (client != null) {
+                        // start application in background:
+                        client.launchApplication();
+                    }
+                }
+            }
+        };
+        
+        JButton button;
         for (final ClientStub client : clients) {
 
-            JButton button = buildClientButton(client);
+            button = buildClientButton(client);
+            button.addActionListener(buttonActionListener);
+            
             _clientButtons.put(button, client);
             _buttonClients.put(client, button);
 
             horizontalRowPane.add(button);
             horizontalRowPane.add(emptyRigidArea);
-
-            // Start client application when its icon is clicked
-            button.addActionListener(new ActionListener() {
-
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    StatusBar.show("Starting " + client + "...");
-
-                    // @TODO : handle NPE
-                    final JButton button = (JButton) e.getSource();
-
-                    // @TODO : handle NPE
-                    final ClientStub client = _clientButtons.get(button);
-
-                    // start application in background:
-                    client.launchApplication();
-                }
-            });
         }
 
         horizontalRowPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-        JScrollPane scrollPane = new JScrollPane(horizontalRowPane,
+        final JScrollPane scrollPane = new JScrollPane(horizontalRowPane,
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
@@ -188,10 +199,8 @@ public class DockWindow extends JFrame {
      * @return created button
      */
     private JButton buildClientButton(final ClientStub client) {
-        // #TODO : handle NPE
-        final String clientName = client.toString();
 
-        // #TODO : handle NPE
+        final String clientName = client.getApplicationName();
         final ImageIcon clientIcon = client.getApplicationIcon();
 
         // Resize the icon up to 64*64 pixels
@@ -219,8 +228,7 @@ public class DockWindow extends JFrame {
         final Border border = new EmptyBorder(topVerticalMargin, midHorizontalMargin, borderSize, midHorizontalMargin);
 
         // Horizontally center application name below its icon
-        final JButton button = new JButton(new ImageIcon(scaledImage));
-        button.setText(clientName);
+        final JButton button = new JButton(clientName, new ImageIcon(scaledImage));
         button.setVerticalTextPosition(SwingConstants.BOTTOM);
         button.setHorizontalTextPosition(SwingConstants.CENTER);
         button.setBorder(border);
