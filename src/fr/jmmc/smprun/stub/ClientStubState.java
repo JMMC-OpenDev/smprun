@@ -9,18 +9,35 @@ package fr.jmmc.smprun.stub;
  */
 public enum ClientStubState {
 
-    INITIALIZING(0, ""),
-    CONNECTING(0, ""),
-    REGISTERING(0, ""),
-    LISTENING(0, ""),
-    PROCESSING(1, "Received a new message"),
-    LAUNCHING(2, "Downloading the application"),
-    SEEKING(3, "Starting the application"),
-    FORWARDING(4, "Forwarding the message"),
-    DISCONNECTING(5, "Cleaning up"),
-    DIYING(6, "Done"),
-    FAILING(7, "Failed to start the application");
+    /** undefined state */
+    UNDEFINED(0, ""),
+    /** initialization step */
+    INITIALIZING(1, ""),
+    /** hub connection step */
+    CONNECTING(2, ""),
+    /** mtype registration step */
+    REGISTERING(3, ""),
+    /** listening for registration of the real application */
+    LISTENING(4, ""),
+    /** Processing an incoming message */
+    PROCESSING(5, "Received a new message"),
+    /** Launching the application */
+    LAUNCHING(6, "Downloading the application"),
     
+    // TODO: add STARTING state
+    
+    /** Waiting for the application to be started and connected to SAMP hub */
+    SEEKING(7, "Starting the application"),
+    /** Sending the intercepted message to the application */
+    FORWARDING(8, "Forwarding the message"),
+    /** Disconnecting from hub */
+    DISCONNECTING(9, "Cleaning up"),
+    /** end state means disabled */
+    DIYING(10, "Done"),
+    /** failure state means an error occured when starting the application */
+    FAILING(11, "Failed to start the application");
+    
+    /* members */
     /** the numerical order of the internal progress (steps equal to zero don't trigger GUI updates) */
     private final int _step;
     /** the user displayable text to explain the internal state */
@@ -31,7 +48,7 @@ public enum ClientStubState {
      * @param step the numerical order of the internal progress (steps equal to zero don't trigger GUI updates)
      * @param message the user displayable text to explain the internal state
      */
-    ClientStubState(int step, String message) {
+    ClientStubState(final int step, final String message) {
         _step = step;
         _message = message;
     }
@@ -42,7 +59,16 @@ public enum ClientStubState {
     public int step() {
         return _step;
     }
-     
+
+    /**
+     * Return true if this state is after the given state
+     * @param state state to compare with
+     * @return true if this state is after the given state 
+     */
+    public boolean after(final ClientStubState state) {
+        return _step > state.step();
+    }
+
     /**
      * Return true if this state is before the given state
      * @param state state to compare with

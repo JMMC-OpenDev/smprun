@@ -8,8 +8,9 @@ package fr.jmmc.smprun.stub;
  * @author Sylvain LAFRASSE
  */
 public enum ClientStubFamily {
-
+    /** JMMC family */
     JMMC("Interferometry"),
+    /** General family */
     GENERAL("Essentials");
     
     /** the user displayable text to explain the internal family */
@@ -19,14 +20,14 @@ public enum ClientStubFamily {
      * Constructor
      * @param family the user displayable text to explain the internal family
      */
-    ClientStubFamily(String family) {
+    ClientStubFamily(final String family) {
         _family = family;
     }
 
     /**
      * @return the user displayable text to explain the internal family
      */
-    public String family() {
+    public String GetFamily() {
         return _family;
     }
 
@@ -36,7 +37,7 @@ public enum ClientStubFamily {
      */
     public static void main(String[] args) {
         for (ClientStubFamily f : ClientStubFamily.values()) {
-            System.out.println("Family '" + f + "' => '" + f.family() + "'.");
+            System.out.println("Family '" + f + "' => '" + f.GetFamily() + "'.");
         }
     }
 }
