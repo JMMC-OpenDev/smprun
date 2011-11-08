@@ -6,9 +6,12 @@ package fr.jmmc.smprun;
 import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.SwingSettings;
 import fr.jmmc.jmcs.gui.SwingUtils;
+import fr.jmmc.jmcs.gui.WindowCenterer;
+import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.smprun.stub.ClientStub;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JFrame;
 import org.ivoa.util.runner.LocalLauncher;
 
 /**
@@ -42,11 +45,20 @@ public class AppLauncher extends App {
     @Override
     protected void init(final String[] args) {
 
+        // Start first the SampManager (connect to an existing hub or start a new one)
+        // and check if it is connected to one Hub:
+        if (!SampManager.isConnected()) {
+            throw new IllegalStateException("Unable to connect to an existing hub or start an internal SAMP hub !");
+        }
+        
         // Initialize job runner:
         LocalLauncher.startUp();
 
         // Initialize first the Client descriptions:
         HubPopulator.getInstance();
+
+        // Initialize the Hub monitor which starts client stubs if necessary
+        HubMonitor.getInstance();
 
         // Using invokeAndWait to be in sync with this thread :
         // note: invokeAndWaitEDT throws an IllegalStateException if any exception occurs
@@ -57,7 +69,7 @@ public class AppLauncher extends App {
              */
             @Override
             public void run() {
-                App.setFrame(new DockWindow());
+                App.setFrame(DockWindow.getInstance());
 
                 // @TODO : Handle JMMC app mimetypes to open our apps !!!
             }
@@ -78,11 +90,13 @@ public class AppLauncher extends App {
             public void run() {
                 _logger.fine("AppLauncher.ready : handler called.");
 
-                getFrame().setVisible(true);
+                final JFrame frame = getFrame();
+                
+                WindowCenterer.centerOnMainScreen(frame);
+
+                frame.setVisible(true);
             }
         });
-
-        //HubMonitor.getInstance();
     }
 
     /**
@@ -107,9 +121,9 @@ public class AppLauncher extends App {
     @Override
     public void onFinish() {
 
-        // Properly disconnect and dispose SAMP hub:
+        // Properly disconnect connected clients:
         for (ClientStub client: HubPopulator.getInstance().getClients()) {
-            client.disconnectFromHub();
+            client.disconnect();
         }
         
         // Stop job runner:
