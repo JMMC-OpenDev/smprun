@@ -7,6 +7,7 @@ import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.ClientStubUtils;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -16,6 +17,7 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import org.astrogrid.samp.Client;
 import org.astrogrid.samp.Metadata;
+import org.astrogrid.samp.Subscriptions;
 import org.astrogrid.samp.gui.SubscribedClientListModel;
 import org.ivoa.util.concurrent.ThreadExecutors;
 
@@ -39,6 +41,12 @@ public final class HubMonitor {
     private final ThreadExecutors _executor;
     /** List of unique client stubs needed to be started ASAP */
     private Set<ClientStub> _clientStubsToStart = new LinkedHashSet<ClientStub>();
+    /** List of unique real applications already sniffed */
+    private Set<String> _sniffedRealApplicationName = new LinkedHashSet<String>();
+    /** Map of sniffed real application metadata */
+    private HashMap<String, Metadata> _sniffedRealApplicationMetadata = new HashMap<String, Metadata>();
+    /** Map of sniffed real application subscriptions */
+    private HashMap<String, Subscriptions> _sniffedRealApplicationSubscriptions = new HashMap<String, Subscriptions>();
 
     /**
      * Return the HubMonitor singleton.
@@ -88,7 +96,6 @@ public final class HubMonitor {
         handleHubEvent();
 
         // TODO: monitor hub shutdown too ?
-        // TODO: implement Samp sniffer ASAP
 
         /*
         String[] mTypes = {"samp.hub.event.shutdown", "samp.hub.event.register", "samp.hub.event.metadata", "samp.hub.event.subscriptions", "samp.hub.event.unregister", "samp.hub.disconnect"};
@@ -187,10 +194,13 @@ public final class HubMonitor {
                     if (ClientStubUtils.STUB_TOKEN.equals(clientStubFlag)) {
                         _logger.info("Found STUB recipient '" + clientName + "' [" + recipientId + "] : leaving it alone.");
                     } else {
-                        _logger.info("Found REAL recipient '" + clientName + "' [" + recipientId + "] : running STUB trickery.");
+                        _logger.info("Found REAL recipient '" + clientName + "' [" + recipientId + "] : running STUB trickery !");
 
                         // Perform callback on client stub
                         handleRealRecipientRegistration(stub, recipientId);
+
+                        // Dump real application metadata for snffing purpose
+                        dumpRealRecipientMetadata(client);//clientName, recipientId, md);
                     }
 
                     // Do not exit from loop yet, as we can have two SAMP clients having the same application name ??
@@ -240,5 +250,25 @@ public final class HubMonitor {
                 stub.forwardMessage(recipientId);
             }
         });
+    }
+
+    /**
+     * Collect all real application metadata.
+     * 
+     * @param client the real application
+     */
+    private void dumpRealRecipientMetadata(Client client) {
+        Metadata md = client.getMetadata();
+        Subscriptions subscriptions = client.getSubscriptions();
+
+        String name = md.getName();
+
+        if (!_sniffedRealApplicationName.contains(name)) {
+            _logger.info("Sniffed new real application '" + name + "' : backep up its metadata and subscriptions.");
+
+            _sniffedRealApplicationName.add(name);
+            _sniffedRealApplicationMetadata.put(name, md);
+            _sniffedRealApplicationSubscriptions.put(name, subscriptions);
+        }
     }
 }
