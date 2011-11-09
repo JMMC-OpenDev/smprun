@@ -17,7 +17,8 @@ import javax.swing.Timer;
 
 /**
  * Monitor Window controller.
- * @author Sylvain LAFRASSE
+ * 
+ * @author Sylvain LAFRASSE, Laurent BOURGES
  */
 public class StubMonitor implements Observer {
 
@@ -25,7 +26,6 @@ public class StubMonitor implements Observer {
     private static final java.util.logging.Logger _logger = java.util.logging.Logger.getLogger(StubMonitor.class.getName());
     /** auto hide delay in milliseconds */
     public final static int AUTO_HIDE_DELAY = 3000;
-    
     /* members */
     /** Monitor GUI */
     private MonitorWindow _window;
@@ -35,7 +35,7 @@ public class StubMonitor implements Observer {
      */
     public StubMonitor() {
         super();
-        
+
         SwingUtils.invokeEDT(new Runnable() {
 
             /**
@@ -62,21 +62,21 @@ public class StubMonitor implements Observer {
     public void update(final Observable obj, final Object arg) {
         final ClientStub client = (ClientStub) obj;
         final String applicationName = client.getApplicationName();
-        
+
         final ClientStubState state = (ClientStubState) arg;
         final String message = state.message();
         final int step = state.step();
-        
+
         final int minStep = ClientStubState.LISTENING.step();
         final int maxStep = ClientStubState.DIYING.step();
-        
+
         if (_logger.isLoggable(Level.FINE)) {
             _logger.fine("StubMonitor['" + applicationName + "'] : '" + state.message() + "' (" + step + " / " + maxStep + ").");
         }
 
         // Do not display initialization statuses:
         if (step > minStep) {
-            
+
             SwingUtils.invokeEDT(new Runnable() {
 
                 /**
@@ -87,9 +87,9 @@ public class StubMonitor implements Observer {
 
                     // Add cancel button action:
                     final JButton cancelButton = _window.getButtonCancel();
-                    
+
                     final boolean isLaunching = (step == ClientStubState.LAUNCHING.step());
-                    
+
                     if (isLaunching && cancelButton.getActionListeners().length == 0) {
                         cancelButton.addActionListener(new ActionListener() {
 
@@ -99,35 +99,35 @@ public class StubMonitor implements Observer {
                              */
                             @Override
                             public void actionPerformed(final ActionEvent e) {
-                                client.killApplication();
-                                
+                                client.killRealApplication();
+
                                 // disable cancel button:
                                 cancelButton.setEnabled(false);
                             }
                         });
                     }
-                    
+
                     cancelButton.setEnabled(isLaunching);
 
                     // bring this application to front :
                     App.showFrameToFront();
-                    
+
                     _window.getLabelMessage().setText("Redirecting to " + applicationName + ":");
-                    
+
                     final JProgressBar bar = _window.getProgressBar();
-                    
+
                     bar.setMinimum(0);
                     bar.setMaximum(maxStep);
                     bar.setValue(state.step());
-                    
-                    if (message.isEmpty()) {
+
+                    if (message.length() == 0) {
                         bar.setStringPainted(false);
                         bar.setString(null);
                     } else {
                         bar.setStringPainted(true);
                         bar.setString(message + " ...");
                     }
-                    
+
                     if (!_window.isVisible() && step < ClientStubState.DISCONNECTING.step()) {
                         _window.setVisible(true);
                     }
@@ -139,7 +139,7 @@ public class StubMonitor implements Observer {
 
                 // Postpone hiding to let the user see the last message
                 final ActionListener hideTask = new ActionListener() {
-                    
+
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (_window.isVisible()) {

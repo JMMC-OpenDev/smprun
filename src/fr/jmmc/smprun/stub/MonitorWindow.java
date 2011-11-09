@@ -13,7 +13,8 @@ import javax.swing.JButton;
 
 /**
  * Display progress of stub internal state.
- * @author Sylvain LAFRASSE
+ * 
+ * @author Sylvain LAFRASSE, Laurent BOURGES
  */
 public class MonitorWindow extends javax.swing.JFrame {
 

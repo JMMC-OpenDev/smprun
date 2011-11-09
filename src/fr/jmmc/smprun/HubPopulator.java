@@ -23,7 +23,8 @@ import org.astrogrid.samp.Metadata;
 
 /**
  * Instanciate all known stubs.
- * @author Sylvain LAFRASSE
+ * 
+ * @author Sylvain LAFRASSE, Laurent BOURGES
  */
 public class HubPopulator {
 
@@ -64,16 +65,16 @@ public class HubPopulator {
         // Note: Use Icon URL pointing to files extracted from Jar file (see resource package)
 
         // JMMC client list:
-        final List<ClientStub> clientsJMMC = new ArrayList<ClientStub>(3);
+        final List<ClientStub> jmmcClients = new ArrayList<ClientStub>(3);
 
         // --- ASPRO2 ---
         md = new Metadata();
         md.setName("Aspro2");
         md.setIconUrl(extractResource("aspro2-6464.png")); // http://www.jmmc.fr/searchcal/images/aspro2-6464.png
 
-        clientsJMMC.add(addClientStub(md,
+        jmmcClients.add(createClientStub(md,
                 "http://apps.jmmc.fr/~swmgr/Aspro2/Aspro2.jnlp",
-                new SampCapability[]{SampCapability.LOAD_VO_TABLE}, 
+                new SampCapability[]{SampCapability.LOAD_VO_TABLE},
                 WAIT_NO));
 
         // --- SEARCHCAL ---
@@ -81,9 +82,9 @@ public class HubPopulator {
         md.setName("SearchCal");
         md.setIconUrl(extractResource("searchcal-6464.png")); // http://apps.jmmc.fr/~sclws/SearchCal/AppIcon.png
 
-        clientsJMMC.add(addClientStub(md,
+        jmmcClients.add(createClientStub(md,
                 "http://apps.jmmc.fr/~sclws/SearchCal/SearchCal.jnlp",
-                new SampCapability[]{SampCapability.SEARCHCAL_START_QUERY}, 
+                new SampCapability[]{SampCapability.SEARCHCAL_START_QUERY},
                 WAIT_NO));
 
         // --- LITPRO ---
@@ -91,16 +92,16 @@ public class HubPopulator {
         md.setName("LITpro");
         md.setIconUrl(extractResource("litpro-6464.png")); // http://www.jmmc.fr/images/litpro6464ws.jpg
 
-        clientsJMMC.add(addClientStub(md,
+        jmmcClients.add(createClientStub(md,
                 "http://jmmc.fr/~swmgr/LITpro/LITpro.jnlp",
-                new SampCapability[]{SampCapability.LITPRO_START_SETTING}, 
+                new SampCapability[]{SampCapability.LITPRO_START_SETTING},
                 WAIT_NO));
 
         // Update JMMC ClientStubFamily:
-        _familyLists.put(ClientStubFamily.JMMC, clientsJMMC);
+        _familyLists.put(ClientStubFamily.JMMC, jmmcClients);
 
         // Generic client list:
-        final List<ClientStub> clientsGeneric = new ArrayList<ClientStub>(3);
+        final List<ClientStub> generalClients = new ArrayList<ClientStub>(3);
 
         /*
          * Note: Following SAMP messages must not trigger application startup:
@@ -114,7 +115,7 @@ public class HubPopulator {
         md.setName("Aladin");
         md.setIconUrl(extractResource("aladin-6464.png")); // http://aladin.u-strasbg.fr/aladin_large.gif
 
-        clientsGeneric.add(addClientStub(md,
+        generalClients.add(createClientStub(md,
                 "http://aladin.u-strasbg.fr/java/nph-aladin.pl?frame=get&id=aladin.jnlp",
                 new SampCapability[]{SampCapability.LOAD_VO_TABLE,
                     /* SampCapability.POINT_COORDINATES, */
@@ -130,7 +131,7 @@ public class HubPopulator {
         md.setName("topcat");
         md.setIconUrl(extractResource("topcat-6464.png")); // "http://www.star.bris.ac.uk/~mbt/topcat/tc3.gif"
 
-        clientsGeneric.add(addClientStub(md,
+        generalClients.add(createClientStub(md,
                 "http://www.star.bris.ac.uk/~mbt/topcat/topcat-full.jnlp",
                 new SampCapability[]{SampCapability.LOAD_VO_TABLE,
                     /* SampCapability.POINT_COORDINATES, */
@@ -141,7 +142,7 @@ public class HubPopulator {
                 WAIT_NO));
 
         // Update GENERAL ClientStubFamily:
-        _familyLists.put(ClientStubFamily.GENERAL, clientsGeneric);
+        _familyLists.put(ClientStubFamily.GENERAL, generalClients);
 
         _logger.info("configuration: " + _familyLists);
         _logger.info("clients:       " + _clients);
@@ -149,13 +150,14 @@ public class HubPopulator {
 
     /**
      * Create a new Client Stub using given arguments and store it in collections
+     * 
      * @param md SAMP meta data
-     * @param jnlpUrl jnlp url
+     * @param jnlpUrl JNLP URL
      * @param capabilities samp capabilities
      * @param sleepDelayBeforeNotify sleep delay in milliseconds before sending the samp message
      * @return client stub 
      */
-    private ClientStub addClientStub(final Metadata md, final String jnlpUrl, final SampCapability[] capabilities,
+    private ClientStub createClientStub(final Metadata md, final String jnlpUrl, final SampCapability[] capabilities,
             final long sleepDelayBeforeNotify) {
         final ClientStub client = new ClientStub(md, jnlpUrl, capabilities, sleepDelayBeforeNotify);
         client.addObserver(new StubMonitor());
@@ -191,7 +193,7 @@ public class HubPopulator {
     public ClientStub getClientStub(final String name) {
         return _clientStubMap.get(name);
     }
-    
+
     /**
      * Return the client stubs per client family
      * @param family client family

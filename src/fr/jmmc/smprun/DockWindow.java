@@ -36,6 +36,8 @@ import javax.swing.border.EmptyBorder;
 
 /**
  * Main window. This class is at one central point and play the mediator role.
+
+ * @author Sylvain LAFRASSE, Laurent BOURGES
  */
 public class DockWindow extends JFrame {
 
@@ -47,7 +49,6 @@ public class DockWindow extends JFrame {
     private static DockWindow instance = null;
     /** window dimensions */
     private static final Dimension _windowDimension = new Dimension(640, 120);
-    
     /* members */
     // TODO: use application name
     /** button / client map */
@@ -145,7 +146,7 @@ public class DockWindow extends JFrame {
         horizontalRowPane.add(emptyRigidArea);
 
         final List<ClientStub> clients = HubPopulator.getInstance().getClientList(family);
-        
+
         // Create the button action listener once:
         final ActionListener buttonActionListener = new ActionListener() {
 
@@ -158,22 +159,22 @@ public class DockWindow extends JFrame {
                 if (e.getSource() instanceof JButton) {
                     final JButton button = (JButton) e.getSource();
 
-                    final ClientStub client = _clientButtons.get(button);
+                    final ClientStub stub = _clientButtons.get(button);
 
-                    if (client != null) {
-                        // start application in background:
-                        client.launchApplication();
+                    // Start application in background:
+                    if (stub != null) {
+                        stub.launchRealApplication();
                     }
                 }
             }
         };
-        
+
         JButton button;
         for (final ClientStub client : clients) {
 
             button = buildClientButton(client);
             button.addActionListener(buttonActionListener);
-            
+
             _clientButtons.put(button, client);
             _buttonClients.put(client, button);
 
@@ -273,7 +274,7 @@ public class DockWindow extends JFrame {
         final JButton button = _buttonClients.get(client);
         if (button != null) {
             SwingUtils.invokeEDT(new Runnable() {
-               
+
                 @Override
                 public void run() {
                     button.setEnabled(enabled);

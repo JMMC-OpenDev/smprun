@@ -5,19 +5,21 @@ package fr.jmmc.smprun.stub;
 
 /**
  * Enumeration of all the different stub families.
- * @author Sylvain LAFRASSE
+ * 
+ * @author Sylvain LAFRASSE, Laurent BOURGES
  */
 public enum ClientStubFamily {
+
     /** JMMC family */
     JMMC("Interferometry"),
     /** General family */
     GENERAL("Essentials");
-    
     /** the user displayable text to explain the internal family */
     private final String _family;
 
     /**
      * Constructor
+     * 
      * @param family the user displayable text to explain the internal family
      */
     ClientStubFamily(final String family) {
@@ -33,6 +35,7 @@ public enum ClientStubFamily {
 
     /**
      * For unit testing purpose only.
+     * 
      * @param args
      */
     public static void main(String[] args) {

@@ -17,7 +17,7 @@ import org.ivoa.util.runner.LocalLauncher;
 /**
  * AppLauncher main class.
  * 
- * @author Sylvain LAFRASSE
+ * @author Sylvain LAFRASSE, Laurent BOURGES
  */
 public class AppLauncher extends App {
 

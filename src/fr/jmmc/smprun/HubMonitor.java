@@ -20,8 +20,9 @@ import org.astrogrid.samp.gui.SubscribedClientListModel;
 import org.ivoa.util.concurrent.ThreadExecutors;
 
 /**
- * Monitor hub connections (register / unregister) for MTypes corresponding to all client stubs
- * @author lafrasse
+ * Monitor hub connections (register / unregister) for MTypes corresponding to all client stubs.
+ * 
+ * @author Sylvain LAFRASSE, Laurent BOURGES
  */
 public final class HubMonitor {
 
@@ -32,15 +33,16 @@ public final class HubMonitor {
     /* members  */
     /** mType array containing all unique MTypes handled by all applications */
     private final String[] _mTypesStrings;
-    /** registered samp recipients corresponding to mType array */
+    /** Registered SAMP recipients corresponding to mType array */
     private final SubscribedClientListModel _capableClients;
-    /** dedicated thread executor */
+    /** Dedicated thread executor */
     private final ThreadExecutors _executor;
-    /** list of unique client stubs needed to be started asap */
+    /** List of unique client stubs needed to be started ASAP */
     private Set<ClientStub> _clientStubsToStart = new LinkedHashSet<ClientStub>();
 
     /**
-     * Return the HubMonitor singleton 
+     * Return the HubMonitor singleton.
+     * 
      * @return HubMonitor singleton 
      */
     public static HubMonitor getInstance() {
@@ -53,37 +55,37 @@ public final class HubMonitor {
     private HubMonitor() {
         _logger.info("HubMonitor()");
 
-        this._mTypesStrings = ComputeMTypeArray();
-        this._capableClients = SampManager.createSubscribedClientListModel(_mTypesStrings);
+        _mTypesStrings = ComputeMTypeArray();
+        _capableClients = SampManager.createSubscribedClientListModel(_mTypesStrings);
 
         // Monitor any modification to the capable clients list
-        this._capableClients.addListDataListener(new ListDataListener() {
+        _capableClients.addListDataListener(new ListDataListener() {
 
             @Override
             public void contentsChanged(final ListDataEvent e) {
                 _logger.entering("ListDataListener", "contentsChanged");
-                submitHubEvent();
+                handleHubEvent();
             }
 
             @Override
             public void intervalAdded(final ListDataEvent e) {
                 _logger.entering("ListDataListener", "intervalAdded");
-                submitHubEvent();
+                handleHubEvent();
             }
 
             @Override
             public void intervalRemoved(final ListDataEvent e) {
                 _logger.entering("ListDataListener", "intervalRemoved");
                 // note: this event is never invoked by JSamp code (1.3) !
-                submitHubEvent();
+                handleHubEvent();
             }
         });
 
         // Create deidcated thread executor:
-        this._executor = ThreadExecutors.getSingleExecutor(getClass().getSimpleName() + "ThreadPool");
+        _executor = ThreadExecutors.getSingleExecutor(getClass().getSimpleName() + "ThreadPool");
 
-        // Analize already registered samp clients:
-        submitHubEvent();
+        // Analize already registered samp clients
+        handleHubEvent();
 
         // TODO: monitor hub shutdown too ?
         // TODO: implement Samp sniffer ASAP
@@ -107,12 +109,14 @@ public final class HubMonitor {
     }
 
     /**
-     * Compute MType array to listen to
-     * @return MType[]
+     * Compute MType array to listen to.
+     * 
+     * @return A String array containing all listened mTypes.
      */
     private static String[] ComputeMTypeArray() {
-        final Set<SampCapability> sampCapabilitySet = HubPopulator.getInstance().getSampCapabilitySet();
+        _logger.info("ComputeMTypeArray()");
 
+        final Set<SampCapability> sampCapabilitySet = HubPopulator.getInstance().getSampCapabilitySet();
         final HashSet<String> mTypesSet = new HashSet<String>(sampCapabilitySet.size());
 
         for (SampCapability capability : sampCapabilitySet) {
@@ -132,108 +136,99 @@ public final class HubMonitor {
     /**
      * Process hub clients in background using the dedicated thread executor
      */
-    private void submitHubEvent() {
+    private void handleHubEvent() {
 
-        // First copy the content of the list model to avoid concurrency issues:
-
+        // First copy the content of the list model to avoid concurrency issues
         final int size = _capableClients.getSize();
-
         final Client[] clients = new Client[size];
-
         for (int i = 0; i < size; i++) {
             clients[i] = (Client) _capableClients.getElementAt(i);
         }
 
-        this._executor.submit(new Runnable() {
+        _executor.submit(new Runnable() {
 
             /**
              * Process hub information about registered client 
              */
             @Override
             public void run() {
-                processHubClients(clients);
+                loopOverHubClients(clients);
             }
         });
     }
 
     /**
-     * Handle changes on registered samp recipients: TODO: javadoc
+     * Handle changes on registered SAMP recipients:
      * 
      * @param clients current hub registered clients
      */
-    private void processHubClients(final Client[] clients) {
+    private void loopOverHubClients(final Client[] clients) {
         _logger.info("processHubClients() invoked by thread [" + Thread.currentThread() + "]");
 
-        Metadata md;
-        String applicationName, clientName, recipientId;
-        Object clientStubFlag;
-        boolean found;
 
         for (ClientStub stub : HubPopulator.getInstance().getClients()) {
 
-            applicationName = stub.getApplicationName();
-            found = false;
+            String applicationName = stub.getApplicationName();
+            boolean recipientFound = false;
 
             // Check each registered clients for the sought recipient name
             for (Client client : clients) {
 
-                md = client.getMetadata();
-                clientName = md.getName();
+                Metadata md = client.getMetadata();
+                String clientName = md.getName();
 
                 if (clientName.matches(applicationName)) {
-                    found = true;
+                    recipientFound = true;
 
-                    recipientId = client.getId();
+                    String recipientId = client.getId();
 
                     // If current client is one of our STUB
-                    clientStubFlag = md.get(ClientStubUtils.getClientStubKey(clientName));
-
-                    if (ClientStubUtils.TOKEN_STUB.equals(clientStubFlag)) {
-                        _logger.info("\t found recipient '" + clientName + "' [" + recipientId + "] : client stub.");
-
+                    Object clientStubFlag = md.get(ClientStubUtils.getClientStubKey(clientName));
+                    if (ClientStubUtils.STUB_TOKEN.equals(clientStubFlag)) {
+                        _logger.info("Found STUB recipient '" + clientName + "' [" + recipientId + "] : leaving it alone.");
                     } else {
-                        _logger.info("\t found recipient '" + clientName + "' [" + recipientId + "] : real application.");
+                        _logger.info("Found REAL recipient '" + clientName + "' [" + recipientId + "] : running STUB trickery.");
 
-                        // perform callback on client stub:
-                        submitRegistration(stub, recipientId);
+                        // Perform callback on client stub
+                        handleRealRecipientRegistration(stub, recipientId);
                     }
 
-                    // do not exit from loop as we can have two samp clients having the same application name ??
+                    // Do not exit from loop yet, as we can have two SAMP clients having the same application name ??
                     /* break; */
                 }
             }
 
-            if (!found) {
-                _logger.info("\t add missing client ['" + applicationName + "'].");
+            // If no real nor stub recipient found for application name
+            if (!recipientFound) {
+                _logger.info("Found NO recipient at all for '" + applicationName + "' : scheduling corresponding STUB startup.");
 
-                // add this stub to the unique set of client stubs to start soon:
+                // Schedule stub for startup (by adding it to the unique set of client stubs to start asap)
                 _clientStubsToStart.add(stub);
             }
         }
 
-        _logger.info("client stubs needed to start: " + _clientStubsToStart);
+        _logger.info("Stub recipients waiting to start : " + _clientStubsToStart);
 
-        // Do launch one client stub at once:
-        // the hub will send then one registration event that will cause this method to be invoked soon
-
+        // Do launch one client stub at a time (hub will then send one registration event that will cause this method to be invoked again soon for those left)
         final Iterator<ClientStub> it = _clientStubsToStart.iterator();
         if (it.hasNext()) {
             final ClientStub first = it.next();
 
-            _logger.info("starting client stub: " + first);
+            _logger.info("Starting STUB recipient '" + first + "'.");
             first.connect();
 
-            // remove this one
+            // Remove this one from the waiting queue
             it.remove();
         }
     }
 
     /**
      * Process application registration in background using the generic thread executor
+     * 
      * @param stub client stub to invoke
      * @param recipientId recipient identifier of the real application 
      */
-    private void submitRegistration(final ClientStub stub, final String recipientId) {
+    private void handleRealRecipientRegistration(final ClientStub stub, final String recipientId) {
 
         ThreadExecutors.getGenericExecutor().submit(new Runnable() {
 
@@ -242,7 +237,7 @@ public final class HubMonitor {
              */
             @Override
             public void run() {
-                stub.performRegistration(recipientId);
+                stub.forwardMessage(recipientId);
             }
         });
     }

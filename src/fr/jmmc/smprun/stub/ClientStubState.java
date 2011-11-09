@@ -5,7 +5,8 @@ package fr.jmmc.smprun.stub;
 
 /**
  * Enumeration of all the internal states a stub can go through.
- * @author Sylvain LAFRASSE
+ * 
+ * @author Sylvain LAFRASSE, Laurent BOURGES
  */
 public enum ClientStubState {
 
@@ -15,7 +16,7 @@ public enum ClientStubState {
     INITIALIZING(1, ""),
     /** hub connection step */
     CONNECTING(2, ""),
-    /** mtype registration step */
+    /** mType registration step */
     REGISTERING(3, ""),
     /** listening for registration of the real application */
     LISTENING(4, ""),

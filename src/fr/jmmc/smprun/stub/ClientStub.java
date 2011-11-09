@@ -34,7 +34,7 @@ import org.ivoa.util.runner.process.ProcessContext;
 /**
  * Registers a fake App to the hub, and later dispatch any received message to the freshly started recipient.
  *
- * @author Sylvain LAFRASSE
+ * @author Sylvain LAFRASSE, Laurent BOURGES
  */
 public final class ClientStub extends Observable implements JobListener {
 
@@ -73,7 +73,7 @@ public final class ClientStub extends Observable implements JobListener {
      *
      * @param description metadata about the stub app
      * @param jnlpUrl URL of Java WebStart recipient
-     * @param mTypes handled mtypes
+     * @param mTypes handled mTypes
      * @param sleepDelayBeforeNotify sleep delay in milliseconds before sending the samp message
      */
     public ClientStub(final Metadata description, final String jnlpUrl, final SampCapability[] mTypes,
@@ -82,10 +82,10 @@ public final class ClientStub extends Observable implements JobListener {
         _description = description;
         _applicationName = description.getName();
 
-        _logPrefix = "Stub['" + _applicationName + "']: ";
+        _logPrefix = "Stub['" + _applicationName + "'] : ";
 
         // Flag any created STUB for later skipping while looking for recipients
-        _description.put(ClientStubUtils.getClientStubKey(_applicationName), ClientStubUtils.TOKEN_STUB);
+        _description.put(ClientStubUtils.getClientStubKey(_applicationName), ClientStubUtils.STUB_TOKEN);
 
         _mTypes = mTypes;
         _jnlpUrl = jnlpUrl;
@@ -93,10 +93,9 @@ public final class ClientStub extends Observable implements JobListener {
 
         setState(ClientStubState.UNDEFINED);
 
-        // @TODO : init JSamp env.
         final ClientProfile profile = DefaultClientProfile.getProfile();
 
-        // TODO use HubConnector instead
+        // TODO : use HubConnector instead
         _connector = new GuiHubConnector(profile);
     }
 
@@ -132,8 +131,8 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
-     * Return the Jnlp Url
-     * @return Jnlp Url
+     * Return the JNLP URL
+     * @return JNLP URL
      */
     public String getJnlpUrl() {
         return _jnlpUrl;
@@ -148,7 +147,7 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
-     * Reset job context ...
+     * Reset job context...
      */
     private void resetMessage() {
         _message = null;
@@ -215,8 +214,8 @@ public final class ClientStub extends Observable implements JobListener {
     /**
      * Launch the real application
      */
-    public void launchApplication() {
-        _logger.info(_logPrefix + "launchApplication() invoked by thread [" + Thread.currentThread() + "]");
+    public void launchRealApplication() {
+        _logger.info(_logPrefix + "launchRealApplication() invoked by thread [" + Thread.currentThread() + "]");
 
         // TODO: reentrance / concurrency checks
         synchronized (lock) {
@@ -244,8 +243,8 @@ public final class ClientStub extends Observable implements JobListener {
      * 
      * TODO: DO not work (javaws can be killed but it will not kill sub processes like java ...)
      */
-    public void killApplication() {
-        _logger.info(_logPrefix + "killApplication() invoked by thread [" + Thread.currentThread() + "]");
+    public void killRealApplication() {
+        _logger.info(_logPrefix + "killRealApplication() invoked by thread [" + Thread.currentThread() + "]");
 
         // TODO: reentrance / concurrency checks
         synchronized (lock) {
@@ -283,7 +282,6 @@ public final class ClientStub extends Observable implements JobListener {
 
                 // update GUI:
                 StatusBar.show("Failed to start " + getApplicationName() + ".");
-
                 DockWindow.getInstance().defineButtonEnabled(this, true);
             }
         }
@@ -327,8 +325,8 @@ public final class ClientStub extends Observable implements JobListener {
 
         setState(ClientStubState.REGISTERING);
 
+        // Lazy initialisation
         if (_mHandlers == null) {
-            // lazy initialisation
 
             _mHandlers = new AbstractMessageHandler[_mTypes.length];
 
@@ -359,7 +357,7 @@ public final class ClientStub extends Observable implements JobListener {
                         _logger.info(_logPrefix + "received '" + mType.mType() + "' message from '" + senderId + "' : '" + _message + "'.");
 
                         // start application in background:
-                        launchApplication();
+                        launchRealApplication();
 
                         return null;
                     }
@@ -368,7 +366,7 @@ public final class ClientStub extends Observable implements JobListener {
                 i++;
             }
 
-            // declare message handlers:
+            // Declare each message handlers to SAMP hub
             for (final AbstractMessageHandler handler : _mHandlers) {
                 _connector.addMessageHandler(handler);
             }
@@ -381,11 +379,12 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /** 
-     * Implements callback from HubMonitor when the real application is detected ...
+     * Implements callback from HubMonitor when the real application is detected...
+     * 
      * @param recipientId recipient identifier of the real application 
      */
-    public void performRegistration(final String recipientId) {
-        _logger.info(_logPrefix + "performRegistration() invoked by thread [" + Thread.currentThread() + "]");
+    public void forwardMessage(final String recipientId) {
+        _logger.info(_logPrefix + "forwardMessage() invoked by thread [" + Thread.currentThread() + "]");
 
         // reentrance check
         synchronized (lock) {
