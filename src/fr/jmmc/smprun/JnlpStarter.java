@@ -47,8 +47,8 @@ public class JnlpStarter {
         // create the execution context without log file:
         final RootContext jobContext = LocalLauncher.prepareMainJob(APP_NAME, USER_NAME, FileUtils.getTempDir(), null);
 
-        // command line: 'javaws -verbose <jnlpUrl>'
-        LocalLauncher.prepareChildJob(jobContext, TASK_NAME, new String[]{"javaws", "-Xnosplash", "-verbose", jnlpUrl});
+        // command line: 'javaws -Xnosplash <jnlpUrl>'
+        LocalLauncher.prepareChildJob(jobContext, TASK_NAME, new String[]{"javaws", "-Xnosplash", jnlpUrl});
 
         // puts the job in the job queue :
         // can throw IllegalStateException if job not queued :
