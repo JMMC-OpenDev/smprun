@@ -22,7 +22,6 @@ import org.astrogrid.samp.client.DefaultClientProfile;
 import org.astrogrid.samp.client.HubConnection;
 import org.astrogrid.samp.client.HubConnector;
 import org.astrogrid.samp.client.SampException;
-import org.astrogrid.samp.gui.GuiHubConnector;
 import org.ivoa.util.concurrent.ThreadExecutors;
 import org.ivoa.util.runner.JobListener;
 import org.ivoa.util.runner.LocalLauncher;
@@ -96,7 +95,7 @@ public final class ClientStub extends Observable implements JobListener {
         final ClientProfile profile = DefaultClientProfile.getProfile();
 
         // TODO : use HubConnector instead
-        _connector = new GuiHubConnector(profile);
+        _connector = new HubConnector(profile);
     }
 
     /**
@@ -137,7 +136,7 @@ public final class ClientStub extends Observable implements JobListener {
     public String getJnlpUrl() {
         return _jnlpUrl;
     }
-
+    
     /**
      * Define the job context identifier
      * @param jobContextId job context identifier to set
@@ -172,7 +171,7 @@ public final class ClientStub extends Observable implements JobListener {
     public void connect() {
         _logger.info(_logPrefix + "connect() invoked by thread [" + Thread.currentThread() + "]");
 
-        // TODO: reentrance / concurrency checks
+        // reentrance / concurrency checks
         synchronized (lock) {
             if (_status == ClientStubState.UNDEFINED || _status == ClientStubState.DIYING) {
                 setState(ClientStubState.INITIALIZING);
@@ -184,6 +183,22 @@ public final class ClientStub extends Observable implements JobListener {
         }
     }
 
+    /**
+     * Return true only if this client stub is really connected to the hub
+     * @return true only if this client stub is really connected to the hub 
+     */
+    public boolean isConnected() {
+        boolean connected = false;
+
+        // reentrance / concurrency checks
+        synchronized (lock) {
+            if (_status.after(ClientStubState.INITIALIZING) && _status.before(ClientStubState.DISCONNECTING)) {
+                connected = _connector.isConnected();
+            }
+        }
+        return connected;
+    }
+    
     /** 
      * Disconnect from hub 
      */
@@ -192,11 +207,12 @@ public final class ClientStub extends Observable implements JobListener {
 
         synchronized (lock) {
             if (_status.after(ClientStubState.INITIALIZING) && _status.before(ClientStubState.DISCONNECTING)) {
-                _logger.info(_logPrefix + "disconnecting from hub...");
 
                 // Kill the stub client
                 setState(ClientStubState.DISCONNECTING);
 
+                _logger.info(_logPrefix + "disconnecting from hub...");
+                
                 // Disconnect from hub
                 _connector.setActive(false);
 
@@ -217,25 +233,24 @@ public final class ClientStub extends Observable implements JobListener {
     public void launchRealApplication() {
         _logger.info(_logPrefix + "launchRealApplication() invoked by thread [" + Thread.currentThread() + "]");
 
-        // TODO: reentrance / concurrency checks
+        // reentrance / concurrency checks
         synchronized (lock) {
-// Not correct: when the javaws does not start correctly the application => it will never connect to SAMP; let the user retry ...
-//            if (_status == ClientStubState.LISTENING || _status == ClientStubState.PROCESSING) {
-
-//            if (_status != ClientStubState.LAUNCHING) {
+           // note: when the javaws does not start correctly the application => it will never connect to SAMP; let the user retry ...
 
             StatusBar.show("starting " + getApplicationName() + "...");
 
             DockWindow.getInstance().defineButtonEnabled(this, false);
 
-            setState(ClientStubState.LAUNCHING);
+            if (isConnected()) {
+                // only change state if this stub is running:
+                setState(ClientStubState.LAUNCHING);
+            }
 
             _logger.info(_logPrefix + "starting JNLP '" + _jnlpUrl + "' ...");
 
             // get the process context to be able to kill it later ...
             setJobContextId(JnlpStarter.launch(this));
         }
-//        }
     }
 
     /**
@@ -246,7 +261,7 @@ public final class ClientStub extends Observable implements JobListener {
     public void killRealApplication() {
         _logger.info(_logPrefix + "killRealApplication() invoked by thread [" + Thread.currentThread() + "]");
 
-        // TODO: reentrance / concurrency checks
+        // reentrance / concurrency checks
         synchronized (lock) {
 
             if (_jobContextId != null) {
@@ -313,9 +328,9 @@ public final class ClientStub extends Observable implements JobListener {
         // Keep a look out for hubs if initial one shuts down
         _connector.setAutoconnect(5);
 
-        _logger.info(_logPrefix + "connected.");
-
         registerStubCapabilities();
+
+        _logger.info(_logPrefix + "connected.");
 
         return true;
     }
@@ -375,21 +390,25 @@ public final class ClientStub extends Observable implements JobListener {
         // This step required to update message handlers into the hub:
         _connector.declareSubscriptions(_connector.computeSubscriptions());
 
+        _logger.info(_logPrefix + " has declared subscriptions.");
+        
         setState(ClientStubState.LISTENING);
     }
 
     /** 
      * Implements callback from HubMonitor when the real application is detected...
      * 
+     * Note: this method is called using dedicated thread (may sleep for few seconds ...)
+     * 
      * @param recipientId recipient identifier of the real application 
      */
-    public void forwardMessage(final String recipientId) {
-        _logger.info(_logPrefix + "forwardMessage() invoked by thread [" + Thread.currentThread() + "]");
+    public void performRealRecipientRegistration(final String recipientId) {
+        _logger.info(_logPrefix + "performRealRecipientRegistration() invoked by thread [" + Thread.currentThread() + "]");
 
         // reentrance check
         synchronized (lock) {
             if (_status.after(ClientStubState.REGISTERING) && _status.before(ClientStubState.DISCONNECTING)) {
-                _logger.info(_logPrefix + "performRegistration: recipient connect with id = " + recipientId);
+                _logger.info(_logPrefix + "performRealRecipientRegistration: recipient connect with id = " + recipientId);
 
                 // Forward any received message to recipient (if any)
                 if (_message != null) {
@@ -399,8 +418,6 @@ public final class ClientStub extends Observable implements JobListener {
                         _logger.info(_logPrefix + "waiting " + _sleepDelayBeforeNotify + " millis before forwarding the SAMP message ...");
 
                         // Wait a while for application startup to finish...
-
-                        // TODO: use dedicated thread queue to delay the delivery
                         ThreadExecutors.sleep(_sleepDelayBeforeNotify);
                     }
 
@@ -420,7 +437,7 @@ public final class ClientStub extends Observable implements JobListener {
                 } else {
                     _logger.info(_logPrefix + "NOTHING TO FORWARD.");
                 }
-
+                
                 // Kill the stub client
                 disconnect();
             }
