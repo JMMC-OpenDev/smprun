@@ -172,7 +172,6 @@ public final class HubMonitor {
     private void loopOverHubClients(final Client[] clients) {
         _logger.info("processHubClients() invoked by thread [" + Thread.currentThread() + "]");
 
-
         for (ClientStub stub : HubPopulator.getInstance().getClients()) {
 
             String applicationName = stub.getApplicationName();
@@ -194,41 +193,52 @@ public final class HubMonitor {
                     if (ClientStubUtils.STUB_TOKEN.equals(clientStubFlag)) {
                         _logger.info("Found STUB recipient '" + clientName + "' [" + recipientId + "] : leaving it alone.");
                     } else {
-                        _logger.info("Found REAL recipient '" + clientName + "' [" + recipientId + "] : running STUB trickery !");
 
-                        // Perform callback on client stub
-                        handleRealRecipientRegistration(stub, recipientId);
+                        if (stub.isConnected()) {
+                            _logger.info("Found REAL recipient '" + clientName + "' [" + recipientId + "] : running STUB trickery !");
 
-                        // Dump real application metadata for snffing purpose
-                        dumpRealRecipientMetadata(client);//clientName, recipientId, md);
+                            // Dump real application metadata for snffing purpose
+                            dumpRealRecipientMetadata(client);
+
+                            // Perform callback on client stub in background
+                            handleRealRecipientRegistration(stub, recipientId);
+                        } else {
+                            _logger.info("Found REAL recipient '" + clientName + "' [" + recipientId + "] : but the STUB is already disconnected.");
+                        }                        
                     }
 
-                    // Do not exit from loop yet, as we can have two SAMP clients having the same application name ??
-                    /* break; */
+                    // Do not exit from loop as we can have two SAMP clients having the same application name: real and stub for example.
                 }
             }
 
             // If no real nor stub recipient found for application name
             if (!recipientFound) {
-                _logger.info("Found NO recipient at all for '" + applicationName + "' : scheduling corresponding STUB startup.");
+                
+                if (stub.isConnected()) {
+                    _logger.info("Found NO recipient at all for '" + applicationName + "' : but the STUB is already connected.");
+                } else {
+                    _logger.info("Found NO recipient at all for '" + applicationName + "' : scheduling corresponding STUB startup.");
 
-                // Schedule stub for startup (by adding it to the unique set of client stubs to start asap)
-                _clientStubsToStart.add(stub);
+                    // Schedule stub for startup (by adding it to the unique set of client stubs to start asap)
+                    _clientStubsToStart.add(stub);
+                }
             }
         }
 
-        _logger.info("Stub recipients waiting to start : " + _clientStubsToStart);
+        if (!_clientStubsToStart.isEmpty()) {
+            _logger.info("Stub recipients waiting to start : " + _clientStubsToStart);
 
-        // Do launch one client stub at a time (hub will then send one registration event that will cause this method to be invoked again soon for those left)
-        final Iterator<ClientStub> it = _clientStubsToStart.iterator();
-        if (it.hasNext()) {
-            final ClientStub first = it.next();
+            // Do launch one client stub at a time (hub will then send one registration event that will cause this method to be invoked again soon for those left)
+            final Iterator<ClientStub> it = _clientStubsToStart.iterator();
+            if (it.hasNext()) {
+                final ClientStub first = it.next();
 
-            _logger.info("Starting STUB recipient '" + first + "'.");
-            first.connect();
+                _logger.info("Starting STUB recipient '" + first + "'.");
+                first.connect();
 
-            // Remove this one from the waiting queue
-            it.remove();
+                // Remove this one from the waiting queue
+                it.remove();
+            }
         }
     }
 
@@ -247,7 +257,7 @@ public final class HubMonitor {
              */
             @Override
             public void run() {
-                stub.forwardMessage(recipientId);
+                stub.performRealRecipientRegistration(recipientId);
             }
         });
     }
@@ -257,14 +267,14 @@ public final class HubMonitor {
      * 
      * @param client the real application
      */
-    private void dumpRealRecipientMetadata(Client client) {
-        Metadata md = client.getMetadata();
-        Subscriptions subscriptions = client.getSubscriptions();
+    private void dumpRealRecipientMetadata(final Client client) {
+        final Metadata md = client.getMetadata();
+        final String name = md.getName();
 
-        String name = md.getName();
+        final Subscriptions subscriptions = client.getSubscriptions();
 
         if (!_sniffedRealApplicationName.contains(name)) {
-            _logger.info("Sniffed new real application '" + name + "' : backep up its metadata and subscriptions.");
+            _logger.info("Sniffed new real application '" + name + "' : backed up its metadata and subscriptions.");
 
             _sniffedRealApplicationName.add(name);
             _sniffedRealApplicationMetadata.put(name, md);
