@@ -34,8 +34,8 @@ public class HubPopulator {
     private static final HubPopulator INSTANCE = new HubPopulator();
     /** no sleeping delay before sending the samp message */
     public final static long WAIT_NO = -1l;
-    /** 1 second sleeping delay before sending the samp message */
-    public final static long WAIT_1_SECOND = 1000l;
+    /** 3 second sleeping delay before sending the samp message */
+    public final static long WAIT_BEFORE_SEND = 3000l;
     /* members */
     /** all client stubs */
     private final List<ClientStub> _clients = new ArrayList<ClientStub>();
@@ -124,14 +124,16 @@ public class HubPopulator {
                     SampCapability.LOAD_FITS_TABLE
                 /* SampCapability.SELECT_LIST */
                 },
-                WAIT_1_SECOND));
+                WAIT_BEFORE_SEND));
 
         // --- TOPCAT ---
         md = new Metadata();
         md.setName("topcat");
         md.setIconUrl(extractResource("topcat-6464.png")); // "http://www.star.bris.ac.uk/~mbt/topcat/tc3.gif"
 
+// TODO: provide our own topcat JNLP or convince mark to change its JNLP to include JVM settings (memory or cmd ling args)
         generalClients.add(createClientStub(md,
+//                "http://jmmc.fr/~bourgesl/topcat/topcat-full-appLauncher.jnlp",
                 "http://www.star.bris.ac.uk/~mbt/topcat/topcat-full.jnlp",
                 new SampCapability[]{SampCapability.LOAD_VO_TABLE,
                     /* SampCapability.POINT_COORDINATES, */
