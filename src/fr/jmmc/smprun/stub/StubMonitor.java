@@ -95,7 +95,6 @@ public class StubMonitor implements Observer {
 
                             /**
                              * Kill the application if the button is clicked
-                             * TODO: may not work as javaws can not be killed easily ...
                              */
                             @Override
                             public void actionPerformed(final ActionEvent e) {
