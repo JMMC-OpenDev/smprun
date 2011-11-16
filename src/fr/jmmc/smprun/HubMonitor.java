@@ -174,7 +174,7 @@ public final class HubMonitor {
 
         for (ClientStub stub : HubPopulator.getInstance().getClients()) {
 
-            String applicationName = stub.getApplicationName();
+            String stubName = stub.getApplicationName();
             boolean recipientFound = false;
 
             // Check each registered clients for the sought recipient name
@@ -183,28 +183,28 @@ public final class HubMonitor {
                 Metadata md = client.getMetadata();
                 String clientName = md.getName();
 
-                if (clientName.matches(applicationName)) {
+                if (clientName.matches(stubName)) {
                     recipientFound = true;
 
                     String recipientId = client.getId();
 
                     // If current client is one of our STUB
-                    Object clientStubFlag = md.get(ClientStubUtils.getClientStubKey(clientName));
-                    if (ClientStubUtils.STUB_TOKEN.equals(clientStubFlag)) {
+                    Object clientIsAStubFlag = md.get(ClientStubUtils.getClientStubKey(clientName));
+                    if (ClientStubUtils.STUB_TOKEN.equals(clientIsAStubFlag)) {
                         _logger.info("Found STUB recipient '" + clientName + "' [" + recipientId + "] : leaving it alone.");
                     } else {
 
                         if (stub.isConnected()) {
                             _logger.info("Found REAL recipient '" + clientName + "' [" + recipientId + "] : running STUB trickery !");
 
-                            // Dump real application metadata for snffing purpose
-                            dumpRealRecipientMetadata(client);
+                            // Retrieve real application metadata for sniffing purpose
+                            retrieveRealRecipientMetadata(client);
 
                             // Perform callback on client stub in background
-                            handleRealRecipientRegistration(stub, recipientId);
+                            handleNewRealRecipientDetection(stub, recipientId);
                         } else {
                             _logger.info("Found REAL recipient '" + clientName + "' [" + recipientId + "] : but the STUB is already disconnected.");
-                        }                        
+                        }
                     }
 
                     // Do not exit from loop as we can have two SAMP clients having the same application name: real and stub for example.
@@ -213,11 +213,12 @@ public final class HubMonitor {
 
             // If no real nor stub recipient found for application name
             if (!recipientFound) {
-                
+
                 if (stub.isConnected()) {
-                    _logger.info("Found NO recipient at all for '" + applicationName + "' : but the STUB is already connected.");
+                    // Could not append !!! If the stub is already connected, a client was necesserarly found.
+                    _logger.info("Found NO recipient at all for '" + stubName + "' : but the STUB is already connected.");
                 } else {
-                    _logger.info("Found NO recipient at all for '" + applicationName + "' : scheduling corresponding STUB startup.");
+                    _logger.info("Found NO recipient at all for '" + stubName + "' : scheduling corresponding STUB startup.");
 
                     // Schedule stub for startup (by adding it to the unique set of client stubs to start asap)
                     _clientStubsToStart.add(stub);
@@ -248,7 +249,7 @@ public final class HubMonitor {
      * @param stub client stub to invoke
      * @param recipientId recipient identifier of the real application 
      */
-    private void handleRealRecipientRegistration(final ClientStub stub, final String recipientId) {
+    private void handleNewRealRecipientDetection(final ClientStub stub, final String recipientId) {
 
         ThreadExecutors.getGenericExecutor().submit(new Runnable() {
 
@@ -257,7 +258,7 @@ public final class HubMonitor {
              */
             @Override
             public void run() {
-                stub.performRealRecipientRegistration(recipientId);
+                stub.forwardMessageToRealRecipient(recipientId);
             }
         });
     }
@@ -267,7 +268,7 @@ public final class HubMonitor {
      * 
      * @param client the real application
      */
-    private void dumpRealRecipientMetadata(final Client client) {
+    private void retrieveRealRecipientMetadata(final Client client) {
         final Metadata md = client.getMetadata();
         final String name = md.getName();
 
