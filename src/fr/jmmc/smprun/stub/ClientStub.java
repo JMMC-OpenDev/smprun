@@ -124,8 +124,6 @@ public final class ClientStub extends Observable implements JobListener {
         URL iconURL = _description.getIconUrl();
         if (iconURL != null) {
             imageIcon = new ImageIcon(iconURL);
-
-            // @TODO : handle NPE
         }
         return imageIcon;
     }
@@ -172,7 +170,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "connect() invoked by thread [" + Thread.currentThread() + "]");
 
         // Reentrance / concurrency checks
-        synchronized(lock) {
+        synchronized (lock) {
             if (_status == ClientStubState.UNDEFINED || _status == ClientStubState.DIYING) {
                 setState(ClientStubState.INITIALIZING);
 
@@ -233,7 +231,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "launchRealApplication() invoked by thread [" + Thread.currentThread() + "]");
 
         // reentrance / concurrency checks
-        synchronized(lock) {
+        synchronized (lock) {
             // note: when the javaws does not start correctly the application => it will never connect to SAMP; let the user retry ...
 
             StatusBar.show("starting " + getApplicationName() + "...");
@@ -261,7 +259,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "killRealApplication() invoked by thread [" + Thread.currentThread() + "]");
 
         // reentrance / concurrency checks
-        synchronized(lock) {
+        synchronized (lock) {
 
             if (_jobContextId != null) {
 
@@ -305,8 +303,8 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /** 
-     * Set up connection to hub
-     * @return true if successfully connected to hub
+     * Connect stub to the hub.
+     * @return true if successfully connected to hub, false otherwise.
      */
     private boolean connectToHub() {
 
@@ -322,8 +320,6 @@ public final class ClientStub extends Observable implements JobListener {
 
         if (!_connector.isConnected()) {
             _logger.info(_logPrefix + "could not connect to an existing hub.");
-
-            // TODO: test case
             return false;
         }
 
@@ -337,7 +333,9 @@ public final class ClientStub extends Observable implements JobListener {
         return true;
     }
 
-    /** Declare STUB capabilities to the hub */
+    /**
+     * Declare STUB capabilities to the hub.
+     */
     private void registerStubCapabilities() {
 
         setState(ClientStubState.REGISTERING);
@@ -365,10 +363,7 @@ public final class ClientStub extends Observable implements JobListener {
 
                         _logger.info("processCall() invoked by thread [" + Thread.currentThread() + "]");
 
-                        // TODO: put message in one FIFO queue or simply discard evrything but the first...
-
-                        // TODO: reentrance checks : message should be null
-                        // Backup message for later forward
+                        // Backup message and pending queue for later delivery
                         _messages.add(message);
 
                         _logger.info(_logPrefix + "received '" + mType.mType() + "' message from '" + senderId + "' : '" + message + "'.");
@@ -402,16 +397,15 @@ public final class ClientStub extends Observable implements JobListener {
 
     /** 
      * Implements callback from HubMonitor when the real application is detected...
-     * 
      * Note: this method is called using dedicated thread (may sleep for few seconds ...)
      * 
-     * @param recipientId recipient identifier of the real application 
+     * @param recipientId recipient identifier of the real application.
      */
     public void forwardMessageToRealRecipient(final String recipientId) {
         _logger.info(_logPrefix + "forwardMessageToRealRecipient() invoked by thread [" + Thread.currentThread() + "]");
 
         // Reentrance check
-        synchronized(lock) {
+        synchronized (lock) {
             if (_status.after(ClientStubState.REGISTERING) && _status.before(ClientStubState.DISCONNECTING)) {
                 _logger.info(_logPrefix + "forwardMessageToRealRecipient: recipient connect with id = " + recipientId);
 
@@ -453,11 +447,11 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
-     * Perform the event from the given root context
+     * Perform the event from the given root context.
      * 
      * @see JobListener
      * 
-     * @param jobContext root context
+     * @param jobContext root context.
      */
     @Override
     @SuppressWarnings("fallthrough")
@@ -502,7 +496,7 @@ public final class ClientStub extends Observable implements JobListener {
                 // JNLP process failed: clean up:
 
                 // Reentrance check
-                synchronized(lock) {
+                synchronized (lock) {
 
                     // Report failure
                     setState(ClientStubState.FAILING);
@@ -536,12 +530,12 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
-     * Perform the event from the given run context
+     * Perform the event from the given run context.
      * 
      * @see JobListener
      * 
-     * @param jobContext root context
-     * @param runCtx current run context
+     * @param jobContext root context.
+     * @param runCtx current run context.
      */
     @Override
     public void performTaskEvent(final RootContext jobContext, final RunContext runCtx) {
@@ -551,12 +545,13 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
-     * Perform the event from the given run context
+     * Perform the event from the given run context.
      * 
      * @see JobListener
      * 
-     * @param jobContext root context
-     * @param runCtx current run context
+     * @param jobContext root context.
+     * @param runCtx current run context.
+     *
      * @return boolean: true of the processing should continue, false if the job should be terminated.
      */
     @Override
