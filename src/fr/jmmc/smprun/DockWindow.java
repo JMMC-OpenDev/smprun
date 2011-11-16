@@ -211,9 +211,8 @@ public class DockWindow extends JFrame {
         final int newWidth = Math.min(iconWidth, 64);
         final int newHeight = Math.min(iconHeight, 64);
 
-        // TODO: keep image ratio:
+        // TODO : keep image ratio
         final Image scaledImage;
-
         if (iconWidth != 64 && iconHeight != 64) {
             scaledImage = image.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
         } else {
