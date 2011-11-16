@@ -50,7 +50,6 @@ public class DockWindow extends JFrame {
     /** window dimensions */
     private static final Dimension _windowDimension = new Dimension(640, 120);
     /* members */
-    // TODO: use application name
     /** button / client map */
     private final HashMap<JButton, ClientStub> _clientButtons = new HashMap<JButton, ClientStub>(8);
     /** client / button map */
