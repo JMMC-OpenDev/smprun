@@ -8,9 +8,6 @@ import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.util.FileUtils;
 import fr.jmmc.smprun.stub.ClientStubFamily;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -22,7 +19,7 @@ import java.util.Set;
 import org.astrogrid.samp.Metadata;
 
 /**
- * Instanciate all known stubs.
+ * Start all known stubs.
  * 
  * @author Sylvain LAFRASSE, Laurent BOURGES
  */
@@ -30,6 +27,8 @@ public class HubPopulator {
 
     /** Class logger */
     private static final java.util.logging.Logger _logger = java.util.logging.Logger.getLogger(HubPopulator.class.getName());
+    /** Resource path prefix */
+    private static final String RESOURCE_PATH_PREFIX = "fr/jmmc/smprun/resource/";
     /** HubPopulator singleton */
     private static final HubPopulator INSTANCE = new HubPopulator();
     /** no sleeping delay before sending the samp message */
@@ -70,7 +69,7 @@ public class HubPopulator {
         // --- ASPRO2 ---
         md = new Metadata();
         md.setName("Aspro2");
-        md.setIconUrl(extractResource("aspro2-6464.png")); // http://www.jmmc.fr/searchcal/images/aspro2-6464.png
+        md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "aspro2-6464.png")); // http://www.jmmc.fr/searchcal/images/aspro2-6464.png
 
         jmmcClients.add(createClientStub(md,
                 "http://apps.jmmc.fr/~swmgr/Aspro2/Aspro2.jnlp",
@@ -80,7 +79,7 @@ public class HubPopulator {
         // --- SEARCHCAL ---
         md = new Metadata();
         md.setName("SearchCal");
-        md.setIconUrl(extractResource("searchcal-6464.png")); // http://apps.jmmc.fr/~sclws/SearchCal/AppIcon.png
+        md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "searchcal-6464.png")); // http://apps.jmmc.fr/~sclws/SearchCal/AppIcon.png
 
         jmmcClients.add(createClientStub(md,
                 "http://apps.jmmc.fr/~sclws/SearchCal/SearchCal.jnlp",
@@ -90,7 +89,7 @@ public class HubPopulator {
         // --- LITPRO ---
         md = new Metadata();
         md.setName("LITpro");
-        md.setIconUrl(extractResource("litpro-6464.png")); // http://www.jmmc.fr/images/litpro6464ws.jpg
+        md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "litpro-6464.png")); // http://www.jmmc.fr/images/litpro6464ws.jpg
 
         jmmcClients.add(createClientStub(md,
                 "http://jmmc.fr/~swmgr/LITpro/LITpro.jnlp",
@@ -113,7 +112,7 @@ public class HubPopulator {
         // --- ALADIN ---
         md = new Metadata();
         md.setName("Aladin");
-        md.setIconUrl(extractResource("aladin-6464.png")); // http://aladin.u-strasbg.fr/aladin_large.gif
+        md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "aladin-6464.png")); // http://aladin.u-strasbg.fr/aladin_large.gif
 
         generalClients.add(createClientStub(md,
                 "http://aladin.u-strasbg.fr/java/nph-aladin.pl?frame=get&id=aladin.jnlp",
@@ -129,11 +128,10 @@ public class HubPopulator {
         // --- TOPCAT ---
         md = new Metadata();
         md.setName("topcat");
-        md.setIconUrl(extractResource("topcat-6464.png")); // "http://www.star.bris.ac.uk/~mbt/topcat/tc3.gif"
+        md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "topcat-6464.png")); // "http://www.star.bris.ac.uk/~mbt/topcat/tc3.gif"
 
-// TODO: provide our own topcat JNLP or convince mark to change its JNLP to include JVM settings (memory or cmd ling args)
+        // TODO: Provide our own topcat JNLP (http://jmmc.fr/~bourgesl/topcat/topcat-full-appLauncher.jnlp) or convince Mark to change its JNLP to include JVM settings (memory or cmd ling args)
         generalClients.add(createClientStub(md,
-//                "http://jmmc.fr/~bourgesl/topcat/topcat-full-appLauncher.jnlp",
                 "http://www.star.bris.ac.uk/~mbt/topcat/topcat-full.jnlp",
                 new SampCapability[]{SampCapability.LOAD_VO_TABLE,
                     /* SampCapability.POINT_COORDINATES, */
@@ -211,30 +209,5 @@ public class HubPopulator {
      */
     public List<ClientStub> getClients() {
         return _clients;
-    }
-
-    /**
-     * TODO: move that code into FileUtils
-     * Extract the given resource given its file name in the Jar archive at /fr/jmmc/smprun/resource/
-     * And save it as one temporary file
-     * @param resourceFile resource name to extract
-     * @return file URL
-     * @throws IllegalStateException if the given resource does not exist
-     */
-    private static String extractResource(final String resourceFile) throws IllegalStateException {
-
-        // use the class loader resource resolver
-        final URL url = FileUtils.getResource("fr/jmmc/smprun/resource/" + resourceFile);
-
-        final File tmpFile = FileUtils.getTempFile(resourceFile);
-
-        try {
-            FileUtils.saveStream(url.openStream(), tmpFile);
-
-            return tmpFile.toURI().toString();
-
-        } catch (IOException ioe) {
-            throw new IllegalStateException("unable to save file: " + tmpFile + " for url: " + url, ioe);
-        }
     }
 }
