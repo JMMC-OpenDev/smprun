@@ -106,21 +106,6 @@ public class AppLauncher extends App {
     }
 
     /**
-     * Hook to handle operations before closing application.
-     *
-     * @return should return true if the application can exit, false otherwise
-     * to cancel exit.
-     */
-    @Override
-    protected boolean finish() {
-
-        // TODO: confirm dialog to inform the user that SAMP interoperability can fail 
-        // if hub (living inside this JVM) is stopped
-
-        return true;
-    }
-
-    /**
      * Hook to handle operations when exiting application.
      * @see App#exit(int)
      */
