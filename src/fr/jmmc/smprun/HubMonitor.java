@@ -94,25 +94,6 @@ public final class HubMonitor {
 
         // Analize already registered samp clients
         handleHubEvent();
-
-        // TODO: monitor hub shutdown too ?
-
-        /*
-        String[] mTypes = {"samp.hub.event.shutdown", "samp.hub.event.register", "samp.hub.event.metadata", "samp.hub.event.subscriptions", "samp.hub.event.unregister", "samp.hub.disconnect"};
-        SampMessageHandler smh;
-        for (String mType : mTypes) {
-        smh = new SampMessageHandler(mType) {
-        
-        @Override
-        public void processMessage(String senderId, Message msg) {
-        // do stuff
-        System.out.println("Received '" + _mType + "' message from '" + senderId + "' : '" + msg + "'.");
-        return;
-        }
-        };
-        SampManager.registerCapability(smh);
-        }
-         */
     }
 
     /**
