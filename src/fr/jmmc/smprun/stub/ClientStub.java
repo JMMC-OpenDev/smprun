@@ -490,7 +490,7 @@ public final class ClientStub extends Observable implements JobListener {
 
                 _logger.info(_logPrefix + "DONE (with status '" + pCtx.getExitCode() + "').");
 
-            case STATE_CANCELLED:
+            case STATE_CANCELED:
             case STATE_INTERRUPTED:
             case STATE_KILLED:
                 // JNLP process failed: clean up:
@@ -524,8 +524,8 @@ public final class ClientStub extends Observable implements JobListener {
                 DockWindow.getInstance().defineButtonEnabled(this, true);
 
                 break;
-            default:
-            // TODO: should be covered !
+
+            default: // Otherwise do nothing
         }
     }
 
