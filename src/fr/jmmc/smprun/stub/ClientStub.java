@@ -9,8 +9,10 @@ import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.smprun.DockWindow;
 import fr.jmmc.smprun.JnlpStarter;
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Observable;
+import java.util.Queue;
 import java.util.logging.Level;
 import javax.swing.ImageIcon;
 
@@ -59,8 +61,8 @@ public final class ClientStub extends Observable implements JobListener {
     private ClientStubState _status;
     /** job context identifier representing the executed application to be able to kill / cancel its execution */
     private volatile Long _jobContextId = null;
-    /** Message to forward once recipient appeared */
-    private volatile Message _message = null;
+    /** Messages queued, to forward once recipient appeared */
+    private volatile Queue<Message> _messages = new LinkedList<Message>();
     /* SAMP objects */
     /** Hub connector */
     private final HubConnector _connector;
@@ -146,8 +148,8 @@ public final class ClientStub extends Observable implements JobListener {
     /**
      * Reset job context...
      */
-    private void resetMessage() {
-        _message = null;
+    private void resetMessageQueue() {
+        _messages.removeAll(_messages);
     }
 
     /**
@@ -170,7 +172,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "connect() invoked by thread [" + Thread.currentThread() + "]");
 
         // Reentrance / concurrency checks
-        synchronized (lock) {
+        synchronized(lock) {
             if (_status == ClientStubState.UNDEFINED || _status == ClientStubState.DIYING) {
                 setState(ClientStubState.INITIALIZING);
 
@@ -216,7 +218,7 @@ public final class ClientStub extends Observable implements JobListener {
                 _logger.info(_logPrefix + "dying ... ");
                 setState(ClientStubState.DIYING);
 
-                resetMessage();
+                resetMessageQueue();
                 setJobContextId(null);
 
                 _logger.info(_logPrefix + "disconnected");
@@ -231,7 +233,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "launchRealApplication() invoked by thread [" + Thread.currentThread() + "]");
 
         // reentrance / concurrency checks
-        synchronized (lock) {
+        synchronized(lock) {
             // note: when the javaws does not start correctly the application => it will never connect to SAMP; let the user retry ...
 
             StatusBar.show("starting " + getApplicationName() + "...");
@@ -259,7 +261,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "killRealApplication() invoked by thread [" + Thread.currentThread() + "]");
 
         // reentrance / concurrency checks
-        synchronized (lock) {
+        synchronized(lock) {
 
             if (_jobContextId != null) {
 
@@ -276,23 +278,26 @@ public final class ClientStub extends Observable implements JobListener {
 
                 // Anyway: revert state like process failure
 
-                // report failure
+                // Report failure
                 setState(ClientStubState.FAILING);
 
-                // handle error:
-                if (_message != null) {
-                    _logger.severe(_logPrefix + "unable to deliver message : " + _message);
+                // Handle error
+                if (!_messages.isEmpty()) {
+                    _logger.severe(_logPrefix + "unable to deliver '" + _messages.size() + "' message(s) :");
+                    for (Message msg : _messages) {
+                        _logger.severe("\t- '" + msg + "';");
+                    }
 
                     // MessagePane ... => State= FAILED => Window (hide)
                 }
 
                 // Reset state
                 setJobContextId(null);
-                resetMessage();
+                resetMessageQueue();
 
                 setState(ClientStubState.LISTENING);
 
-                // update GUI:
+                // Update GUI
                 StatusBar.show("Failed to start " + getApplicationName() + ".");
                 DockWindow.getInstance().defineButtonEnabled(this, true);
             }
@@ -364,9 +369,9 @@ public final class ClientStub extends Observable implements JobListener {
 
                         // TODO: reentrance checks : message should be null
                         // Backup message for later forward
-                        _message = message;
+                        _messages.add(message);
 
-                        _logger.info(_logPrefix + "received '" + mType.mType() + "' message from '" + senderId + "' : '" + _message + "'.");
+                        _logger.info(_logPrefix + "received '" + mType.mType() + "' message from '" + senderId + "' : '" + message + "'.");
 
                         // Start application in background:
                         launchRealApplication();
@@ -406,13 +411,12 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "forwardMessageToRealRecipient() invoked by thread [" + Thread.currentThread() + "]");
 
         // Reentrance check
-        synchronized (lock) {
+        synchronized(lock) {
             if (_status.after(ClientStubState.REGISTERING) && _status.before(ClientStubState.DISCONNECTING)) {
                 _logger.info(_logPrefix + "forwardMessageToRealRecipient: recipient connect with id = " + recipientId);
 
-                // Forward any received message to recipient (if any)
-                // TODO : use a message queue instead to handle multiple requests while real application is still launching
-                if (_message != null) {
+                // Forward all received message to recipient (if any)
+                if (!_messages.isEmpty()) {
                     setState(ClientStubState.SEEKING);
 
                     if (_sleepDelayBeforeNotify > 0l) {
@@ -422,18 +426,21 @@ public final class ClientStub extends Observable implements JobListener {
                         ThreadExecutors.sleep(_sleepDelayBeforeNotify);
                     }
 
-                    if (_message != null) {
+                    int index = 1;
+                    final int nbOfMessages = _messages.size();
+                    for (Message msg : _messages) {
                         // Forward the message
                         setState(ClientStubState.FORWARDING);
                         try {
-                            _connector.getConnection().notify(recipientId, _message);
+                            _connector.getConnection().notify(recipientId, msg);
                         } catch (SampException se) {
                             _logger.log(Level.SEVERE, "Samp notication exception", se);
                         }
-                        _logger.info(_logPrefix + "FORWARDED MESSAGE.");
+                        _logger.info(_logPrefix + "FORWARDED MESSAGE (" + index + "/" + nbOfMessages + ").");
+                        index++;
                     }
 
-                    resetMessage();
+                    resetMessageQueue();
 
                 } else {
                     _logger.info(_logPrefix + "NOTHING TO FORWARD.");
@@ -495,21 +502,24 @@ public final class ClientStub extends Observable implements JobListener {
                 // JNLP process failed: clean up:
 
                 // Reentrance check
-                synchronized (lock) {
+                synchronized(lock) {
 
                     // Report failure
                     setState(ClientStubState.FAILING);
 
-                    // Handle error:
-                    if (_message != null) {
-                        _logger.severe(_logPrefix + "unable to deliver message : " + _message);
+                    // Handle error
+                    if (!_messages.isEmpty()) {
+                        _logger.severe(_logPrefix + "unable to deliver '" + _messages.size() + "' message(s) :");
+                        for (Message msg : _messages) {
+                            _logger.severe("\t- '" + msg + "';");
+                        }
 
                         // MessagePane ... => State= FAILED => Window (hide)
                     }
 
                     // Reset state
                     setJobContextId(null);
-                    resetMessage();
+                    resetMessageQueue();
 
                     setState(ClientStubState.LISTENING);
                 }
