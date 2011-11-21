@@ -32,9 +32,9 @@ public class HubPopulator {
     /** HubPopulator singleton */
     private static final HubPopulator INSTANCE = new HubPopulator();
     /** no sleeping delay before sending the samp message */
-    public final static long WAIT_NO = -1l;
+    public final static long WAIT_NO = -1L;
     /** 3 second sleeping delay before sending the samp message */
-    public final static long WAIT_BEFORE_SEND = 3000l;
+    public final static long WAIT_BEFORE_SEND = 3000L;
     /* members */
     /** all client stubs */
     private final List<ClientStub> _clients = new ArrayList<ClientStub>();
