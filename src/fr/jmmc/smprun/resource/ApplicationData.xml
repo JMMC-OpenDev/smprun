@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<ApplicationData link="http://www.jmmc.fr/AppLauncher">
+<ApplicationData link="http://www.jmmc.fr/AppLauncher/">
+    
   <program name="AppLauncher" version="1.0d4"/>
   <compilation date="8/11/2011" compiler="JDK 1.5.0_16"/>
 
@@ -18,10 +19,10 @@
             jars="jmcs.jar"
             license="CECILL-B ???"/>     
 
-    
-        <!-- jMCS dependencies -->
 
-        <!-- Science / VO libraries (always on top for better visibility) -->
+        <!-- 1. Science / VO libraries (always on top for better visibility) -->
+
+        <!-- jMCS dependencies -->
 
         <!-- VO interoperability -->
         <package name="JSAMP"
@@ -31,7 +32,15 @@
           license="(at least) the Academic Free Licence and the BSD License."/>
 
 
-        <!-- Swing -->
+        <!-- 2. Swing -->
+
+        <!-- jMCS dependencies -->
+
+        <!-- Mac OS X Desktop integration -->
+        <package name="AppleJavaExtensions"
+          description="Adapt menus for Mac OS X"
+          link="http://developer.apple.com/samplecode/AppleJavaExtensions/index.html"
+          jars="AppleJavaExtensions.jar"/>
 
         <!-- Launch one desktop browser -->
         <package name="BrowserLauncher2"
@@ -52,14 +61,10 @@
           jars="swing-worker-1.2.jar"
           license="LGPL"/>     
 
-        <!-- Mac OS X Desktop integration -->
-        <package name="AppleJavaExtensions"
-          description="Adapt menus for Mac OS X"
-          link="http://developer.apple.com/samplecode/AppleJavaExtensions/index.html"
-          jars="AppleJavaExtensions.jar"/>
 
+        <!-- 3. Tools -->
 
-        <!-- Tools -->
+        <!-- jMCS dependencies -->
 
         <!-- Xml binding (ApplicationData, targetModel and aspro2) -->
         <package name="JAXB"
@@ -104,7 +109,7 @@
           link="http://commons.apache.org/lang/"
           jars="commons-lang-2.6.jar"
           license="APACHE_V2"/>
-    
+       
   </dependences>
   
   <menubar>
