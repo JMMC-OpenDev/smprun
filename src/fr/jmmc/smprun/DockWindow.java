@@ -7,6 +7,7 @@ import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.StatusBar;
 import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
+import fr.jmmc.jmcs.util.ImageUtils;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.ClientStubFamily;
 import java.awt.BorderLayout;
@@ -30,6 +31,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -181,14 +183,16 @@ public class DockWindow extends JFrame {
             horizontalRowPane.add(emptyRigidArea);
         }
 
-        horizontalRowPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        horizontalRowPane.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        final JScrollPane scrollPane = new JScrollPane(horizontalRowPane,
-                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-
+        final JScrollPane scrollPane = new JScrollPane(horizontalRowPane);
         scrollPane.setBorder(new EmptyBorder(0, 0, 0, 0));
         scrollPane.setPreferredSize(_windowDimension);
+        scrollPane.setMinimumSize(_windowDimension);
+        scrollPane.setMaximumSize(_windowDimension);
+
+        JViewport view = scrollPane.getViewport();
+        view.add(horizontalRowPane);
 
         return scrollPane;
     }
@@ -201,33 +205,25 @@ public class DockWindow extends JFrame {
     private JButton buildClientButton(final ClientStub client) {
 
         final String clientName = client.getApplicationName();
-        final ImageIcon clientIcon = client.getApplicationIcon();
+        ImageIcon clientIcon = client.getApplicationIcon();
 
         // Resize the icon up to 64*64 pixels
-        final Image image = clientIcon.getImage();
-        final int iconWidth = clientIcon.getIconWidth();
         final int iconHeight = clientIcon.getIconHeight();
-
-        final int newWidth = Math.min(iconWidth, 64);
         final int newHeight = Math.min(iconHeight, 64);
-
-        // TODO : keep image ratio
-        final Image scaledImage;
-        if (iconWidth != 64 && iconHeight != 64) {
-            scaledImage = image.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
-        } else {
-            scaledImage = image;
-        }
+        final int iconWidth = clientIcon.getIconWidth();
+        final int newWidth = Math.min(iconWidth, 64);
+        clientIcon = ImageUtils.getScaledImageIcon(clientIcon, 64, 64);
 
         // Horizontally center the icon, and bottom-aligned them all vertically
-        final int squareSize = 75;
-        final int borderSize = 4;
+        final int squareSize = 68;
+        final int borderSize = 2;
         final int midHorizontalMargin = (squareSize - newWidth) / 2;
         final int topVerticalMargin = squareSize - borderSize - newHeight; // Space to fill above if the icon is smaller than 64 pixels
         final Border border = new EmptyBorder(topVerticalMargin, midHorizontalMargin, borderSize, midHorizontalMargin);
 
         // Horizontally center application name below its icon
-        final JButton button = new JButton(clientName, new ImageIcon(scaledImage));
+        final JButton button = new JButton(clientIcon);
+        button.setText(clientName);
         button.setVerticalTextPosition(SwingConstants.BOTTOM);
         button.setHorizontalTextPosition(SwingConstants.CENTER);
         button.setBorder(border);
