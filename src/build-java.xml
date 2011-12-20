@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ *******************************************************************************
+ * JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
+ *******************************************************************************
+ -->
+
+<!--
+Document   : build-java.xml
+Author     : Sylvain LAFRASSE
+Description: ANT script.
+-->
+
+<project name="AppLauncher" default="about" basedir=".">
+
+    <description>AppLauncher ANT build file</description>
+
+    <property name="root" location=".."/>
+    <property name="smprun" location="${root}/../smprun"/>
+    <property name="libs" location="${smprun}/lib"/>
+    <property name="sources" location="${root}/src"/>
+  
+    <!-- custom macro to enhance XJC -->
+    <macrodef name="xjc">
+        <attribute name="destdir"/>
+        <attribute name="schema"/>
+
+        <sequential>
+            <java jar="${libs}/jaxb-xjc.jar" fork="true" failonerror="true">
+                <arg value="-classpath"/>
+                <arg value="${libs}/simple-regenerator-1.0.jar"/>
+                <arg value="-no-header"/>
+                <arg value="-extension"/>
+                <!-- preserve code extension -->
+                <arg value="-simple-preserve"/>
+                <arg value="-d"/>
+                <arg value="@{destdir}"/>
+                <arg value="@{schema}"/>
+            </java>
+
+            <!-- remove backup files -->
+            <delete includeemptydirs="false">
+                <fileset dir="@{destdir}">
+                    <include name="**/*.java.backup"/>
+                </fileset>
+            </delete>
+        </sequential>
+    </macrodef>
+
+    <!-- target about : -->
+    <target name="about" description="show information for public targets">
+        <echo>available ANT targets : </echo>
+        <echo>-------------------------------------------------------------------------------</echo>
+        <echo>  - genXsdCode         : Generates the Java code from XML schemas (XSD).</echo>
+        <echo>-------------------------------------------------------------------------------</echo>
+    </target>
+
+    <target name="checkAppLauncher">
+        <echo>-------------------------------------------------------------------------------</echo>
+        <echo>    AppLauncher Path: ${smprun}</echo>
+        <echo>-------------------------------------------------------------------------------</echo>
+        <!-- check smprun path -->
+        <available property="smprun.check" file="${smprun}/src/smprun.doc" />
+        <fail unless="smprun.check" message="smprun project does not exist in ${smprun} !" />
+    </target>
+
+    <target name="genXsdCode" depends="checkAppLauncher" description="Generates the Java code from XML schemas (XSD).">
+        <echo>Generating Java code for SampStubDescriptor.xsd</echo>
+        <mkdir dir="${sources}/fr/jmmc/smprun/stub/data/model" />
+        <xjc destdir="${sources}" schema="${sources}/fr/jmmc/smprun/stub/data/SampStubDescriptor.xsd"/>
+    </target>
+</project>
