@@ -114,8 +114,9 @@ public class HubPopulator {
         md.setName("Aladin");
         md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "aladin-6464.png")); // http://aladin.u-strasbg.fr/aladin_large.gif
 
+        // Use redirected url instead of the one copied from the web pages (/java/nph-aladin.pl?frame=get&id=aladin.jnlp)
         generalClients.add(createClientStub(md,
-                "http://aladin.u-strasbg.fr/java/nph-aladin.pl?frame=get&id=aladin.jnlp",
+                "http://aladin.u-strasbg.fr/java/aladin.jnlp",
                 new SampCapability[]{SampCapability.LOAD_VO_TABLE,
                     /* SampCapability.POINT_COORDINATES, */
                     SampCapability.LOAD_FITS_IMAGE,
