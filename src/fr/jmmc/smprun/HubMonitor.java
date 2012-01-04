@@ -7,6 +7,7 @@ import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.ClientStubUtils;
+import fr.jmmc.smprun.stub.data.StubMetaData;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -41,12 +42,8 @@ public final class HubMonitor {
     private final ThreadExecutors _executor;
     /** List of unique client stubs needed to be started ASAP */
     private Set<ClientStub> _clientStubsToStart = new LinkedHashSet<ClientStub>();
-    /** List of unique real applications already sniffed */
-    private Set<String> _sniffedRealApplicationName = new LinkedHashSet<String>();
     /** Map of sniffed real application metadata */
-    private HashMap<String, Metadata> _sniffedRealApplicationMetadata = new HashMap<String, Metadata>();
-    /** Map of sniffed real application subscriptions */
-    private HashMap<String, Subscriptions> _sniffedRealApplicationSubscriptions = new HashMap<String, Subscriptions>();
+    private HashMap<String, StubMetaData> _sniffedRealApplications = new HashMap<String, StubMetaData>();
 
     /**
      * Return the HubMonitor singleton.
@@ -255,12 +252,11 @@ public final class HubMonitor {
 
         final Subscriptions subscriptions = client.getSubscriptions();
 
-        if (!_sniffedRealApplicationName.contains(name)) {
+        if (!_sniffedRealApplications.containsKey(name)) {
             _logger.info("Sniffed new real application '" + name + "' : backed up its metadata and subscriptions.");
-
-            _sniffedRealApplicationName.add(name);
-            _sniffedRealApplicationMetadata.put(name, md);
-            _sniffedRealApplicationSubscriptions.put(name, subscriptions);
+            StubMetaData stubMetaData = new StubMetaData(name, md, subscriptions);
+            _sniffedRealApplications.put(name, stubMetaData);
+            stubMetaData.reportToCentralRepository();
         }
     }
 }
