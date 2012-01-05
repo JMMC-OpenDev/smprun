@@ -56,7 +56,7 @@ public final class ClientStub extends Observable implements JobListener {
     private final String _logPrefix;
     /* state objects */
     /** internal lock object for synchronization */
-    private final Object lock = new Object();
+    private final Object _lock = new Object();
     /** client stub state */
     private ClientStubState _status;
     /** job context identifier representing the executed application to be able to kill / cancel its execution */
@@ -170,7 +170,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "connect() invoked by thread [" + Thread.currentThread() + "]");
 
         // Reentrance / concurrency checks
-        synchronized (lock) {
+        synchronized (_lock) {
             if (_status == ClientStubState.UNDEFINED || _status == ClientStubState.DIYING) {
                 setState(ClientStubState.INITIALIZING);
 
@@ -188,7 +188,7 @@ public final class ClientStub extends Observable implements JobListener {
         boolean connected = false;
 
         // Reentrance / concurrency checks
-        synchronized (lock) {
+        synchronized (_lock) {
             if (_status.after(ClientStubState.INITIALIZING) && _status.before(ClientStubState.DISCONNECTING)) {
                 connected = _connector.isConnected();
             }
@@ -202,7 +202,7 @@ public final class ClientStub extends Observable implements JobListener {
     public void disconnect() {
         _logger.info(_logPrefix + "disconnect() invoked by thread [" + Thread.currentThread() + "]");
 
-        synchronized (lock) {
+        synchronized (_lock) {
             if (_status.after(ClientStubState.INITIALIZING) && _status.before(ClientStubState.DISCONNECTING)) {
 
                 // Kill the stub client
@@ -231,7 +231,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "launchRealApplication() invoked by thread [" + Thread.currentThread() + "]");
 
         // reentrance / concurrency checks
-        synchronized (lock) {
+        synchronized (_lock) {
             // note: when the javaws does not start correctly the application => it will never connect to SAMP; let the user retry ...
 
             StatusBar.show("starting " + getApplicationName() + "...");
@@ -259,7 +259,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "killRealApplication() invoked by thread [" + Thread.currentThread() + "]");
 
         // reentrance / concurrency checks
-        synchronized (lock) {
+        synchronized (_lock) {
 
             if (_jobContextId != null) {
 
@@ -405,7 +405,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logger.info(_logPrefix + "forwardMessageToRealRecipient() invoked by thread [" + Thread.currentThread() + "]");
 
         // Reentrance check
-        synchronized (lock) {
+        synchronized (_lock) {
             if (_status.after(ClientStubState.REGISTERING) && _status.before(ClientStubState.DISCONNECTING)) {
                 _logger.info(_logPrefix + "forwardMessageToRealRecipient: recipient connect with id = " + recipientId);
 
@@ -496,7 +496,7 @@ public final class ClientStub extends Observable implements JobListener {
                 // JNLP process failed: clean up:
 
                 // Reentrance check
-                synchronized (lock) {
+                synchronized (_lock) {
 
                     // Report failure
                     setState(ClientStubState.FAILING);
