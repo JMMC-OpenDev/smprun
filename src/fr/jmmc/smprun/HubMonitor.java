@@ -249,12 +249,11 @@ public final class HubMonitor {
     private void retrieveRealRecipientMetadata(final Client client) {
         final Metadata md = client.getMetadata();
         final String name = md.getName();
-
         final Subscriptions subscriptions = client.getSubscriptions();
 
         if (!_sniffedRealApplications.containsKey(name)) {
             _logger.info("Sniffed new real application '" + name + "' : backed up its metadata and subscriptions.");
-            StubMetaData stubMetaData = new StubMetaData(name, md, subscriptions);
+            StubMetaData stubMetaData = new StubMetaData(md, subscriptions);
             _sniffedRealApplications.put(name, stubMetaData);
             stubMetaData.reportToCentralRepository();
         }
