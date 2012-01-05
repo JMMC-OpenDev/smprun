@@ -24,7 +24,6 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;complexContent>
  *     &lt;restriction base="{http://www.w3.org/2001/XMLSchema}anyType">
  *       &lt;sequence>
- *         &lt;element name="name" type="{http://www.w3.org/2001/XMLSchema}string"/>
  *         &lt;element name="metadata" type="{}Metadata" maxOccurs="unbounded"/>
  *         &lt;element name="subscription" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded"/>
  *       &lt;/sequence>
@@ -37,47 +36,16 @@ import javax.xml.bind.annotation.XmlType;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SampStub", propOrder = {
-    "name",
     "metadatas",
     "subscriptions"
 })
 @XmlRootElement(name = "SampStub")
 public class SampStub {
 
-    @XmlElement(required = true)
-    protected String name;
     @XmlElement(name = "metadata", required = true)
     protected List<Metadata> metadatas;
     @XmlElement(name = "subscription", required = true)
     protected List<String> subscriptions;
-
-    /**
-     * Gets the value of the name property.
-     * 
-     * @return
-     *     possible object is
-     *     {@link String }
-     *     
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Sets the value of the name property.
-     * 
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *     
-     */
-    public void setName(String value) {
-        this.name = value;
-    }
-
-    public boolean isSetName() {
-        return (this.name!= null);
-    }
 
     /**
      * Gets the value of the metadatas property.

@@ -65,15 +65,6 @@ Description: Store JMMC AppLauncher Stub meta data.
             
         <xsd:sequence>
 
-            <!-- Element Name -->
-            <xsd:element name="name" type="xsd:string">
-                <xsd:annotation>
-                    <xsd:documentation>
-                        Exact application name emulated by the Stub.
-                    </xsd:documentation>
-                </xsd:annotation>
-            </xsd:element>
-
             <!-- Element Metadata -->
             <xsd:element name="metadata" type="Metadata" minOccurs="1" maxOccurs="unbounded">
                 <xsd:annotation>
