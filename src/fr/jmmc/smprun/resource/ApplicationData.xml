@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <ApplicationData link="http://www.jmmc.fr/AppLauncher/">
+    <company>
+        <short_name>JMMC</short_name>
+        <legal_name>Jean-Marie Mariotti Center</legal_name>
+        <logo_resource>/fr/jmmc/jmcs/resource/logo.png</logo_resource>
+        <homepage_url>http://www.jmmc.fr/</homepage_url>
+        <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
+    </company>
     
-  <program name="AppLauncher" version="1.0d4"/>
-  <compilation date="8/11/2011" compiler="JDK 1.5.0_16"/>
+    <program name="AppLauncher" version="1.0d4"/>
+    <compilation date="8/11/2011" compiler="JDK 1.5.0_16"/>
 
-  <text>JMMC SAMP hub extension to automatically start capable applications 'on demand' 
-        and provide a 'Dock' window with all JMMC applications and VO compliant tools</text>
+    <text>JMMC SAMP hub extension to automatically start capable applications 'on demand' 
+        and provide a 'Dock' window with all JMMC applications and VO compliant tools
+    </text>
 
-  <dependences>
+    <dependences>
 
         <!-- JMMC -->
 
@@ -112,28 +120,29 @@
           jars="commons-lang-2.6.jar"
           license="APACHE_V2"/>
        
-  </dependences>
+    </dependences>
   
-  <menubar>
-  </menubar>
+    <menubar>
+    </menubar>
   
-  <releasenotes>
-    <release version="1.0">
-      <prerelease version="1.0d4" tag="AL_V1_0d4">
-        <change type="CHANGE">SAMP hub sniffering.</change>
-      </prerelease>          
-      <prerelease version="1.0d3" tag="AL_V1_0d3">
-        <change type="CHANGE">Central SAMP hub monitoring.</change>
-      </prerelease>          
-      <prerelease version="1.0d2" tag="AL_V1_0d2">
-        <change type="CHANGE">Better process launching.</change>
-        <change type="CHANGE">Better EDT handling.</change>
-      </prerelease>          
-      <prerelease version="1.0d1" tag="AL_V1_0d1">
-        <change type="FEATURE">First release.</change>
-      </prerelease>          
-    </release>
-  </releasenotes>
+    <releasenotes>
+        <release version="1.0">
+            <prerelease version="1.0d4" tag="AL_V1_0d4">
+                <change type="CHANGE">SAMP hub sniffering.</change>
+            </prerelease>          
+            <prerelease version="1.0d3" tag="AL_V1_0d3">
+                <change type="CHANGE">Central SAMP hub monitoring.</change>
+            </prerelease>          
+            <prerelease version="1.0d2" tag="AL_V1_0d2">
+                <change type="CHANGE">Better process launching.</change>
+                <change type="CHANGE">Better EDT handling.</change>
+            </prerelease>          
+            <prerelease version="1.0d1" tag="AL_V1_0d1">
+                <change type="FEATURE">First release.</change>
+            </prerelease>          
+        </release>
+    </releasenotes>
   
-  <acknowledgment><![CDATA[This tool makes extended use of jSAMP from Mark TAYLOR.]]></acknowledgment>
+    <acknowledgment><![CDATA[This tool makes extended use of jSAMP from Mark TAYLOR.]]>
+    </acknowledgment>
 </ApplicationData>
