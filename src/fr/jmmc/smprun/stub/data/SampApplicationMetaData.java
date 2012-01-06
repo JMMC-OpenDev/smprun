@@ -30,7 +30,10 @@ public class SampApplicationMetaData {
     /** package name for JAXB generated code */
     private final static String STUB_DATA_MODEL_JAXB_PATH = "fr.jmmc.smprun.stub.data.model";
     // TODO : find a home for JMMC AppLauncher Stub meta data repository, typically "http://jmmc.fr/~smprun/stubs/"
+    /** URL of the JMMC SAMP application meta data repository */
     private static final String REPOSITORY_URL = "http://jmmc.fr/~lafrasse/stubs/";
+    /** File extension of the JMMC SAMP application meta data file format */
+    private static final String FILE_EXTENSION = ".xml";
     /** SAMP application meta data container */
     private SampStub _data = new SampStub();
     /** Real application exact name */
@@ -60,23 +63,6 @@ public class SampApplicationMetaData {
         for (Object subscription : subscriptions.keySet()) {
             _data.getSubscriptions().add(subscription.toString());
         }
-
-        marshall();
-    }
-
-    private void marshall() throws XmlBindException {
-        // Start JAXB
-        final JAXBFactory jf = JAXBFactory.getInstance(STUB_DATA_MODEL_JAXB_PATH);
-        final Marshaller m = jf.createMarshaller();
-        final StringWriter sw = new StringWriter();
-        try {
-            m.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
-            m.marshal(_data, sw);
-        } catch (JAXBException ex) {
-            Logger.getLogger(SampApplicationMetaData.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        _xml = sw.toString();
-        System.out.println("XML:\n" + _xml);
     }
 
     /**
@@ -85,14 +71,15 @@ public class SampApplicationMetaData {
     public void reportToCentralRepository() {
 
         // TODO : make all the JERSEY network stuff running in the background.
+
         if (isNotKnownYet()) {
             _logger.warning("Real SAMP application '" + _name + "' unknown repositroy-wise, reporting it.");
-            // TODO : Send XML to the central repository if the user gives its approval.
+
+            phoneHome();
             return;
         }
 
         _logger.info("Real SAMP application '" + _name + "' already known repositroy-wise.");
-        return;
     }
 
     /**
@@ -105,7 +92,7 @@ public class SampApplicationMetaData {
         c.setFollowRedirects(false);
 
         // TODO : What the fuck with proxies ???
-        WebResource r = c.resource(REPOSITORY_URL + _name);
+        WebResource r = c.resource(REPOSITORY_URL + _name + FILE_EXTENSION);
 
         ClientResponse response = r.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
         _logger.fine("JERSEY response = " + response);
@@ -113,5 +100,32 @@ public class SampApplicationMetaData {
         _logger.finer("JERSEY content = " + content);
 
         return (response.getClientResponseStatus() != ClientResponse.Status.OK);
+    }
+
+    private void phoneHome() throws XmlBindException {
+        marshall();
+        postXML();
+    }
+
+    private void marshall() throws XmlBindException {
+        // Start JAXB
+        final JAXBFactory jaxbFactory = JAXBFactory.getInstance(STUB_DATA_MODEL_JAXB_PATH);
+        final Marshaller marshaller = jaxbFactory.createMarshaller();
+        final StringWriter stringWriter = new StringWriter();
+
+        try {
+            marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
+            marshaller.marshal(_data, stringWriter);
+        } catch (JAXBException ex) {
+            Logger.getLogger(SampApplicationMetaData.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        _xml = stringWriter.toString();
+        System.out.println("XML:\n" + _xml);
+    }
+
+    private void postXML() {
+        // TODO : Send XML to the central repository if the user gives its approval.
+        System.out.println("Sending XML to central repository ...");
     }
 }
