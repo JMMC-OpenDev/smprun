@@ -50,6 +50,7 @@ public class SampApplicationMetaData {
     public SampApplicationMetaData(Metadata metadata, Subscriptions subscriptions) {
 
         _name = metadata.getName();
+        _data.setUid(_name);
 
         // Serialze SAMP meta data
         for (Object key : metadata.keySet()) {

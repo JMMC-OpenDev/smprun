@@ -85,6 +85,8 @@ Description: Store JMMC AppLauncher Stub meta data.
 
         </xsd:sequence>
 
+        <xsd:attribute name="uid" type="xsd:string" use="required"/>
+
     </xsd:complexType>
     
     

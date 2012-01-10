@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlType;
@@ -27,6 +28,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="metadata" type="{}Metadata" maxOccurs="unbounded"/>
  *         &lt;element name="subscription" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded"/>
  *       &lt;/sequence>
+ *       &lt;attribute name="uid" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -46,6 +48,8 @@ public class SampStub {
     protected List<Metadata> metadatas;
     @XmlElement(name = "subscription", required = true)
     protected List<String> subscriptions;
+    @XmlAttribute(name = "uid", required = true)
+    protected String uid;
 
     /**
      * Gets the value of the metadatas property.
@@ -119,6 +123,34 @@ public class SampStub {
 
     public void unsetSubscriptions() {
         this.subscriptions = null;
+    }
+
+    /**
+     * Gets the value of the uid property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link String }
+     *     
+     */
+    public String getUid() {
+        return uid;
+    }
+
+    /**
+     * Sets the value of the uid property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link String }
+     *     
+     */
+    public void setUid(String value) {
+        this.uid = value;
+    }
+
+    public boolean isSetUid() {
+        return (this.uid!= null);
     }
 
 }
