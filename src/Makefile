@@ -169,9 +169,10 @@ man : do_man
 #	jmcsHTML2HelpSet JMMC-MAN-2600-0001
 #	@echo " . . . user documentation done"
 
+HTML_DEST = ~/public_html/stubs/
 install_html:
-	HTML_DEST = ~/public_html/stubs/
 	mkdir -p $(HTML_DEST)
+	cp -rf ./public_html/.htaccess $(HTML_DEST)
 	cp -rf ./public_html/* $(HTML_DEST)
 	cp -f ../config/*.xml $(HTML_DEST)
 	cp -f fr/jmmc/smprun/stub/data/SampStubDescriptor.xsd $(HTML_DEST)
