@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SampStub>
+<SampStub uid="Aladin">
     <metadata>
         <key>samp.name</key>
         <value>Aladin</value>
@@ -50,4 +50,3 @@
     <subscription>table.load.votable</subscription>
     <subscription>table.select.rowList</subscription>
 </SampStub>
-

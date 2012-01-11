@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SampStub>
+<SampStub uid="Aspro2">
     <metadata>
         <key>samp.name</key>
         <value>Aspro2</value>
@@ -62,4 +62,3 @@
     <subscription>client.env.get</subscription>
     <subscription>table.load.votable</subscription>
 </SampStub>
-

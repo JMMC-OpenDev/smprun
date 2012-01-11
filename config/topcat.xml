@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SampStub>
+<SampStub uid="topcat">
     <metadata>
         <key>samp.name</key>
         <value>topcat</value>
@@ -55,4 +55,3 @@
     <subscription>voresource.loadlist.siap</subscription>
     <subscription>voresource.loadlist.ssap</subscription>
 </SampStub>
-

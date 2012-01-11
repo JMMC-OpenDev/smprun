@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SampStub>
+<SampStub uid="LITpro">
     <metadata>
         <key>samp.name</key>
         <value>LITpro</value>
@@ -13,7 +13,7 @@
         <value>JMMC (Jean-Marie MARIOTTI Center)</value>
     </metadata>
     <metadata>
-        <key>affiliation.support</key>
+        <key>affiliation.suppport</key>
         <value>http://www.jmmc.fr/support.htm</value>
     </metadata>
     <metadata>
@@ -62,4 +62,3 @@
     <subscription>client.env.get</subscription>
     <subscription>fr.jmmc.litpro.start.setting</subscription>
 </SampStub>
-

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<SampStub>
+<SampStub uid="SearchCal">
     <metadata>
         <key>samp.name</key>
         <value>SearchCal</value>
@@ -62,4 +62,3 @@
     <subscription>client.env.get</subscription>
     <subscription>fr.jmmc.searchcal.start.query</subscription>
 </SampStub>
-
