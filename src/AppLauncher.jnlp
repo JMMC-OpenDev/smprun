@@ -5,8 +5,8 @@
         <vendor>JMMC (Jean-Marie MARIOTTI Center)</vendor>
         <homepage href="http://www.jmmc.fr/Applauncher/"/>
         <description kind="tooltip">AppLauncher</description>
-        <description kind="short">JMMC (and SAMP) app hub</description>
-        <!--<icon href="AppIcon.png"/>-->
+        <description kind="short">Automatic SAMP application launcher</description>
+        <icon href="AppIcon.png"/>
         <offline-allowed/> 
         <shortcut>
             <desktop/>
