@@ -172,10 +172,10 @@ man : do_man
 HTML_DEST = ~/public_html/stubs/
 install_html:
 	mkdir -p $(HTML_DEST)
-	cp -rf ./public_html/.htaccess $(HTML_DEST)
-	cp -rf ./public_html/* $(HTML_DEST)
-	cp -f ../config/*.xml $(HTML_DEST)
-	cp -f fr/jmmc/smprun/stub/data/SampStubDescriptor.xsd $(HTML_DEST)
+	cp -arf ./public_html/.htaccess $(HTML_DEST)
+	cp -arf ./public_html/* $(HTML_DEST)
+	cp -af ../config/*.xml $(HTML_DEST)
+	cp -af fr/jmmc/smprun/stub/data/SampStubDescriptor.xsd $(HTML_DEST)
 	@echo " . . . HTML installation done"
 
 #install : ../lib/smprun-doc.jar install_all
