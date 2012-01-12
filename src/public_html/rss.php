@@ -20,7 +20,7 @@ $xml .= '<link>http://www.jmmc.fr/</link>';
 $xml .= '<description>Show list of files</description>';
 
 // walk through files of directory
-foreach(glob($spoolDir."/*.*" as $filename){
+foreach(glob($spoolDir."/*.*") as $filename){
     $file = basename ($filename);
     $titre=$file;
     $lien="";
