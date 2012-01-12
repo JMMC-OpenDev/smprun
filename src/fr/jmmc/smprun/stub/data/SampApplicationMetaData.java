@@ -7,10 +7,13 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import fr.jmmc.jmcs.gui.MessagePane;
+import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.jaxb.JAXBFactory;
 import fr.jmmc.jmcs.jaxb.XmlBindException;
 import fr.jmmc.smprun.stub.data.model.SampStub;
 import java.io.StringWriter;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
@@ -19,6 +22,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import org.astrogrid.samp.Metadata;
 import org.astrogrid.samp.Subscriptions;
+import org.ivoa.util.concurrent.ThreadExecutors;
 
 /**
  * Real SAMP application meta data older, that can report to JMMC central repository if not referenced yet.
@@ -83,16 +87,41 @@ public class SampApplicationMetaData {
      */
     public void reportToCentralRepository() {
 
-        // TODO : make all the JERSEY network stuff running in the background.
+        // Make all the JERSEY network stuff run in the background
+        ThreadExecutors.getGenericExecutor().submit(new Runnable() {
 
-        if (isNotKnownYet()) {
-            _logger.warning("Real SAMP application '" + _name + "' unknown repositroy-wise, reporting it.");
+            AtomicBoolean shouldPhoneHome = new AtomicBoolean(false);
 
-            phoneHome();
-            return;
-        }
+            public void run() {
 
-        _logger.info("Real SAMP application '" + _name + "' already known repositroy-wise.");
+                // If the current application does not exist in the central repository
+                if (isNotKnownYet()) {
+                    _logger.warning("Real SAMP application '" + _name + "' unknown repository-wise, reporting it.");
+
+                    // TODO : Use dismissable message pane to always skip report ?
+
+                    // Ask user if he is ok to phone home
+                    SwingUtils.invokeAndWaitEDT(new Runnable() {
+
+                        /** Synchronized by EDT */
+                        @Override
+                        public void run() {
+                            shouldPhoneHome.set(MessagePane.showConfirmMessage("AppLauncher discovered the '" + _name + "' application it did not know yet.\n"
+                                    + "Do you wish to contribute making AppLauncher better and send '" + _name + "' description to JMMC ?\n\n"
+                                    + "No personnal information will be sent along."));
+                        }
+                    });
+
+                    // If the user agreed to report unknown app
+                    if (shouldPhoneHome.get()) {
+                        phoneHome();
+                    }
+                    return;
+                }
+
+                _logger.info("Real SAMP application '" + _name + "' already known repository-wise.");
+            }
+        });
     }
 
     /**
@@ -101,9 +130,12 @@ public class SampApplicationMetaData {
      */
     private boolean isNotKnownYet() {
 
-        WebResource r = _jerseyClient.resource(REPOSITORY_URL + _name + FILE_EXTENSION);
+        // TODO : what about exceptions on failure ???
 
-        ClientResponse response = r.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
+        WebResource webResource = _jerseyClient.resource(REPOSITORY_URL + _name + FILE_EXTENSION);
+
+        _logger.fine("JERSEY webResource = " + webResource);
+        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
         _logger.fine("JERSEY response = " + response);
         String content = response.getEntity(String.class);
         _logger.finer("JERSEY content = " + content);
@@ -112,7 +144,7 @@ public class SampApplicationMetaData {
     }
 
     private void phoneHome() throws XmlBindException {
-        
+
         marshall();
         postXML();
     }
@@ -132,17 +164,24 @@ public class SampApplicationMetaData {
         }
 
         _xml = stringWriter.toString();
-        System.out.println("XML:\n" + _xml);
+        _logger.fine("Application XML description:\n" + _xml);
     }
 
     private void postXML() {
 
-        System.out.println("Sending XML to central repository ...");
+        // TODO : what about exceptions on failure ???
 
-        WebResource r = _jerseyClient.resource(REPOSITORY_URL + SUBMISSION_FORM);
+        _logger.info("Sending XML to central repository ...");
+
+        WebResource webResource = _jerseyClient.resource(REPOSITORY_URL + SUBMISSION_FORM);
+        _logger.fine("JERSEY webResource = " + webResource);
+
+        // Prepare form values
         MultivaluedMap formData = new MultivaluedMapImpl();
         formData.add("uid", _name);
         formData.add("xmlSampStub", _xml);
-        ClientResponse response = r.type("application/x-www-form-urlencoded").post(ClientResponse.class, formData);
+
+        ClientResponse response = webResource.type("application/x-www-form-urlencoded").post(ClientResponse.class, formData);
+        _logger.fine("JERSEY response = " + response);
     }
 }
