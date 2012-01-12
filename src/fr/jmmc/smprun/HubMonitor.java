@@ -251,6 +251,8 @@ public final class HubMonitor {
         final String name = md.getName();
         final Subscriptions subscriptions = client.getSubscriptions();
 
+        // TODO : store previously dismissed apps in preference
+
         if (!_sniffedRealApplications.containsKey(name)) {
             _logger.info("Sniffed new real application '" + name + "' : backed up its metadata and subscriptions.");
             SampApplicationMetaData stubMetaData = new SampApplicationMetaData(md, subscriptions);
