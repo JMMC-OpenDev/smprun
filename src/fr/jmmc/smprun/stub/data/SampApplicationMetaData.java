@@ -6,6 +6,7 @@ package fr.jmmc.smprun.stub.data;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.core.util.MultivaluedMapImpl;
 import fr.jmmc.jmcs.jaxb.JAXBFactory;
 import fr.jmmc.jmcs.jaxb.XmlBindException;
 import fr.jmmc.smprun.stub.data.model.SampStub;
@@ -13,6 +14,7 @@ import java.io.StringWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import org.astrogrid.samp.Metadata;
@@ -31,9 +33,14 @@ public class SampApplicationMetaData {
     private final static String STUB_DATA_MODEL_JAXB_PATH = "fr.jmmc.smprun.stub.data.model";
     // TODO : find a home for JMMC AppLauncher Stub meta data repository, typically "http://jmmc.fr/~smprun/stubs/"
     /** URL of the JMMC SAMP application meta data repository */
+    //private static final String REPOSITORY_URL = "http://jmmc.fr/~smprun/stubs/";
     private static final String REPOSITORY_URL = "http://jmmc.fr/~lafrasse/stubs/";
     /** File extension of the JMMC SAMP application meta data file format */
     private static final String FILE_EXTENSION = ".xml";
+    /** Submission form name */
+    private static final String SUBMISSION_FORM = "push.php";
+    /** Jersey client */
+    Client _jerseyClient;
     /** SAMP application meta data container */
     private SampStub _data = new SampStub();
     /** Real application exact name */
@@ -48,6 +55,11 @@ public class SampApplicationMetaData {
      * @param subscriptions SAMP mTypes
      */
     public SampApplicationMetaData(Metadata metadata, Subscriptions subscriptions) {
+
+        // Jersey setup
+        _jerseyClient = Client.create();
+        _jerseyClient.setFollowRedirects(false);
+        // TODO : What the fuck with proxies ???
 
         _name = metadata.getName();
         _data.setUid(_name);
@@ -89,11 +101,7 @@ public class SampApplicationMetaData {
      */
     private boolean isNotKnownYet() {
 
-        Client c = Client.create();
-        c.setFollowRedirects(false);
-
-        // TODO : What the fuck with proxies ???
-        WebResource r = c.resource(REPOSITORY_URL + _name + FILE_EXTENSION);
+        WebResource r = _jerseyClient.resource(REPOSITORY_URL + _name + FILE_EXTENSION);
 
         ClientResponse response = r.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
         _logger.fine("JERSEY response = " + response);
@@ -104,11 +112,13 @@ public class SampApplicationMetaData {
     }
 
     private void phoneHome() throws XmlBindException {
+        
         marshall();
         postXML();
     }
 
     private void marshall() throws XmlBindException {
+
         // Start JAXB
         final JAXBFactory jaxbFactory = JAXBFactory.getInstance(STUB_DATA_MODEL_JAXB_PATH);
         final Marshaller marshaller = jaxbFactory.createMarshaller();
@@ -126,7 +136,13 @@ public class SampApplicationMetaData {
     }
 
     private void postXML() {
-        // TODO : Send XML to the central repository if the user gives its approval.
+
         System.out.println("Sending XML to central repository ...");
+
+        WebResource r = _jerseyClient.resource(REPOSITORY_URL + SUBMISSION_FORM);
+        MultivaluedMap formData = new MultivaluedMapImpl();
+        formData.add("uid", _name);
+        formData.add("xmlSampStub", _xml);
+        ClientResponse response = r.type("application/x-www-form-urlencoded").post(ClientResponse.class, formData);
     }
 }
