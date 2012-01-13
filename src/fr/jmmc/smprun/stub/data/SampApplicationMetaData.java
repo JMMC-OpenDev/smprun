@@ -31,25 +31,42 @@ import org.ivoa.util.concurrent.ThreadExecutors;
  */
 public class SampApplicationMetaData {
 
-    /** Logger */
+    /**
+     * Logger
+     */
     private static final Logger _logger = Logger.getLogger(SampApplicationMetaData.class.getName());
-    /** package name for JAXB generated code */
+    /**
+     * package name for JAXB generated code
+     */
     private final static String STUB_DATA_MODEL_JAXB_PATH = "fr.jmmc.smprun.stub.data.model";
-    // TODO : find a home for JMMC AppLauncher Stub meta data repository, typically "http://jmmc.fr/~smprun/stubs/"
-    /** URL of the JMMC SAMP application meta data repository */
-    //private static final String REPOSITORY_URL = "http://jmmc.fr/~smprun/stubs/";
+    /**
+     * URL of the JMMC SAMP application meta data repository
+     */
     private static final String REPOSITORY_URL = "http://jmmc.fr/~lafrasse/stubs/";
-    /** File extension of the JMMC SAMP application meta data file format */
+    //private static final String REPOSITORY_URL = "http://jmmc.fr/~smprun/stubs/";
+    /**
+     * File extension of the JMMC SAMP application meta data file format
+     */
     private static final String FILE_EXTENSION = ".xml";
-    /** Submission form name */
+    /**
+     * Submission form name
+     */
     private static final String SUBMISSION_FORM = "push.php";
-    /** Jersey client */
+    /**
+     * Jersey client
+     */
     Client _jerseyClient;
-    /** SAMP application meta data container */
+    /**
+     * SAMP application meta data container
+     */
     private SampStub _data = new SampStub();
-    /** Real application exact name */
+    /**
+     * Real application exact name
+     */
     private String _name;
-    /** Application description in XML*/
+    /**
+     * Application description in XML
+     */
     private String _xml;
 
     /**
@@ -60,15 +77,16 @@ public class SampApplicationMetaData {
      */
     public SampApplicationMetaData(Metadata metadata, Subscriptions subscriptions) {
 
-        // Jersey setup
+        // Jersey communication stack setup
         _jerseyClient = Client.create();
         _jerseyClient.setFollowRedirects(false);
+
         // TODO : What the fuck with proxies ???
 
         _name = metadata.getName();
         _data.setUid(_name);
 
-        // Serialze SAMP meta data
+        // Serialize all SAMP meta data
         for (Object key : metadata.keySet()) {
             fr.jmmc.smprun.stub.data.model.Metadata tmp = new fr.jmmc.smprun.stub.data.model.Metadata();
             tmp.setKey(key.toString());
@@ -76,7 +94,7 @@ public class SampApplicationMetaData {
             _data.getMetadatas().add(tmp);
         }
 
-        // Serialze SAMP mTypes
+        // Serialize all SAMP mTypes
         for (Object subscription : subscriptions.keySet()) {
             _data.getSubscriptions().add(subscription.toString());
         }
@@ -96,30 +114,29 @@ public class SampApplicationMetaData {
 
                 // If the current application does not exist in the central repository
                 if (isNotKnownYet()) {
-                    _logger.warning("Real SAMP application '" + _name + "' unknown repository-wise, reporting it.");
 
                     // TODO : Use dismissable message pane to always skip report ?
 
-                    // Ask user if he is ok to phone home
+                    // Ask user if it is ok to phone home
                     SwingUtils.invokeAndWaitEDT(new Runnable() {
 
-                        /** Synchronized by EDT */
+                        /**
+                         * Synchronized by EDT
+                         */
                         @Override
                         public void run() {
                             shouldPhoneHome.set(MessagePane.showConfirmMessage("AppLauncher discovered the '" + _name + "' application it did not know yet.\n"
-                                    + "Do you wish to contribute making AppLauncher better and send '" + _name + "' description to JMMC ?\n\n"
+                                    + "Do you wish to contribute making AppLauncher better, and send its\ndescription to the JMMC ?\n\n"
                                     + "No personnal information will be sent along."));
                         }
                     });
 
                     // If the user agreed to report unknown app
                     if (shouldPhoneHome.get()) {
-                        phoneHome();
+                        postXMLToRegistry(marshallApplicationDescription());
                     }
                     return;
                 }
-
-                _logger.info("Real SAMP application '" + _name + "' already known repository-wise.");
             }
         });
     }
@@ -133,45 +150,48 @@ public class SampApplicationMetaData {
         // TODO : what about exceptions on failure ???
 
         WebResource webResource = _jerseyClient.resource(REPOSITORY_URL + _name + FILE_EXTENSION);
-
         _logger.fine("JERSEY webResource = " + webResource);
+
+        _logger.info("Querying JMMC SAMP application registry for '" + _name + "' ...");
+
         ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
         _logger.fine("JERSEY response = " + response);
         String content = response.getEntity(String.class);
         _logger.finer("JERSEY content = " + content);
 
-        return (response.getClientResponseStatus() != ClientResponse.Status.OK);
+        boolean unknownAppFlag = (response.getClientResponseStatus() == ClientResponse.Status.NOT_FOUND);
+
+        // TODO : Manage all other potential error codes !
+
+        _logger.info("SAMP application '" + _name + "' " + (unknownAppFlag ? "not" : "") + " found in JMMC registry.");
+
+        return unknownAppFlag;
     }
 
-    private void phoneHome() throws XmlBindException {
-
-        marshall();
-        postXML();
-    }
-
-    private void marshall() throws XmlBindException {
+    private String marshallApplicationDescription() throws XmlBindException {
 
         // Start JAXB
         final JAXBFactory jaxbFactory = JAXBFactory.getInstance(STUB_DATA_MODEL_JAXB_PATH);
         final Marshaller marshaller = jaxbFactory.createMarshaller();
         final StringWriter stringWriter = new StringWriter();
 
+        // Serialize applicatio description in XML
         try {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             marshaller.marshal(_data, stringWriter);
         } catch (JAXBException ex) {
             Logger.getLogger(SampApplicationMetaData.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
         }
 
-        _xml = stringWriter.toString();
-        _logger.fine("Application XML description:\n" + _xml);
+        String xml = stringWriter.toString();
+        _logger.fine("Generated SAMP application '" + _name + "' XML description:\n" + xml);
+        return xml;
     }
 
-    private void postXML() {
+    private void postXMLToRegistry(String xml) {
 
         // TODO : what about exceptions on failure ???
-
-        _logger.info("Sending XML to central repository ...");
 
         WebResource webResource = _jerseyClient.resource(REPOSITORY_URL + SUBMISSION_FORM);
         _logger.fine("JERSEY webResource = " + webResource);
@@ -179,9 +199,13 @@ public class SampApplicationMetaData {
         // Prepare form values
         MultivaluedMap formData = new MultivaluedMapImpl();
         formData.add("uid", _name);
-        formData.add("xmlSampStub", _xml);
+        formData.add("xmlSampStub", xml);
+
+        _logger.info("Sending JMMC SAMP application '" + _name + "' XML description to JMMC registry ...");
 
         ClientResponse response = webResource.type("application/x-www-form-urlencoded").post(ClientResponse.class, formData);
         _logger.fine("JERSEY response = " + response);
+
+        _logger.info("Sent SAMP application '" + _name + "' XML description to central repository.");
     }
 }
