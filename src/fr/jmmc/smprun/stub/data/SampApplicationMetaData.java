@@ -31,42 +31,24 @@ import org.ivoa.util.concurrent.ThreadExecutors;
  */
 public class SampApplicationMetaData {
 
-    /**
-     * Logger
-     */
+    /** Logger */
     private static final Logger _logger = Logger.getLogger(SampApplicationMetaData.class.getName());
-    /**
-     * package name for JAXB generated code
-     */
+    /** Package name for JAXB generated code */
     private final static String STUB_DATA_MODEL_JAXB_PATH = "fr.jmmc.smprun.stub.data.model";
-    /**
-     * URL of the JMMC SAMP application meta data repository
-     */
-    private static final String REPOSITORY_URL = "http://jmmc.fr/~lafrasse/stubs/";
-    //private static final String REPOSITORY_URL = "http://jmmc.fr/~smprun/stubs/";
-    /**
-     * File extension of the JMMC SAMP application meta data file format
-     */
+    /** URL of the JMMC SAMP application meta data repository */
+    //private static final String REPOSITORY_URL = "http://jmmc.fr/~lafrasse/stubs/";
+    private static final String REPOSITORY_URL = "http://jmmc.fr/~smprun/stubs/";
+    /** File extension of the JMMC SAMP application meta data file format */
     private static final String FILE_EXTENSION = ".xml";
-    /**
-     * Submission form name
-     */
+    /** Submission form name */
     private static final String SUBMISSION_FORM = "push.php";
-    /**
-     * Jersey client
-     */
+    /** Jersey client */
     Client _jerseyClient;
-    /**
-     * SAMP application meta data container
-     */
+    /** SAMP application meta data container */
     private SampStub _data = new SampStub();
-    /**
-     * Real application exact name
-     */
+    /** Real application exact name */
     private String _name;
-    /**
-     * Application description in XML
-     */
+    /** Application description in XML */
     private String _xml;
 
     /**
