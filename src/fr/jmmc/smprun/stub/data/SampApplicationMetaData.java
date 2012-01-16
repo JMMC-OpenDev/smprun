@@ -43,13 +43,11 @@ public class SampApplicationMetaData {
     /** Submission form name */
     private static final String SUBMISSION_FORM = "push.php";
     /** Jersey client */
-    Client _jerseyClient;
+    private Client _jerseyClient;
     /** SAMP application meta data container */
     private SampStub _data = new SampStub();
     /** Real application exact name */
     private String _name;
-    /** Application description in XML */
-    private String _xml;
 
     /**
      * Constructor.
@@ -59,11 +57,15 @@ public class SampApplicationMetaData {
      */
     public SampApplicationMetaData(Metadata metadata, Subscriptions subscriptions) {
 
+        _logger.fine("Creating Jersey client.");
+
         // Jersey communication stack setup
         _jerseyClient = Client.create();
         _jerseyClient.setFollowRedirects(false);
 
         // TODO : What the fuck with proxies ???
+
+        _logger.fine("Serializing SAMP application meta data.");
 
         _name = metadata.getName();
         _data.setUid(_name);
