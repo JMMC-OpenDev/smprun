@@ -3,29 +3,29 @@
  ******************************************************************************/
 package fr.jmmc.smprun.stub.data;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 import fr.jmmc.jmcs.gui.MessagePane;
 import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.jaxb.JAXBFactory;
 import fr.jmmc.jmcs.jaxb.XmlBindException;
+import fr.jmmc.jmcs.network.Http;
 import fr.jmmc.smprun.stub.data.model.SampStub;
+import java.io.IOException;
 import java.io.StringWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.astrogrid.samp.Metadata;
 import org.astrogrid.samp.Subscriptions;
 import org.ivoa.util.concurrent.ThreadExecutors;
 
 /**
- * Real SAMP application meta data older, that can report to JMMC central repository if not referenced yet.
+ * Real SAMP application meta data older, that can report to JMMC central registry if not referenced yet.
  *
  * @author Sylvain LAFRASSE
  */
@@ -42,8 +42,6 @@ public class SampApplicationMetaData {
     private static final String FILE_EXTENSION = ".xml";
     /** Submission form name */
     private static final String SUBMISSION_FORM = "push.php";
-    /** Jersey client */
-    private Client _jerseyClient;
     /** SAMP application meta data container */
     private SampStub _data = new SampStub();
     /** Real application exact name */
@@ -56,14 +54,6 @@ public class SampApplicationMetaData {
      * @param subscriptions SAMP mTypes
      */
     public SampApplicationMetaData(Metadata metadata, Subscriptions subscriptions) {
-
-        _logger.fine("Creating Jersey client.");
-
-        // Jersey communication stack setup
-        _jerseyClient = Client.create();
-        _jerseyClient.setFollowRedirects(false);
-
-        // TODO : What the fuck with proxies ???
 
         _logger.fine("Serializing SAMP application meta data.");
 
@@ -131,23 +121,25 @@ public class SampApplicationMetaData {
      */
     private boolean isNotKnownYet() {
 
-        // TODO : what about exceptions on failure ???
+        boolean unknownAppFlag = false;
 
-        WebResource webResource = _jerseyClient.resource(REPOSITORY_URL + _name + FILE_EXTENSION);
-        _logger.fine("JERSEY webResource = " + webResource);
+        try {
+            _logger.info("Querying JMMC SAMP application registry for '" + _name + "' ...");
 
-        _logger.info("Querying JMMC SAMP application registry for '" + _name + "' ...");
+            URI uri = new URI(REPOSITORY_URL + _name + FILE_EXTENSION);
+            String response = Http.download(uri, false);
 
-        ClientResponse response = webResource.accept(MediaType.APPLICATION_XML_TYPE).get(ClientResponse.class);
-        _logger.fine("JERSEY response = " + response);
-        String content = response.getEntity(String.class);
-        _logger.finer("JERSEY content = " + content);
+            _logger.fine("HTTP response = " + response);
 
-        boolean unknownAppFlag = (response.getClientResponseStatus() == ClientResponse.Status.NOT_FOUND);
+            unknownAppFlag = (response == null) || (response.length() == 0);
 
-        // TODO : Manage all other potential error codes !
+            _logger.info("SAMP application '" + _name + "'" + (unknownAppFlag ? " not " : " ") + "found in JMMC registry.");
 
-        _logger.info("SAMP application '" + _name + "' " + (unknownAppFlag ? "not" : "") + " found in JMMC registry.");
+        } catch (URISyntaxException ex) {
+            _logger.log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            _logger.log(Level.SEVERE, null, ex);
+        }
 
         return unknownAppFlag;
     }
@@ -164,7 +156,7 @@ public class SampApplicationMetaData {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             marshaller.marshal(_data, stringWriter);
         } catch (JAXBException ex) {
-            Logger.getLogger(SampApplicationMetaData.class.getName()).log(Level.SEVERE, null, ex);
+            _logger.log(Level.SEVERE, null, ex);
             return null;
         }
 
@@ -175,21 +167,35 @@ public class SampApplicationMetaData {
 
     private void postXMLToRegistry(String xml) {
 
-        // TODO : what about exceptions on failure ???
+        final HttpClient httpClient = Http.getHttpClient();
 
-        WebResource webResource = _jerseyClient.resource(REPOSITORY_URL + SUBMISSION_FORM);
-        _logger.fine("JERSEY webResource = " + webResource);
+        // Composing form values
+        final PostMethod postMethod = new PostMethod(REPOSITORY_URL + SUBMISSION_FORM);
+        postMethod.addParameter("uid", _name);
+        postMethod.addParameter("xmlSampStub", xml);
 
-        // Prepare form values
-        MultivaluedMap formData = new MultivaluedMapImpl();
-        formData.add("uid", _name);
-        formData.add("xmlSampStub", xml);
+        // Send SAMP application meta data to JMMC registry
+        try {
+            _logger.info("Sending JMMC SAMP application '" + _name + "' XML description to JMMC registry ...");
 
-        _logger.info("Sending JMMC SAMP application '" + _name + "' XML description to JMMC registry ...");
+            // TODO : handle status code
+            final int statusCode = httpClient.executeMethod(postMethod);
 
-        ClientResponse response = webResource.type("application/x-www-form-urlencoded").post(ClientResponse.class, formData);
-        _logger.fine("JERSEY response = " + response);
+            _logger.info("Sent SAMP application '" + _name + "' XML description to JMMC regitry.");
 
-        _logger.info("Sent SAMP application '" + _name + "' XML description to central repository.");
+            // Get PHP script result (either SUCCESS or FAILURE)
+            final String response = postMethod.getResponseBodyAsString();
+            _logger.fine("HTTP response = " + response);
+
+            // Parse result for failure
+            final boolean statusFlag = (statusCode == 200) && (postMethod.isRequestSent());
+            _logger.warning("SAMP application meta data sent : " + ((statusFlag) ? "YES" : "NO"));
+
+        } catch (IOException ioe) {
+            _logger.severe("Cannot send SAMP application meta data: " + ioe);
+        } finally {
+            // Release the connection.
+            postMethod.releaseConnection();
+        }
     }
 }

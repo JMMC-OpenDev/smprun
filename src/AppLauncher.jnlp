@@ -27,10 +27,6 @@
         <!-- JMMC libs -->
         <extension href="../JmcsLibs/JmcsLibs.jnlp"/>
         
-	    <!-- Jersey client for REST access to central stub repository -->
-    	<jar href="@SHARED@/jersey-client-1.11.jar"/>
-    	<jar href="@SHARED@/jersey-core-1.11.jar"/>
-    
     </resources>
     <application-desc main-class="fr.jmmc.smprun.AppLauncher"/>
 </jnlp>
