@@ -8,17 +8,16 @@ import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.jaxb.JAXBFactory;
 import fr.jmmc.jmcs.jaxb.XmlBindException;
 import fr.jmmc.jmcs.network.Http;
+import fr.jmmc.jmcs.network.PostQueryProcessor;
 import fr.jmmc.smprun.stub.data.model.SampStub;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
-import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.astrogrid.samp.Metadata;
 import org.astrogrid.samp.Subscriptions;
@@ -45,7 +44,7 @@ public class SampApplicationMetaData {
     /** SAMP application meta data container */
     private SampStub _data = new SampStub();
     /** Real application exact name */
-    private String _name;
+    private String _applicationName;
 
     /**
      * Constructor.
@@ -55,10 +54,10 @@ public class SampApplicationMetaData {
      */
     public SampApplicationMetaData(Metadata metadata, Subscriptions subscriptions) {
 
-        _logger.fine("Serializing SAMP application meta data.");
+        _logger.fine("Serializing SAMP application meta-data.");
 
-        _name = metadata.getName();
-        _data.setUid(_name);
+        _applicationName = metadata.getName();
+        _data.setUid(_applicationName);
 
         // Serialize all SAMP meta data
         for (Object key : metadata.keySet()) {
@@ -91,16 +90,17 @@ public class SampApplicationMetaData {
 
                     // TODO : Use dismissable message pane to always skip report ?
 
-                    // Ask user if it is ok to phone home
+                    // Ask user if it is OK to phone application description back home
                     SwingUtils.invokeAndWaitEDT(new Runnable() {
 
-                        /**
-                         * Synchronized by EDT
-                         */
+                        /** Synchronized by EDT */
                         @Override
                         public void run() {
-                            shouldPhoneHome.set(MessagePane.showConfirmMessage("AppLauncher discovered the '" + _name + "' application it did not know yet.\n"
-                                    + "Do you wish to contribute making AppLauncher better, and send its\ndescription to the JMMC ?\n\n"
+                            shouldPhoneHome.set(
+                                    MessagePane.showConfirmMessage(
+                                    "AppLauncher discovered the '" + _applicationName + "' application it did not know yet.\n"
+                                    + "Do you wish to contribute making AppLauncher better, and send\n"
+                                    + "'" + _applicationName + "' application description to the JMMC ?\n\n"
                                     + "No personnal information will be sent along."));
                         }
                     });
@@ -109,39 +109,77 @@ public class SampApplicationMetaData {
                     if (shouldPhoneHome.get()) {
                         postXMLToRegistry(marshallApplicationDescription());
                     }
-                    return;
                 }
             }
         });
     }
 
     /**
-     * @param name
      * @return true if the 'name' application is unknown, false otherwise.
      */
     private boolean isNotKnownYet() {
 
-        boolean unknownAppFlag = false;
+        _logger.info("Querying JMMC SAMP application registry for '" + _applicationName + "' application ...");
+        boolean unknownApplicationFlag = false; // In order to skip later application reporting if registry querying goes wrong
 
         try {
-            _logger.info("Querying JMMC SAMP application registry for '" + _name + "' ...");
+            final URI applicationDescriptionFileURI = Http.validateURL(REPOSITORY_URL + _applicationName + FILE_EXTENSION);
+            final String result = Http.download(applicationDescriptionFileURI, false); // Use the multi-threaded HTTP client
+            _logger.fine("HTTP response : '" + result + "'.");
 
-            URI uri = new URI(REPOSITORY_URL + _name + FILE_EXTENSION);
-            String response = Http.download(uri, false);
+            // Decipher whether the meta-data is alredy registered or not
+            unknownApplicationFlag = (result == null) || (result.length() == 0);
+            _logger.info("SAMP application '" + _applicationName + "'" + (unknownApplicationFlag ? " not " : " ") + "found in JMMC registry.");
 
-            _logger.fine("HTTP response = " + response);
-
-            unknownAppFlag = (response == null) || (response.length() == 0);
-
-            _logger.info("SAMP application '" + _name + "'" + (unknownAppFlag ? " not " : " ") + "found in JMMC registry.");
-
-        } catch (URISyntaxException ex) {
-            _logger.log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            _logger.log(Level.SEVERE, null, ex);
+        } catch (IOException ioe) {
+            _logger.log(Level.SEVERE, "Cannot get SAMP application meta-data : ", ioe);
         }
 
-        return unknownAppFlag;
+        return unknownApplicationFlag;
+    }
+
+    /**
+     * @param xml
+     */
+    private void postXMLToRegistry(final String xml) {
+
+        // Check parameter vailidty
+        if (xml == null) {
+            _logger.warning("Something went wrong while serializing SAMP application '" + _applicationName + "' meta-data ... aborting report.");
+            return;
+        }
+
+        _logger.info("Sending JMMC SAMP application '" + _applicationName + "' XML description to JMMC registry ...");
+
+        try {
+            final URI uri = Http.validateURL(REPOSITORY_URL + SUBMISSION_FORM);
+            // use the multi threaded HTTP client
+            final String result = Http.post(uri, false, new PostQueryProcessor() {
+
+                /**
+                 * Process the given post method to define its HTTP input fields
+                 * @param method post method to complete
+                 * @throws IOException if any IO error occurs
+                 */
+                @Override
+                public void process(final PostMethod method) throws IOException {
+                    method.addParameter("uid", _applicationName);
+                    method.addParameter("xmlSampStub", xml);
+                }
+            });
+
+            _logger.fine("HTTP response : '" + result + "'.");
+
+            // Parse result for failure
+            if (result != null) {
+                _logger.info("Sent SAMP application '" + _applicationName + "' XML description to JMMC regitry.");
+            } else {
+                _logger.warning("SAMP application meta-data were not sent properly.");
+            }
+
+        } catch (IOException ioe) {
+            _logger.log(Level.SEVERE, "Cannot send SAMP application meta-data : ", ioe);
+        }
     }
 
     private String marshallApplicationDescription() throws XmlBindException {
@@ -151,51 +189,18 @@ public class SampApplicationMetaData {
         final Marshaller marshaller = jaxbFactory.createMarshaller();
         final StringWriter stringWriter = new StringWriter();
 
-        // Serialize applicatio description in XML
+        // Serialize application description in XML
         try {
             marshaller.setProperty(Marshaller.JAXB_ENCODING, "UTF-8");
             marshaller.marshal(_data, stringWriter);
-        } catch (JAXBException ex) {
-            _logger.log(Level.SEVERE, null, ex);
+
+        } catch (JAXBException je) {
+            _logger.log(Level.SEVERE, "Cannot marshall SAMP application meta-data : ", je);
             return null;
         }
 
-        String xml = stringWriter.toString();
-        _logger.fine("Generated SAMP application '" + _name + "' XML description:\n" + xml);
+        final String xml = stringWriter.toString();
+        _logger.fine("Generated SAMP application '" + _applicationName + "' XML description :\n" + xml);
         return xml;
-    }
-
-    private void postXMLToRegistry(String xml) {
-
-        final HttpClient httpClient = Http.getHttpClient();
-
-        // Composing form values
-        final PostMethod postMethod = new PostMethod(REPOSITORY_URL + SUBMISSION_FORM);
-        postMethod.addParameter("uid", _name);
-        postMethod.addParameter("xmlSampStub", xml);
-
-        // Send SAMP application meta data to JMMC registry
-        try {
-            _logger.info("Sending JMMC SAMP application '" + _name + "' XML description to JMMC registry ...");
-
-            // TODO : handle status code
-            final int statusCode = httpClient.executeMethod(postMethod);
-
-            _logger.info("Sent SAMP application '" + _name + "' XML description to JMMC regitry.");
-
-            // Get PHP script result (either SUCCESS or FAILURE)
-            final String response = postMethod.getResponseBodyAsString();
-            _logger.fine("HTTP response = " + response);
-
-            // Parse result for failure
-            final boolean statusFlag = (statusCode == 200) && (postMethod.isRequestSent());
-            _logger.warning("SAMP application meta data sent : " + ((statusFlag) ? "YES" : "NO"));
-
-        } catch (IOException ioe) {
-            _logger.severe("Cannot send SAMP application meta data: " + ioe);
-        } finally {
-            // Release the connection.
-            postMethod.releaseConnection();
-        }
     }
 }
