@@ -12,7 +12,7 @@
     
     <program name="AppLauncher" version="1.0b1"/>
 
-    <compilation date="16/01/2012" compiler="JDK 1.5.0_16"/>
+    <compilation date="17/01/2012" compiler="JDK 1.5.0_16"/>
 
     <text>JMMC SAMP hub extension to automatically start capable applications 'on demand' 
         and provide a 'Dock' window with all JMMC applications and VO compliant tools
@@ -129,9 +129,12 @@
   
     <releasenotes>
         <release version="1.0">
+            <prerelease version="1.0b1" tag="AL_V1_0b1">
+                <change type="FEATURE">SAMP application meta-data reporting.</change>
+            </prerelease>          
             <prerelease version="1.0d4" tag="AL_V1_0d4">
                 <change type="BUGFIX" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/5">Feedback reports now go to AppLauncher's dedicated Trac environment.</change>
-                <change type="CHANGE">SAMP hub sniffing and reporting.</change>
+                <change type="CHANGE">SAMP hub sniffing.</change>
             </prerelease>          
             <prerelease version="1.0d3" tag="AL_V1_0d3">
                 <change type="CHANGE">Central SAMP hub monitoring.</change>
