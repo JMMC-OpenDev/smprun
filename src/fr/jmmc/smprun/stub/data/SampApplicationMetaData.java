@@ -35,8 +35,10 @@ public class SampApplicationMetaData {
     /** Package name for JAXB generated code */
     private final static String STUB_DATA_MODEL_JAXB_PATH = "fr.jmmc.smprun.stub.data.model";
     /** URL of the JMMC SAMP application meta data repository */
-    //private static final String REPOSITORY_URL = "http://jmmc.fr/~lafrasse/stubs/";
-    private static final String REPOSITORY_URL = "http://jmmc.fr/~smprun/stubs/";
+    //private static final String REGISTRY_ROOT_URL = "http://jmmc.fr/~smprun/stubs/";
+    private static final String REGISTRY_ROOT_URL = "http://jmmc.fr/~lafrasse/stubs/";
+    /** Directory containing all JMMC SAMP application meta data files*/
+    private static final String FILE_DIRECTORY = "registry/";
     /** File extension of the JMMC SAMP application meta data file format */
     private static final String FILE_EXTENSION = ".xml";
     /** Submission form name */
@@ -123,7 +125,7 @@ public class SampApplicationMetaData {
         boolean unknownApplicationFlag = false; // In order to skip later application reporting if registry querying goes wrong
 
         try {
-            final URI applicationDescriptionFileURI = Http.validateURL(REPOSITORY_URL + _applicationName + FILE_EXTENSION);
+            final URI applicationDescriptionFileURI = Http.validateURL(REGISTRY_ROOT_URL + FILE_DIRECTORY + _applicationName + FILE_EXTENSION);
             final String result = Http.download(applicationDescriptionFileURI, false); // Use the multi-threaded HTTP client
             _logger.fine("HTTP response : '" + result + "'.");
 
@@ -152,7 +154,7 @@ public class SampApplicationMetaData {
         _logger.info("Sending JMMC SAMP application '" + _applicationName + "' XML description to JMMC registry ...");
 
         try {
-            final URI uri = Http.validateURL(REPOSITORY_URL + SUBMISSION_FORM);
+            final URI uri = Http.validateURL(REGISTRY_ROOT_URL + SUBMISSION_FORM);
             // use the multi threaded HTTP client
             final String result = Http.post(uri, false, new PostQueryProcessor() {
 

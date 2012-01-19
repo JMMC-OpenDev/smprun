@@ -175,7 +175,7 @@ install_html:
 	cp -arf ./public_html/.htaccess $(HTML_DEST)
 	chmod 777 ./public_html/spool
 	cp -arf ./public_html/* $(HTML_DEST)
-	cp -af ../config/*.xml $(HTML_DEST)
+	cp -af ../config/registry $(HTML_DEST)
 	cp -af fr/jmmc/smprun/stub/data/SampStubDescriptor.xsd $(HTML_DEST)
 	@echo " . . . HTML installation done"
 

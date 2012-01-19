@@ -10,7 +10,7 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
     
-    <program name="AppLauncher" version="1.0b1"/>
+    <program name="AppLauncher" version="1.0b2"/>
 
     <compilation date="17/01/2012" compiler="JDK 1.5.0_16"/>
 
@@ -129,6 +129,9 @@
   
     <releasenotes>
         <release version="1.0">
+            <prerelease version="1.0b2" tag="AL_V1_0b2">
+                <change type="CHANGE">Restructured registry organization.</change>
+            </prerelease>          
             <prerelease version="1.0b1" tag="AL_V1_0b1">
                 <change type="FEATURE">SAMP application meta-data reporting.</change>
             </prerelease>          
