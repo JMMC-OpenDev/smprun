@@ -148,7 +148,7 @@ public final class HubMonitor {
      * @param clients current hub registered clients
      */
     private void loopOverHubClients(final Client[] clients) {
-        _logger.info("processHubClients() invoked by thread [" + Thread.currentThread() + "]");
+        _logger.info("loopOverHubClients() invoked by thread [" + Thread.currentThread() + "]");
 
         for (ClientStub stub : HubPopulator.getInstance().getClients()) {
 
