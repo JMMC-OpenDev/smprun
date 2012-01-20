@@ -3,19 +3,12 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
-import fr.jmmc.smprun.stub.StubMonitor;
-import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.util.FileUtils;
+import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.ClientStubFamily;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import fr.jmmc.smprun.stub.StubMonitor;
+import java.util.*;
 import org.astrogrid.samp.Metadata;
 
 /**
