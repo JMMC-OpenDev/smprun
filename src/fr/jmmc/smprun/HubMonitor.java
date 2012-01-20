@@ -8,11 +8,7 @@ import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.ClientStubUtils;
 import fr.jmmc.smprun.stub.data.SampApplicationMetaData;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
@@ -42,7 +38,7 @@ public final class HubMonitor {
     private final ThreadExecutors _executor;
     /** List of unique client stubs needed to be started ASAP */
     private Set<ClientStub> _clientStubsToStart = new LinkedHashSet<ClientStub>();
-    /** Map of sniffed real application metadata */
+    /** Map of sniffed real application meta-data */
     private HashMap<String, SampApplicationMetaData> _sniffedRealApplications = new HashMap<String, SampApplicationMetaData>();
 
     /**
@@ -54,9 +50,7 @@ public final class HubMonitor {
         return INSTANCE;
     }
 
-    /**
-     * Private constructor
-     */
+    /** Private constructor */
     private HubMonitor() {
         _logger.info("HubMonitor()");
 
@@ -242,7 +236,7 @@ public final class HubMonitor {
     }
 
     /**
-     * Collect all real application metadata.
+     * Collect all real application meta-data.
      * 
      * @param client the real application
      */
