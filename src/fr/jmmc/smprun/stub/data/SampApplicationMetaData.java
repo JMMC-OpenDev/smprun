@@ -35,8 +35,8 @@ public class SampApplicationMetaData {
     /** Package name for JAXB generated code */
     private final static String STUB_DATA_MODEL_JAXB_PATH = "fr.jmmc.smprun.stub.data.model";
     /** URL of the JMMC SAMP application meta data repository */
-    //private static final String REGISTRY_ROOT_URL = "http://jmmc.fr/~smprun/stubs/";
-    private static final String REGISTRY_ROOT_URL = "http://jmmc.fr/~lafrasse/stubs/";
+    private static final String REGISTRY_ROOT_URL = "http://jmmc.fr/~smprun/stubs/";
+    //private static final String REGISTRY_ROOT_URL = "http://jmmc.fr/~lafrasse/stubs/";
     /** Directory containing all JMMC SAMP application meta data files*/
     private static final String FILE_DIRECTORY = "registry/";
     /** File extension of the JMMC SAMP application meta data file format */
