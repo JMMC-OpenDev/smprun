@@ -213,6 +213,20 @@ public final class HubMonitor {
                 it.remove();
             }
         }
+
+        // Check each registered clients for unknown applications
+        for (Client client : clients) {
+
+            Metadata md = client.getMetadata();
+            String clientName = md.getName();
+
+            ClientStub unknownApplicationStub = HubPopulator.getInstance().getClientStub(clientName);
+            if (unknownApplicationStub == null) {
+
+                _logger.info("Detected an unknown application '" + clientName + "'.");
+                retrieveRealRecipientMetadata(client);
+            }
+        }
     }
 
     /**
