@@ -120,7 +120,7 @@ public final class ClientStub extends Observable implements JobListener {
      * @return the URL if the icon if any (null otherwise)
      */
     public ImageIcon getApplicationIcon() {
-        ImageIcon imageIcon = null; // @TODO : Use a generic app icon as placeholder when none available...
+        ImageIcon imageIcon = null; // @TODO : Use a generic app icon as placeholder when none available... BUT AppLauncherTester is kept invisible because of this...
         URL iconURL = _description.getIconUrl();
         if (iconURL != null) {
             imageIcon = new ImageIcon(iconURL);
@@ -251,7 +251,7 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
-     * Cancel or kill the the launching of the real application 
+     * Cancel or kill the the launch of the real application 
      * 
      * TODO: DO not work (javaws can be killed but it will not kill sub processes like java ...)
      */
