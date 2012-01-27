@@ -59,11 +59,19 @@ public class HubPopulator {
         // JMMC client list:
         final List<ClientStub> jmmcClients = new ArrayList<ClientStub>(3);
 
+        // --- AppLauncherTester ---
+        md = new Metadata();
+        md.setName("AppLauncherTester");
+        // Sets no icon to keep AppLauncherTester invisible
+        jmmcClients.add(createClientStub(md,
+                "http://apps.jmmc.fr/~lafrasse/AppLauncherTester/AppLauncherTester.jnlp",
+                new SampCapability[]{SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH},
+                WAIT_NO));
+
         // --- ASPRO2 ---
         md = new Metadata();
         md.setName("Aspro2");
         md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "aspro2-6464.png")); // http://www.jmmc.fr/searchcal/images/aspro2-6464.png
-
         jmmcClients.add(createClientStub(md,
                 "http://apps.jmmc.fr/~swmgr/Aspro2/Aspro2.jnlp",
                 new SampCapability[]{SampCapability.LOAD_VO_TABLE},
@@ -73,7 +81,6 @@ public class HubPopulator {
         md = new Metadata();
         md.setName("SearchCal");
         md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "searchcal-6464.png")); // http://apps.jmmc.fr/~sclws/SearchCal/AppIcon.png
-
         jmmcClients.add(createClientStub(md,
                 "http://apps.jmmc.fr/~sclws/SearchCal/SearchCal.jnlp",
                 new SampCapability[]{SampCapability.SEARCHCAL_START_QUERY},
@@ -83,7 +90,6 @@ public class HubPopulator {
         md = new Metadata();
         md.setName("LITpro");
         md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "litpro-6464.png")); // http://www.jmmc.fr/images/litpro6464ws.jpg
-
         jmmcClients.add(createClientStub(md,
                 "http://jmmc.fr/~swmgr/LITpro/LITpro.jnlp",
                 new SampCapability[]{SampCapability.LITPRO_START_SETTING},
@@ -106,7 +112,6 @@ public class HubPopulator {
         md = new Metadata();
         md.setName("Aladin");
         md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "aladin-6464.png")); // http://aladin.u-strasbg.fr/aladin_large.gif
-
         // Use redirected url instead of the one copied from the web pages (/java/nph-aladin.pl?frame=get&id=aladin.jnlp)
         generalClients.add(createClientStub(md,
                 "http://aladin.u-strasbg.fr/java/aladin.jnlp",
@@ -123,7 +128,6 @@ public class HubPopulator {
         md = new Metadata();
         md.setName("topcat");
         md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "topcat-6464.png")); // "http://www.star.bris.ac.uk/~mbt/topcat/tc3.gif"
-
         // TODO: Provide our own topcat JNLP (http://jmmc.fr/~bourgesl/topcat/topcat-full-appLauncher.jnlp) or convince Mark to change its JNLP to include JVM settings (memory or cmd ling args)
         generalClients.add(createClientStub(md,
                 "http://www.star.bris.ac.uk/~mbt/topcat/topcat-full.jnlp",
