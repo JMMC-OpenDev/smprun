@@ -94,7 +94,7 @@ public class AppLauncher extends App {
 
         // Wait 3 seconds in order to fulfill AppLauncherTester stub registration
         try {
-            Thread.sleep(3);
+            Thread.sleep(3000);
         } catch (InterruptedException ex) {
             Logger.getLogger(AppLauncher.class.getName()).log(Level.SEVERE, null, ex);
         }
