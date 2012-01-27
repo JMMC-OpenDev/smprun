@@ -9,9 +9,9 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.0b2"/>
+    <program name="AppLauncher" version="1.0b3"/>
 
-    <compilation date="20/01/2012" compiler="JDK 1.5.0_16"/>
+    <compilation date="27/01/2012" compiler="JDK 1.5.0_16"/>
 
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools</text>
 
@@ -123,6 +123,9 @@
 
     <releasenotes>
         <release version="1.0">
+            <prerelease version="1.0b2" tag="AL_V1_0b3">
+                <change type="FEATURE">Added automatic JNLP starting ability test.</change>
+            </prerelease>
             <prerelease version="1.0b2" tag="AL_V1_0b2">
                 <change type="CHANGE">Restructured registry organization.</change>
                 <change type="BUGFIX" >Fixed non-detection of unknown real applications.</change>

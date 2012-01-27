@@ -4,14 +4,18 @@
 package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.App;
+import fr.jmmc.jmcs.gui.FeedbackReport;
 import fr.jmmc.jmcs.gui.SwingSettings;
 import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.gui.WindowCenterer;
+import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.smprun.stub.ClientStub;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFrame;
+import org.astrogrid.samp.client.SampException;
 import org.ivoa.util.runner.LocalLauncher;
 
 /**
@@ -87,6 +91,31 @@ public class AppLauncher extends App {
      */
     @Override
     protected void execute() {
+
+        // Wait 3 seconds in order to fulfill AppLauncherTester stub registration
+        try {
+            Thread.sleep(3);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(AppLauncher.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        // Try to send a SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH to AppLauncherTester to test the whole machinery
+        // TODO : Do this only on first start
+        List<String> clientIds = SampManager.getClientIdsForName("AppLauncherTester");
+        if (!clientIds.isEmpty()) {
+
+            // TODO : Should only send this message to our own stub
+            String appLauncherTesterClientId = clientIds.get(0);
+
+            try {
+                SampManager.sendMessageTo(SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH.mType(), appLauncherTesterClientId, null);
+            } catch (SampException ex) {
+                FeedbackReport.openDialog(ex);
+                return;
+            }
+        }
+
+        // If JNLP startup test went fine
         SwingUtils.invokeLaterEDT(new Runnable() {
 
             /**
@@ -97,9 +126,7 @@ public class AppLauncher extends App {
                 _logger.fine("AppLauncher.ready : handler called.");
 
                 final JFrame frame = getFrame();
-
                 WindowCenterer.centerOnMainScreen(frame);
-
                 frame.setVisible(true);
             }
         });
