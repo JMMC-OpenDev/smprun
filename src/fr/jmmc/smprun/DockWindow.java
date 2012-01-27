@@ -173,6 +173,11 @@ public class DockWindow extends JFrame {
         JButton button;
         for (final ClientStub client : clients) {
 
+            // if the current stub should remain invisble
+            if (client.getApplicationIcon() == null) {
+                continue; // Skip GUI stuff creation
+            }
+
             button = buildClientButton(client);
             button.addActionListener(buttonActionListener);
 
