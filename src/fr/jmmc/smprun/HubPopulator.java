@@ -10,6 +10,8 @@ import fr.jmmc.smprun.stub.ClientStubFamily;
 import fr.jmmc.smprun.stub.StubMonitor;
 import java.util.*;
 import org.astrogrid.samp.Metadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Start all known stubs.
@@ -19,7 +21,7 @@ import org.astrogrid.samp.Metadata;
 public class HubPopulator {
 
     /** Class logger */
-    private static final java.util.logging.Logger _logger = java.util.logging.Logger.getLogger(HubPopulator.class.getName());
+    private static final Logger _logger = LoggerFactory.getLogger(HubPopulator.class.getName());
     /** Resource path prefix */
     private static final String RESOURCE_PATH_PREFIX = "fr/jmmc/smprun/resource/";
     /** HubPopulator singleton */
@@ -50,11 +52,12 @@ public class HubPopulator {
      * Constructor: create meta data for SAMP applications
      */
     private HubPopulator() {
-        Metadata md;
 
         // @TODO : Grab all this from the Web/OV
 
         // Note: Use Icon URL pointing to files extracted from Jar file (see resource package)
+
+        Metadata md;
 
         // JMMC client list:
         final List<ClientStub> jmmcClients = new ArrayList<ClientStub>(3);
@@ -64,7 +67,7 @@ public class HubPopulator {
         md.setName("AppLauncherTester");
         // Sets no icon to keep AppLauncherTester invisible
         jmmcClients.add(createClientStub(md,
-                "http://apps.jmmc.fr/~lafrasse/AppLauncherTester/AppLauncherTester.jnlp",
+                "http://apps.jmmc.fr/~smprun/AppLauncherTester/AppLauncherTester.jnlp",
                 new SampCapability[]{SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH},
                 WAIT_NO));
 
@@ -155,8 +158,11 @@ public class HubPopulator {
      * @param sleepDelayBeforeNotify sleep delay in milliseconds before sending the samp message
      * @return client stub 
      */
-    private ClientStub createClientStub(final Metadata md, final String jnlpUrl, final SampCapability[] capabilities,
+    private ClientStub createClientStub(final Metadata md,
+            final String jnlpUrl,
+            final SampCapability[] capabilities,
             final long sleepDelayBeforeNotify) {
+
         final ClientStub client = new ClientStub(md, jnlpUrl, capabilities, sleepDelayBeforeNotify);
         client.addObserver(new StubMonitor());
 

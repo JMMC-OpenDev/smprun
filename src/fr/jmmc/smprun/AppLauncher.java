@@ -4,19 +4,23 @@
 package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.App;
+import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.FeedbackReport;
 import fr.jmmc.jmcs.gui.SwingSettings;
 import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.gui.WindowCenterer;
+import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
+import fr.jmmc.smprun.preference.PreferenceKey;
+import fr.jmmc.smprun.preference.Preferences;
 import fr.jmmc.smprun.stub.ClientStub;
+import java.awt.event.ActionEvent;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFrame;
 import org.astrogrid.samp.client.SampException;
 import org.ivoa.util.runner.LocalLauncher;
+import org.slf4j.LoggerFactory;
 
 /**
  * AppLauncher main class.
@@ -26,7 +30,9 @@ import org.ivoa.util.runner.LocalLauncher;
 public class AppLauncher extends App {
 
     /** Logger */
-    private static final Logger _logger = Logger.getLogger(AppLauncher.class.getName());
+    protected static final org.slf4j.Logger _logger = LoggerFactory.getLogger(AppLauncher.class.getName());
+    /** Export to SAMP action */
+    public LaunchJnlpSampAutoTestAction _launchJnlpSampAutoTestAction;
 
     /**
      * Launch the AppLauncher application.
@@ -44,10 +50,12 @@ public class AppLauncher extends App {
      * Initialize application objects
      * @param args ignored arguments
      *
-     * @throws RuntimeException if the AppLauncher initialisation failed
+     * @throws RuntimeException if the AppLauncher initialization failed
      */
     @Override
     protected void init(final String[] args) {
+
+        _launchJnlpSampAutoTestAction = new LaunchJnlpSampAutoTestAction(getClass().getName(), "_launchJnlpSampAutoTestAction");
 
         // Start first the SampManager (connect to an existing hub or start a new one)
         // and check if it is connected to one Hub:
@@ -92,30 +100,12 @@ public class AppLauncher extends App {
     @Override
     protected void execute() {
 
-        // Wait 3 seconds in order to fulfill AppLauncherTester stub registration
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(AppLauncher.class.getName()).log(Level.SEVERE, null, ex);
+        // Perform JNLP/SAMP auto-test on first AppLauncher start
+        if (!checkJnlpSampAbilitiesOnFirstRun()) {
+            return; // Stop execution right now if auto-test failed
         }
 
-        // Try to send a SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH to AppLauncherTester to test the whole machinery
-        // TODO : Do this only on first start
-        List<String> clientIds = SampManager.getClientIdsForName("AppLauncherTester");
-        if (!clientIds.isEmpty()) {
-
-            // TODO : Should only send this message to our own stub
-            String appLauncherTesterClientId = clientIds.get(0);
-
-            try {
-                SampManager.sendMessageTo(SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH.mType(), appLauncherTesterClientId, null);
-            } catch (SampException ex) {
-                FeedbackReport.openDialog(ex);
-                return;
-            }
-        }
-
-        // If JNLP startup test went fine
+        // If JNLP/SAMP startup test went fine
         SwingUtils.invokeLaterEDT(new Runnable() {
 
             /**
@@ -123,7 +113,7 @@ public class AppLauncher extends App {
              */
             @Override
             public void run() {
-                _logger.fine("AppLauncher.ready : handler called.");
+                _logger.debug("Setting AppLauncher GUI up.");
 
                 final JFrame frame = getFrame();
                 WindowCenterer.centerOnMainScreen(frame);
@@ -167,10 +157,79 @@ public class AppLauncher extends App {
             new AppLauncher(args);
         } finally {
             final long time = (System.nanoTime() - start);
+            _logger.debug("Startup duration = {} ms.", 1e-6d * time);
+        }
+    }
 
-            if (_logger.isLoggable(Level.INFO)) {
-                _logger.info("startup : duration = " + 1e-6d * time + " ms.");
+    /**
+     * @return true if the test went fine, false otherwise
+     */
+    private boolean checkJnlpSampAbilitiesOnFirstRun() {
+
+        // If it is the first time ever AppLauncher is started
+        Preferences preferences = Preferences.getInstance();
+        if (preferences.getPreferenceAsBoolean(PreferenceKey.FIRST_START_FLAG) == true) {
+
+            _logger.info("First time AppLauncher is starting (no preference file found).");
+
+            // Run JNLP/SAMP abailities test
+            if (!checkJnlpSampAbilities()) {
+                _logger.error("Could not succesfully perform JNLP/SAMP auto-test, aborting.");
+                return false;
+            } else {
+
+                _logger.info("Succesfully performed JNLP/SAMP auto-test.");
+
+                // Create preference file to skip this test for future starts
+                try {
+                    preferences.setPreference(PreferenceKey.FIRST_START_FLAG, false);
+                    preferences.saveToFile();
+                } catch (PreferencesException ex) {
+                    _logger.warn("Could not write to preference file :", ex);
+                }
             }
+        }
+
+        return true;
+    }
+
+    /**
+     * @return true if the test went fine, false otherwise
+     */
+    private boolean checkJnlpSampAbilities() {
+
+        // Try to send a SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH to AppLauncherTester stub to test our whole machinery
+        List<String> clientIds = SampManager.getClientIdsForName("AppLauncherTester");
+        if (!clientIds.isEmpty()) {
+
+            // TODO : Should only send this message to our own stub
+            String appLauncherTesterClientId = clientIds.get(0);
+
+            // try to send the dedicated test message to our stub
+            try {
+                final String appLauncherTesterMType = SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH.mType();
+                SampManager.sendMessageTo(appLauncherTesterMType, appLauncherTesterClientId, null);
+            } catch (SampException ex) {
+                FeedbackReport.openDialog(ex);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected class LaunchJnlpSampAutoTestAction extends RegisteredAction {
+
+        /** default serial UID for Serializable interface */
+        private static final long serialVersionUID = 1;
+
+        public LaunchJnlpSampAutoTestAction(String classPath, String fieldName) {
+            super(classPath, fieldName);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            checkJnlpSampAbilities();
         }
     }
 }
