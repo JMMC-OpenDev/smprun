@@ -6,12 +6,14 @@ package fr.jmmc.smprun.stub.data;
 import fr.jmmc.jmcs.data.preference.CommonPreferences;
 import fr.jmmc.jmcs.gui.MainMenuBar;
 import fr.jmmc.jmcs.gui.WindowCenterer;
-import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import javax.swing.*;
+import javax.swing.text.html.HTMLDocument;
+import javax.swing.text.html.HTMLEditorKit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,30 +77,30 @@ public class ApplicationReportingForm extends JFrame {
 
         _panel = new JPanel();
 
+        _mainExplanationLabel = new JEditorPane();
+        _mainExplanationLabel.setEditable(false);
+        _mainExplanationLabel.setOpaque(false); // To keep default background color instead of the default white
+        _mainExplanationLabel.setContentType(new HTMLEditorKit().getContentType());
+        _mainExplanationLabel.setCaretPosition(0); // Show first line of editor pane, and not its last line as by default !
+        // Add a CSS rule to force body tags to use the default label font instead of the value in javax.swing.text.html.default.csss
+        Font font = UIManager.getFont("Label.font");
+        String bodyRule = "body { font-family: " + font.getFamily() + "; " + "font-size: " + font.getSize() + "pt; }";
+        ((HTMLDocument)_mainExplanationLabel.getDocument()).getStyleSheet().addRule(bodyRule);
         String message = "<html><head></head><body>"
                 + "AppLauncher discovered the '" + _applicationName + "' application it did not know yet.<br>"
-                + "Do you wish to contribute making AppLauncher better, and send<br>"
-                + "'" + _applicationName + "' application description to the JMMC ?<br><br>"
+                + "Do you wish to contribute making AppLauncher better, and send '" + _applicationName + "' application<br>"
+                + "description to the JMMC ?<br><br>"
                 + "<i>No other personnal information than those optionaly provided below will be sent along.</i>"
                 + "</body></html>";
-        _mainExplanationLabel = new JEditorPane();
-        _mainExplanationLabel.setOpaque(false);
-        _mainExplanationLabel.setEditable(false);
-        _mainExplanationLabel.setMargin(new Insets(5, 5, 5, 5));
-        _mainExplanationLabel.setContentType("text/html");
-        // Show first line of editor pane, and not its last line as by default !
-        _mainExplanationLabel.setCaretPosition(0);
         _mainExplanationLabel.setText(message);
 
         _jnlpUrlLabel = new JLabel("JNLP URL:");
         _panel.add(_jnlpUrlLabel);
-
         _jnlpUrlField = new JTextField();
         _panel.add(_jnlpUrlField);
 
         _contactEmailLabel = new JLabel("Contact eMail:");
         _panel.add(_contactEmailLabel);
-
         _contactEmailField = new JTextField();
         _panel.add(_contactEmailField);
         // Automatically fulfill the email field with default shared user email (as in FeedbackReport), if any
@@ -109,7 +111,6 @@ public class ApplicationReportingForm extends JFrame {
         _submitButton.setText("Submit");
         getRootPane().setDefaultButton(_submitButton);
         _panel.add(_submitButton);
-
         _cancelButton = new JButton(_cancelAction);
         _cancelButton.setText("Cancel");
         _panel.add(_cancelButton);
