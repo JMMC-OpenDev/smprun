@@ -20,6 +20,7 @@ import java.util.List;
 import javax.swing.JFrame;
 import org.astrogrid.samp.client.SampException;
 import org.ivoa.util.runner.LocalLauncher;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -30,7 +31,7 @@ import org.slf4j.LoggerFactory;
 public class AppLauncher extends App {
 
     /** Logger */
-    protected static final org.slf4j.Logger _logger = LoggerFactory.getLogger(AppLauncher.class.getName());
+    protected static final Logger _logger = LoggerFactory.getLogger(AppLauncher.class.getName());
     /** Export to SAMP action */
     public LaunchJnlpSampAutoTestAction _launchJnlpSampAutoTestAction;
 
