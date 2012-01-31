@@ -7,7 +7,6 @@ import fr.jmmc.jmcs.data.preference.CommonPreferences;
 import fr.jmmc.jmcs.gui.MainMenuBar;
 import fr.jmmc.jmcs.gui.WindowCenterer;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -56,7 +55,7 @@ public class ApplicationReportingForm extends JFrame {
      */
     public ApplicationReportingForm(String applicationName) {
 
-        super("Report New SAMP Application to JMMC Registry");
+        super("Report New SAMP Application to JMMC Registry ?");
 
         _applicationName = applicationName;
 
@@ -85,12 +84,12 @@ public class ApplicationReportingForm extends JFrame {
         // Add a CSS rule to force body tags to use the default label font instead of the value in javax.swing.text.html.default.csss
         Font font = UIManager.getFont("Label.font");
         String bodyRule = "body { font-family: " + font.getFamily() + "; " + "font-size: " + font.getSize() + "pt; }";
-        ((HTMLDocument)_mainExplanationLabel.getDocument()).getStyleSheet().addRule(bodyRule);
+        ((HTMLDocument) _mainExplanationLabel.getDocument()).getStyleSheet().addRule(bodyRule);
         String message = "<html><head></head><body>"
-                + "AppLauncher discovered the '" + _applicationName + "' application it did not know yet.<br>"
-                + "Do you wish to contribute making AppLauncher better, and send '" + _applicationName + "' application<br>"
-                + "description to the JMMC ?<br><br>"
-                + "<i>No other personnal information than those optionaly provided below will be sent along.</i>"
+                + "<center>AppLauncher discovered the '<b>" + _applicationName + "</b>' application it did not know yet !</center><br/>"
+                + "Do you wish to contribute making AppLauncher better, and send '" + _applicationName + "' application<br/>"
+                + "description to the JMMC ?<br/><br/>"
+                + "<small><i>No other personnal information than those optionaly provided below will be sent along.</i></small><br/>"
                 + "</body></html>";
         _mainExplanationLabel.setText(message);
 
@@ -127,16 +126,16 @@ public class ApplicationReportingForm extends JFrame {
         layout.setHorizontalGroup(
                 layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_mainExplanationLabel)
                                                                          .addGroup(layout.createParallelGroup().addGroup(layout.createSequentialGroup()
-                                                                                                                               .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_jnlpUrlLabel).addComponent(_contactEmailLabel))
+                                                                                                                               .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(_jnlpUrlLabel).addComponent(_contactEmailLabel))
                                                                                                                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_jnlpUrlField).addComponent(_contactEmailField)))
-                                                                                                               .addGroup(layout.createSequentialGroup().addComponent(_cancelButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(_submitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))));
+                                                                                                               .addGroup(layout.createSequentialGroup().addPreferredGap(LayoutStyle.ComponentPlacement.RELATED, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(_cancelButton).addComponent(_submitButton))));
 
         layout.setVerticalGroup(
                 layout.createSequentialGroup().addComponent(_mainExplanationLabel)
                                               .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(_jnlpUrlLabel).addComponent(_jnlpUrlField))
                                               .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(_contactEmailLabel).addComponent(_contactEmailField))
                                               .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(_cancelButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(_submitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
-        }
+    }
 
     /** Finish window setup */
     private void prepareFrame() {
@@ -199,7 +198,7 @@ public class ApplicationReportingForm extends JFrame {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new ApplicationReportingForm("Toto");
+        JFrame frame = new ApplicationReportingForm("Toto BlahBlah v33");
         WindowCenterer.centerOnMainScreen(frame);
         frame.setVisible(true);
     }
