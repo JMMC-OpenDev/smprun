@@ -5,7 +5,6 @@ package fr.jmmc.smprun.stub.data;
 
 import fr.jmmc.jmcs.gui.MainMenuBar;
 import fr.jmmc.jmcs.gui.WindowCenterer;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -22,13 +21,19 @@ public class ApplicationReportingForm extends JFrame {
 
     /** Logger */
     private static final Logger _logger = LoggerFactory.getLogger(ApplicationReportingForm.class.getName());
+    /** Hold the name of the application to report */
+    private final String _applicationName;
     // GUI stuff
     /** Window panel */
     private JPanel _panel;
-    /** 'Find:" label */
+    /** main explanation label */
+    private JLabel _mainExplanationLabel;
+    /** 'JNLP URL:' label */
     private JLabel _jnlpUrlLabel;
     /** JNLP URL Field */
     private JTextField _jnlpUrlField;
+    /** 'Contact E-Mail:' label */
+    private JLabel _contactEmailLabel;
     /** Contact email Field */
     private JTextField _contactEmailField;
     /** Button to submit application meta-data to JMMC registry */
@@ -43,16 +48,16 @@ public class ApplicationReportingForm extends JFrame {
 
     /**
      * Constructor
-     * @param tableSorter the object to use to select found result.
-     * @param calibratorsTable the data source to search in.
      */
-    public ApplicationReportingForm() {
+    public ApplicationReportingForm(String applicationName) {
+
         super("Report New SAMP Application to JMMC Registry");
+
+        _applicationName = applicationName;
 
         setupActions();
         createWidgets();
         layoutWidgets();
-//        monitorWidgets();
         prepareFrame();
     }
 
@@ -67,12 +72,23 @@ public class ApplicationReportingForm extends JFrame {
 
         _panel = new JPanel();
 
-        _jnlpUrlLabel = new JLabel("Find:");
+        String message = "AppLauncher discovered the '" + _applicationName + "' application it did not know yet.\n"
+                + "Do you wish to contribute making AppLauncher better, and send\n"
+                + "'" + _applicationName + "' application description to the JMMC ?\n\n"
+                + "No other personnal information than those optionaly provided below will be sent along.";
+
+        _mainExplanationLabel = new JLabel(message);
+
+        _jnlpUrlLabel = new JLabel("JNLP URL:");
         _panel.add(_jnlpUrlLabel);
 
         _jnlpUrlField = new JTextField();
         _panel.add(_jnlpUrlField);
 
+        _contactEmailLabel = new JLabel("Contact E-Mail:");
+        _panel.add(_contactEmailLabel);
+
+        // TODO : fill the eamil field with defaut shared email as in FeedbackReport
         _contactEmailField = new JTextField();
         _panel.add(_contactEmailField);
 
@@ -86,7 +102,7 @@ public class ApplicationReportingForm extends JFrame {
         _panel.add(_cancelButton);
     }
 
-    /** Place graphical widgets on the 'Find' window */
+    /** Place graphical widgets on the window */
     private void layoutWidgets() {
         GroupLayout layout = new GroupLayout(_panel);
         _panel.setLayout(layout);
@@ -95,24 +111,11 @@ public class ApplicationReportingForm extends JFrame {
         layout.setAutoCreateContainerGaps(true);
 
         layout.setHorizontalGroup(
-                layout.createSequentialGroup().addComponent(_jnlpUrlLabel).addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_jnlpUrlField).addComponent(_contactEmailField)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(_cancelButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(_submitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+                layout.createSequentialGroup().addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_jnlpUrlLabel).addComponent(_contactEmailLabel)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_jnlpUrlField).addComponent(_contactEmailField)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(_cancelButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(_submitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
 
         layout.setVerticalGroup(
-                layout.createSequentialGroup().addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(_jnlpUrlLabel).addComponent(_jnlpUrlField).addComponent(_cancelButton)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(_contactEmailField).addComponent(_submitButton)));
+                layout.createSequentialGroup().addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(_jnlpUrlLabel).addComponent(_jnlpUrlField).addComponent(_cancelButton)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(_contactEmailLabel).addComponent(_contactEmailField).addComponent(_submitButton)));
     }
-
-    /** Start SearchField listening */
-/*
-    private void monitorWidgets() {
-        _jnlpUrlField.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                doSearch(SearchPanel.SEARCH_DIRECTION.UNDEFINED);
-            }
-        });
-    }
-*/
 
     /** Finish window setup */
     private void prepareFrame() {
@@ -142,37 +145,6 @@ public class ApplicationReportingForm extends JFrame {
         getRootPane().registerKeyboardAction(actionListener, metaWStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
 
-    /**
-     * (Dis)enable menu actions on demand.
-     *
-     * @param shouldBeEnabled Enables menu if true, disables them otherwise.
-     */
-/*
-    public void enableMenus(boolean shouldBeEnabled) {
-        _submitAction.setEnabled(shouldBeEnabled);
-        _cancelAction.setEnabled(shouldBeEnabled);
-        _findPreviousAction.setEnabled(shouldBeEnabled);
-    }
-*/
-
-    /**
-     * Handle search requests.
-     * @param direction Going 'NEXT' or 'PREVIOUS', or reset in 'UNDEFINED'.
-     */
-/*
-    private void doSearch(SearchPanel.SEARCH_DIRECTION direction) {
-        final String text = _searchField.getText().trim();
-
-        final boolean isRegExp = _regexpCheckBox.isSelected();
-        if (text.length() > 0) {
-            if (!_searchHelper.search(text, isRegExp, direction)) {
-                _searchField.setBackground(Color.red);
-            } else {
-                _searchField.setBackground(Color.WHITE);
-            }
-        }
-    }
-*/
     protected class SubmitAction extends AbstractAction {
 
         /** default serial UID for Serializable interface */
@@ -185,6 +157,7 @@ public class ApplicationReportingForm extends JFrame {
         @Override
         public void actionPerformed(java.awt.event.ActionEvent e) {
             // TODO : submit meta-data
+            _logger.info("Reported SAMP applicatin meta-data to JMMC registry.");
         }
     }
 
@@ -199,6 +172,14 @@ public class ApplicationReportingForm extends JFrame {
 
         @Override
         public void actionPerformed(java.awt.event.ActionEvent e) {
+            // TODO : cancel meta-data submition
+            _logger.info("Cancelled SAMP applicatin meta-data reporting.");
         }
+    }
+
+    public static void main(String[] args) {
+        JFrame frame = new ApplicationReportingForm("Toto");
+        WindowCenterer.centerOnMainScreen(frame);
+        frame.setVisible(true);
     }
 }
