@@ -3,8 +3,11 @@
  ******************************************************************************/
 package fr.jmmc.smprun.stub.data;
 
+import fr.jmmc.jmcs.data.preference.CommonPreferences;
 import fr.jmmc.jmcs.gui.MainMenuBar;
 import fr.jmmc.jmcs.gui.WindowCenterer;
+import java.awt.Dimension;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -27,12 +30,12 @@ public class ApplicationReportingForm extends JFrame {
     /** Window panel */
     private JPanel _panel;
     /** main explanation label */
-    private JLabel _mainExplanationLabel;
+    private JEditorPane _mainExplanationLabel;
     /** 'JNLP URL:' label */
     private JLabel _jnlpUrlLabel;
     /** JNLP URL Field */
     private JTextField _jnlpUrlField;
-    /** 'Contact E-Mail:' label */
+    /** 'Contact eMail:' label */
     private JLabel _contactEmailLabel;
     /** Contact email Field */
     private JTextField _contactEmailField;
@@ -72,12 +75,20 @@ public class ApplicationReportingForm extends JFrame {
 
         _panel = new JPanel();
 
-        String message = "AppLauncher discovered the '" + _applicationName + "' application it did not know yet.\n"
-                + "Do you wish to contribute making AppLauncher better, and send\n"
-                + "'" + _applicationName + "' application description to the JMMC ?\n\n"
-                + "No other personnal information than those optionaly provided below will be sent along.";
-
-        _mainExplanationLabel = new JLabel(message);
+        String message = "<html><head></head><body>"
+                + "AppLauncher discovered the '" + _applicationName + "' application it did not know yet.<br>"
+                + "Do you wish to contribute making AppLauncher better, and send<br>"
+                + "'" + _applicationName + "' application description to the JMMC ?<br><br>"
+                + "<i>No other personnal information than those optionaly provided below will be sent along.</i>"
+                + "</body></html>";
+        _mainExplanationLabel = new JEditorPane();
+        _mainExplanationLabel.setOpaque(false);
+        _mainExplanationLabel.setEditable(false);
+        _mainExplanationLabel.setMargin(new Insets(5, 5, 5, 5));
+        _mainExplanationLabel.setContentType("text/html");
+        // Show first line of editor pane, and not its last line as by default !
+        _mainExplanationLabel.setCaretPosition(0);
+        _mainExplanationLabel.setText(message);
 
         _jnlpUrlLabel = new JLabel("JNLP URL:");
         _panel.add(_jnlpUrlLabel);
@@ -85,12 +96,14 @@ public class ApplicationReportingForm extends JFrame {
         _jnlpUrlField = new JTextField();
         _panel.add(_jnlpUrlField);
 
-        _contactEmailLabel = new JLabel("Contact E-Mail:");
+        _contactEmailLabel = new JLabel("Contact eMail:");
         _panel.add(_contactEmailLabel);
 
-        // TODO : fill the eamil field with defaut shared email as in FeedbackReport
         _contactEmailField = new JTextField();
         _panel.add(_contactEmailField);
+        // Automatically fulfill the email field with default shared user email (as in FeedbackReport), if any
+        String storedEmail = CommonPreferences.getInstance().getPreference(CommonPreferences.FEEDBACK_REPORT_USER_EMAIL);
+        _contactEmailField.setText(storedEmail);
 
         _submitButton = new JButton(_submitAction);
         _submitButton.setText("Submit");
@@ -110,11 +123,11 @@ public class ApplicationReportingForm extends JFrame {
         layout.setAutoCreateGaps(true);
         layout.setAutoCreateContainerGaps(true);
 
-        layout.setHorizontalGroup(
-                layout.createSequentialGroup().addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_jnlpUrlLabel).addComponent(_contactEmailLabel)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_jnlpUrlField).addComponent(_contactEmailField)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(_cancelButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(_submitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)));
+        layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_mainExplanationLabel).addGroup(
+                layout.createSequentialGroup().addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_jnlpUrlLabel).addComponent(_contactEmailLabel)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(_jnlpUrlField).addComponent(_contactEmailField)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING).addComponent(_cancelButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE).addComponent(_submitButton, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))));
 
         layout.setVerticalGroup(
-                layout.createSequentialGroup().addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(_jnlpUrlLabel).addComponent(_jnlpUrlField).addComponent(_cancelButton)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(_contactEmailLabel).addComponent(_contactEmailField).addComponent(_submitButton)));
+                layout.createSequentialGroup().addComponent(_mainExplanationLabel).addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(_jnlpUrlLabel).addComponent(_jnlpUrlField).addComponent(_cancelButton)).addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(_contactEmailLabel).addComponent(_contactEmailField).addComponent(_submitButton)));
     }
 
     /** Finish window setup */
