@@ -3,7 +3,6 @@
  ******************************************************************************/
 package fr.jmmc.smprun.stub.data;
 
-import fr.jmmc.jmcs.gui.MessagePane;
 import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.jaxb.JAXBFactory;
 import fr.jmmc.jmcs.jaxb.XmlBindException;
@@ -84,6 +83,7 @@ public class SampApplicationMetaData {
         ThreadExecutors.getGenericExecutor().submit(new Runnable() {
 
             AtomicBoolean shouldPhoneHome = new AtomicBoolean(false);
+            ApplicationReportingForm dialog;
 
             public void run() {
 
@@ -98,12 +98,8 @@ public class SampApplicationMetaData {
                         /** Synchronized by EDT */
                         @Override
                         public void run() {
-                            shouldPhoneHome.set(
-                                    MessagePane.showConfirmMessage(
-                                    "AppLauncher discovered the '" + _applicationName + "' application it did not know yet.\n"
-                                    + "Do you wish to contribute making AppLauncher better, and send\n"
-                                    + "'" + _applicationName + "' application description to the JMMC ?\n\n"
-                                    + "No personnal information will be sent along."));
+                            dialog = new ApplicationReportingForm(_applicationName);
+                            shouldPhoneHome.set(dialog.shouldSubmit());
                         }
                     });
 
