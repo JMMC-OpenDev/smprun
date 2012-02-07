@@ -5,8 +5,8 @@ package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
+import fr.jmmc.jmcs.network.interop.SampMetaData;
 import fr.jmmc.smprun.stub.ClientStub;
-import fr.jmmc.smprun.stub.ClientStubUtils;
 import fr.jmmc.smprun.stub.data.SampApplicationMetaData;
 import java.util.*;
 import java.util.logging.Logger;
@@ -161,8 +161,8 @@ public final class HubMonitor {
                     String recipientId = client.getId();
 
                     // If current client is one of our STUB
-                    Object clientIsAStubFlag = md.get(ClientStubUtils.getClientStubKey(clientName));
-                    if (ClientStubUtils.STUB_TOKEN.equals(clientIsAStubFlag)) {
+                    Object clientIsAStubFlag = md.get(SampMetaData.getStubMetaDataId(clientName));
+                    if (SampMetaData.STUB_TOKEN.equals(clientIsAStubFlag)) {
                         _logger.info("Found STUB recipient '" + clientName + "' [" + recipientId + "] : leaving it alone.");
                     } else {
 

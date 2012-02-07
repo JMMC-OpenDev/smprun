@@ -5,6 +5,7 @@ package fr.jmmc.smprun.stub;
 
 import fr.jmmc.jmcs.gui.StatusBar;
 import fr.jmmc.jmcs.network.interop.SampCapability;
+import fr.jmmc.jmcs.network.interop.SampMetaData;
 
 import fr.jmmc.smprun.DockWindow;
 import fr.jmmc.smprun.JnlpStarter;
@@ -86,7 +87,7 @@ public final class ClientStub extends Observable implements JobListener {
         _logPrefix = "Stub['" + _applicationName + "'] : ";
 
         // Flag any created STUB for later skipping while looking for recipients
-        _description.put(ClientStubUtils.getClientStubKey(_applicationName), ClientStubUtils.STUB_TOKEN);
+        _description.put(SampMetaData.getStubMetaDataId(_applicationName), SampMetaData.STUB_TOKEN);
 
         _mTypes = mTypes;
         _jnlpUrl = jnlpUrl;
