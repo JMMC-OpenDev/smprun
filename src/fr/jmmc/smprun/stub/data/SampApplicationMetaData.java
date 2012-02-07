@@ -8,6 +8,7 @@ import fr.jmmc.jmcs.jaxb.JAXBFactory;
 import fr.jmmc.jmcs.jaxb.XmlBindException;
 import fr.jmmc.jmcs.network.Http;
 import fr.jmmc.jmcs.network.PostQueryProcessor;
+import fr.jmmc.jmcs.network.interop.SampMetaData;
 import fr.jmmc.smprun.stub.data.model.SampStub;
 import java.io.IOException;
 import java.io.StringWriter;
@@ -46,6 +47,10 @@ public class SampApplicationMetaData {
     private SampStub _data = new SampStub();
     /** Real application exact name */
     private String _applicationName;
+    /** Real application SAMP meta data */
+    private Metadata _sampMetaData;
+    /** Real application SAMP mTypes */
+    private Subscriptions _sampSubscriptions;
 
     /**
      * Constructor.
@@ -59,19 +64,8 @@ public class SampApplicationMetaData {
 
         _applicationName = metadata.getName();
         _data.setUid(_applicationName);
-
-        // Serialize all SAMP meta data
-        for (Object key : metadata.keySet()) {
-            fr.jmmc.smprun.stub.data.model.Metadata tmp = new fr.jmmc.smprun.stub.data.model.Metadata();
-            tmp.setKey(key.toString());
-            tmp.setValue(metadata.get(key).toString());
-            _data.getMetadatas().add(tmp);
-        }
-
-        // Serialize all SAMP mTypes
-        for (Object subscription : subscriptions.keySet()) {
-            _data.getSubscriptions().add(subscription.toString());
-        }
+        _sampMetaData = metadata; // Shoyld clone it instead, but clone() is not implemented in jSAMP
+        _sampSubscriptions = subscriptions;
     }
 
     /**
@@ -105,7 +99,9 @@ public class SampApplicationMetaData {
 
                     // If the user agreed to report unknown app
                     if (shouldPhoneHome.get()) {
-                        postXMLToRegistry(marshallApplicationDescription());
+                        serializeMetaData(dialog.getUserEmail(), dialog.getJnlpURL());
+                        final String xmlRepresentation = marshallApplicationDescription();
+                        postXMLToRegistry(xmlRepresentation);
                     }
                 }
             }
@@ -134,6 +130,36 @@ public class SampApplicationMetaData {
         }
 
         return unknownApplicationFlag;
+    }
+
+    /**
+     * @param userEmail 
+     * @param jnlpURL 
+     */
+    private void serializeMetaData(String userEmail, String jnlpURL) {
+
+        fr.jmmc.smprun.stub.data.model.Metadata tmp;
+
+        // Add user given inputs
+        if ((userEmail != null) && (userEmail.length() > 0)) {
+            tmp = new fr.jmmc.smprun.stub.data.model.Metadata("email", userEmail);
+            _data.getMetadatas().add(tmp);
+        }
+        if ((jnlpURL != null) && (jnlpURL.length() > 0)) {
+            tmp = new fr.jmmc.smprun.stub.data.model.Metadata(SampMetaData.JNLP_URL.id(), jnlpURL);
+            _data.getMetadatas().add(tmp);
+        }
+
+        // Serialize all SAMP meta data
+        for (Object key : _sampMetaData.keySet()) {
+            tmp = new fr.jmmc.smprun.stub.data.model.Metadata(key.toString(), _sampMetaData.get(key).toString());
+            _data.getMetadatas().add(tmp);
+        }
+
+        // Serialize all SAMP mTypes
+        for (Object subscription : _sampSubscriptions.keySet()) {
+            _data.getSubscriptions().add(subscription.toString());
+        }
     }
 
     /**

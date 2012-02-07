@@ -9,7 +9,7 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.0b3"/>
+    <program name="AppLauncher" version="1.0b4"/>
 
     <compilation date="27/01/2012" compiler="JDK 1.5.0_16"/>
 
@@ -127,6 +127,9 @@
 
     <releasenotes>
         <release version="1.0">
+            <prerelease version="1.0b4" tag="AL_V1_0b4">
+                <change type="CHANGE">Updated the reporting window to include contact email and JNLP URL input fields.</change>
+            </prerelease>
             <prerelease version="1.0b3" tag="AL_V1_0b3">
                 <change type="FEATURE">Added an entry in the Help menu to manually test JNLP and SAMP abilities.</change>
                 <change type="FEATURE">Added automatic JNLP starting ability test.</change>
