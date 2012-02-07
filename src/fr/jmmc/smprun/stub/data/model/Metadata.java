@@ -94,5 +94,22 @@ public class Metadata {
     public boolean isSetValue() {
         return (this.value!= null);
     }
+    
+//--simple--preserve
+    /**
+     * Default constructor required by JAXB
+     */
+    public Metadata() {
+    }
+    /**
+     * Custom constructor 
+     * @param key
+     * @param value 
+     */
+    public Metadata(final String key, final String value) {
+        this.key = key;
+        this.value = value;
+    }
+//--simple--preserve
 
 }
