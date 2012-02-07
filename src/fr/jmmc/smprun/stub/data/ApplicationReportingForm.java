@@ -3,6 +3,7 @@
  ******************************************************************************/
 package fr.jmmc.smprun.stub.data;
 
+import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.data.preference.CommonPreferences;
 import fr.jmmc.jmcs.gui.MainMenuBar;
 import fr.jmmc.jmcs.gui.WindowCenterer;
@@ -21,7 +22,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sylvain LAFRASSE.
  */
-public class ApplicationReportingForm extends JFrame {
+public class ApplicationReportingForm extends JDialog {
 
     /** Logger */
     private static final Logger _logger = LoggerFactory.getLogger(ApplicationReportingForm.class.getName());
@@ -49,20 +50,34 @@ public class ApplicationReportingForm extends JFrame {
     private SubmitAction _submitAction;
     /** Find Next action */
     private CancelAction _cancelAction;
+    // Data stuff
+    /** User answer (true for submit, false for cancel) */
+    private boolean _shouldSubmit;
+    /** Hold user email address */
+    private String _userEmail;
+    /** Hold JNLP URL address */
+    private String _jnlpURL;
 
     /**
      * Constructor
      */
     public ApplicationReportingForm(String applicationName) {
 
-        super("Report New SAMP Application to JMMC Registry ?");
+        super(App.getFrame(), "Report New SAMP Application to JMMC Registry ?", true);
 
         _applicationName = applicationName;
 
+        initFields();
         setupActions();
         createWidgets();
         layoutWidgets();
         prepareFrame();
+    }
+
+    private void initFields() {
+        _shouldSubmit = false;
+        _userEmail = null;
+        _jnlpURL = null;
     }
 
     /** Create required actions */
@@ -103,8 +118,8 @@ public class ApplicationReportingForm extends JFrame {
         _contactEmailField = new JTextField();
         _panel.add(_contactEmailField);
         // Automatically fulfill the email field with default shared user email (as in FeedbackReport), if any
-        String storedEmail = CommonPreferences.getInstance().getPreference(CommonPreferences.FEEDBACK_REPORT_USER_EMAIL);
-        _contactEmailField.setText(storedEmail);
+        _userEmail = CommonPreferences.getInstance().getPreference(CommonPreferences.FEEDBACK_REPORT_USER_EMAIL);
+        _contactEmailField.setText(_userEmail);
 
         _submitButton = new JButton(_submitAction);
         _submitButton.setText("Submit");
@@ -163,6 +178,30 @@ public class ApplicationReportingForm extends JFrame {
         };
         getRootPane().registerKeyboardAction(actionListener, escapeStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
         getRootPane().registerKeyboardAction(actionListener, metaWStroke, JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        // Show the dialog and wait for user inputs
+        setVisible(true);
+    }
+
+    /**
+     * @return true if the user choose to submit, false otherwise (cancel)
+     */
+    public boolean shouldSubmit() {
+        return _shouldSubmit;
+    }
+
+    /**
+     * @return the user email address if any, null otherwise.
+     */
+    public String getUserEmail() {
+        return _userEmail;
+    }
+
+    /**
+     * @return the JNLP URL address if any, null otherwise.
+     */
+    public String getJnlpURL() {
+        return _jnlpURL;
     }
 
     protected class SubmitAction extends AbstractAction {
@@ -176,8 +215,14 @@ public class ApplicationReportingForm extends JFrame {
 
         @Override
         public void actionPerformed(java.awt.event.ActionEvent e) {
-            // TODO : submit meta-data
-            _logger.info("Reported SAMP applicatin meta-data to JMMC registry.");
+            _logger.info("Reported SAMP application meta-data to JMMC registry.");
+
+            _shouldSubmit = true;
+            _userEmail = _contactEmailField.getText();
+            _jnlpURL = _jnlpUrlField.getText();
+
+            _logger.debug("Hiding about box on Submit button.");
+            setVisible(false);
         }
     }
 
@@ -192,14 +237,28 @@ public class ApplicationReportingForm extends JFrame {
 
         @Override
         public void actionPerformed(java.awt.event.ActionEvent e) {
-            // TODO : cancel meta-data submition
-            _logger.info("Cancelled SAMP applicatin meta-data reporting.");
+            _logger.info("Cancelled SAMP application meta-data reporting.");
+
+            _shouldSubmit = false;
+            _userEmail = null;
+            _jnlpURL = null;
+
+            _logger.debug("Hiding about box on Cancel button.");
+            setVisible(false);
         }
     }
 
     public static void main(String[] args) {
-        JFrame frame = new ApplicationReportingForm("Toto BlahBlah v33");
-        WindowCenterer.centerOnMainScreen(frame);
-        frame.setVisible(true);
+
+        // Create dialog and wait for user response
+        ApplicationReportingForm form = new ApplicationReportingForm("Toto BlahBlah v33");
+
+        // Output user values
+        System.out.println("User answered:");
+        System.out.println(" _shouldSubmit = '" + form.shouldSubmit() + "'.");
+        System.out.println(" _userEmail    = '" + form.getUserEmail() + "'.");
+        System.out.println(" _jnlpURL      = '" + form.getJnlpURL() + "'.");
+
+        System.exit(0);
     }
 }
