@@ -20,8 +20,9 @@
 
 -->
 
-<module name="apprun">
+<module name="smprun">
     <desc>JMMC SAMP hub to automatically start capable applications when triggered</desc>
+    <institute>JMMC</institute>
     <resp>Sylvain LAFRASSE</resp>
     <package>AppLauncher</package>
 </module>
