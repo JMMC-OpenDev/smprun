@@ -23,6 +23,7 @@
 
         <!-- JMMC modules -->
         <jar href="jar/jmcs.jar" />
+        <jar href="jar/smprsc.jar" />
 
         <!-- JMMC libs -->
         <extension href="../JmcsLibs/JmcsLibs.jnlp"/>

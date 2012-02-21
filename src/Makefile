@@ -169,15 +169,10 @@ man : do_man
 #	jmcsHTML2HelpSet JMMC-MAN-2600-0001
 #	@echo " . . . user documentation done"
 
+# Install stub registry stuff
 HTML_DEST = ~/public_html/stubs/
 install_html:
-	mkdir -p $(HTML_DEST)
-	cp -arf ./public_html/.htaccess $(HTML_DEST)
-	chmod 777 ./public_html/spool
-	cp -arf ./public_html/* $(HTML_DEST)
-	cp -af ../config/registry $(HTML_DEST)
 	cp -af fr/jmmc/smprun/stub/data/SampStubDescriptor.xsd $(HTML_DEST)
-	@echo " . . . HTML installation done"
 
 #install : ../lib/smprun-doc.jar install_all
 install : install_html install_all
