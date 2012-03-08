@@ -55,8 +55,11 @@ public class HubPopulator {
     private HubPopulator() {
 
         // @TODO : Grab all this from the Web/OV
-        List<String> names = StubRegistry.getInstance().getKnownApplications();
-        StubRegistry.printList(names);
+        List<String> pathes = StubRegistry.getInstance().getKnownApplicationResourcePathes();
+        StubRegistry.printList(pathes);
+        for (String path : pathes) {
+            System.out.println("path = " + path);
+        }
 
         // Note: Use Icon URL pointing to files extracted from Jar file (see resource package)
 
