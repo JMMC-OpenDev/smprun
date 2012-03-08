@@ -5,6 +5,7 @@ package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.util.FileUtils;
+import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.ClientStubFamily;
 import fr.jmmc.smprun.stub.StubMonitor;
@@ -54,6 +55,8 @@ public class HubPopulator {
     private HubPopulator() {
 
         // @TODO : Grab all this from the Web/OV
+        List<String> names = StubRegistry.getInstance().getKnownApplications();
+        StubRegistry.printList(names);
 
         // Note: Use Icon URL pointing to files extracted from Jar file (see resource package)
 
