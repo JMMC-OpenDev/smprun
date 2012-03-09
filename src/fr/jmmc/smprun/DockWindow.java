@@ -219,10 +219,10 @@ public class DockWindow extends JFrame {
 
         // Resize the icon up to 64*64 pixels
         final int iconHeight = clientIcon.getIconHeight();
-        final int newHeight = Math.min(iconHeight, 64);
         final int iconWidth = clientIcon.getIconWidth();
-        final int newWidth = Math.min(iconWidth, 64);
         clientIcon = ImageUtils.getScaledImageIcon(clientIcon, 64, 64);
+        final int newHeight = clientIcon.getIconHeight();
+        final int newWidth = clientIcon.getIconWidth();
 
         // Horizontally center the icon, and bottom-aligned them all vertically
         final int squareSize = 68;
