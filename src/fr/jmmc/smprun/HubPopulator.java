@@ -55,7 +55,7 @@ public class HubPopulator {
     private HubPopulator() {
 
         // @TODO : Grab all this from the Web/OV
-        List<String> pathes = StubRegistry.getInstance().getKnownApplicationResourcePathes();
+        List<String> pathes = StubRegistry.getInstance().getKnownApplicationResourcePaths();
         StubRegistry.printList(pathes);
         for (String path : pathes) {
             System.out.println("path = " + path);
