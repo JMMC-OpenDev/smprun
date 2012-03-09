@@ -8,13 +8,12 @@ import fr.jmmc.jmcs.gui.StatusBar;
 import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.util.ImageUtils;
+import fr.jmmc.smprsc.data.model.Category;
 import fr.jmmc.smprun.stub.ClientStub;
-import fr.jmmc.smprun.stub.ClientStubFamily;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -117,14 +116,17 @@ public class DockWindow extends JFrame {
 
         JLabel familyLabel;
         JScrollPane iconPane;
-        for (ClientStubFamily clientFamily : ClientStubFamily.values()) {
-            familyLabel = new JLabel("<html><b>" + clientFamily.GetFamily() + "</b></html>");
-            verticalListPane.add(familyLabel);
+        for (Category clientFamily : Category.values()) {
 
             iconPane = buildScrollPane(clientFamily);
+            if (iconPane == null) {
+                continue;
+            }
+
+            familyLabel = new JLabel("<html><b>" + clientFamily.value() + "</b></html>");
+            verticalListPane.add(familyLabel);
             iconPane.setAlignmentX(0.01f);
             verticalListPane.add(iconPane);
-
             verticalListPane.add(new JSeparator());
         }
 
@@ -135,9 +137,9 @@ public class DockWindow extends JFrame {
     /**
      * Create one scroll pane per client family
      * @param family client family
-     * @return scroll pane
+     * @return built scroll pane, or null if nothing to display (e.g daemon category)
      */
-    public final JScrollPane buildScrollPane(final ClientStubFamily family) {
+    public final JScrollPane buildScrollPane(final Category family) {
 
         final JPanel horizontalRowPane = new JPanel();
         horizontalRowPane.setLayout(new BoxLayout(horizontalRowPane, BoxLayout.X_AXIS));
@@ -147,6 +149,9 @@ public class DockWindow extends JFrame {
         horizontalRowPane.add(emptyRigidArea);
 
         final List<ClientStub> clients = HubPopulator.getInstance().getClientList(family);
+        if (clients == null) {
+            return null;
+        }
 
         // Create the button action listener once:
         final ActionListener buttonActionListener = new ActionListener() {

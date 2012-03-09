@@ -6,8 +6,8 @@ package fr.jmmc.smprun;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.util.FileUtils;
 import fr.jmmc.smprsc.StubRegistry;
+import fr.jmmc.smprsc.data.model.Category;
 import fr.jmmc.smprun.stub.ClientStub;
-import fr.jmmc.smprun.stub.ClientStubFamily;
 import fr.jmmc.smprun.stub.StubMonitor;
 import java.util.*;
 import org.astrogrid.samp.Metadata;
@@ -35,7 +35,7 @@ public class HubPopulator {
     /** all client stubs */
     private final List<ClientStub> _clients = new ArrayList<ClientStub>();
     /** Client family  / client stub mapping */
-    private EnumMap<ClientStubFamily, List<ClientStub>> _familyLists = new EnumMap<ClientStubFamily, List<ClientStub>>(ClientStubFamily.class);
+    private EnumMap<Category, List<ClientStub>> _familyLists = new EnumMap<Category, List<ClientStub>>(Category.class);
     /** Client stub map keyed by application name */
     private HashMap<String, ClientStub> _clientStubMap = new HashMap<String, ClientStub>();
     /** SampCapability set */
@@ -55,10 +55,13 @@ public class HubPopulator {
     private HubPopulator() {
 
         // @TODO : Grab all this from the Web/OV
-        List<String> pathes = StubRegistry.getInstance().getKnownApplicationResourcePaths();
-        StubRegistry.printList(pathes);
-        for (String path : pathes) {
-            System.out.println("path = " + path);
+        for (Category category : Category.values()) {
+            System.out.println("category = " + category.value());
+
+            List<String> pathes = StubRegistry.getInstance().getKnownApplicationResourcePathsForCategory(category);
+            for (String path : pathes) {
+                System.out.println("\tpath = " + path);
+            }
         }
 
         // Note: Use Icon URL pointing to files extracted from Jar file (see resource package)
@@ -105,7 +108,7 @@ public class HubPopulator {
                 WAIT_NO));
 
         // Update JMMC ClientStubFamily:
-        _familyLists.put(ClientStubFamily.JMMC, jmmcClients);
+        _familyLists.put(Category.INTERFEROMETRY, jmmcClients);
 
         // Generic client list:
         final List<ClientStub> generalClients = new ArrayList<ClientStub>(3);
@@ -149,7 +152,7 @@ public class HubPopulator {
                 WAIT_NO));
 
         // Update GENERAL ClientStubFamily:
-        _familyLists.put(ClientStubFamily.GENERAL, generalClients);
+        _familyLists.put(Category.ESSENTIALS, generalClients);
 
         _logger.info("configuration: " + _familyLists);
         _logger.info("clients:       " + _clients);
@@ -209,7 +212,7 @@ public class HubPopulator {
      * @param family client family
      * @return client stubs
      */
-    public List<ClientStub> getClientList(final ClientStubFamily family) {
+    public List<ClientStub> getClientList(final Category family) {
         return _familyLists.get(family);
     }
 
