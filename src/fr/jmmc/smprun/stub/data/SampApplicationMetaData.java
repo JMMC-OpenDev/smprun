@@ -9,15 +9,19 @@ import fr.jmmc.jmcs.jaxb.XmlBindException;
 import fr.jmmc.jmcs.network.Http;
 import fr.jmmc.jmcs.network.PostQueryProcessor;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
+import fr.jmmc.jmcs.util.FileUtils;
 import fr.jmmc.smprun.stub.data.model.SampStub;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URI;
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.Unmarshaller;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.astrogrid.samp.Metadata;
 import org.astrogrid.samp.Subscriptions;
@@ -34,6 +38,8 @@ public class SampApplicationMetaData {
     private static final Logger _logger = Logger.getLogger(SampApplicationMetaData.class.getName());
     /** Package name for JAXB generated code */
     private final static String STUB_DATA_MODEL_JAXB_PATH = "fr.jmmc.smprun.stub.data.model";
+    /** JAXB initialization */
+    private final static JAXBFactory _jaxbFactory = JAXBFactory.getInstance(STUB_DATA_MODEL_JAXB_PATH);
     /** URL of the JMMC SAMP application meta data repository */
     private static final String REGISTRY_ROOT_URL = "http://jmmc.fr/~smprun/stubs/";
     //private static final String REGISTRY_ROOT_URL = "http://jmmc.fr/~lafrasse/stubs/";
@@ -66,6 +72,19 @@ public class SampApplicationMetaData {
         _data.setUid(_applicationName);
         _sampMetaData = metadata; // Shoyld clone it instead, but clone() is not implemented in jSAMP
         _sampSubscriptions = subscriptions;
+    }
+
+    public static SampStub loadSampSubFromResourcePath(final String path) {
+        final URL resourceURL = FileUtils.getResource(path);
+        // Note : use input stream to avoid JNLP offline bug with URL (Unknown host exception)
+        try {
+            final Unmarshaller u = _jaxbFactory.createUnMarshaller();
+            return (SampStub) u.unmarshal(new BufferedInputStream(resourceURL.openStream()));
+        } catch (IOException ioe) {
+            throw new IllegalStateException("Load failure on " + resourceURL, ioe);
+        } catch (JAXBException je) {
+            throw new IllegalArgumentException("Load failure on " + resourceURL, je);
+        }
     }
 
     /**
@@ -209,8 +228,7 @@ public class SampApplicationMetaData {
     private String marshallApplicationDescription() throws XmlBindException {
 
         // Start JAXB
-        final JAXBFactory jaxbFactory = JAXBFactory.getInstance(STUB_DATA_MODEL_JAXB_PATH);
-        final Marshaller marshaller = jaxbFactory.createMarshaller();
+        final Marshaller marshaller = _jaxbFactory.createMarshaller();
         final StringWriter stringWriter = new StringWriter();
 
         // Serialize application description in XML
