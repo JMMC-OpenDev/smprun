@@ -9,6 +9,8 @@ import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprsc.data.model.Category;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.StubMonitor;
+import fr.jmmc.smprun.stub.data.SampApplicationMetaData;
+import fr.jmmc.smprun.stub.data.model.SampStub;
 import java.util.*;
 import org.astrogrid.samp.Metadata;
 import org.slf4j.Logger;
@@ -56,62 +58,22 @@ public class HubPopulator {
 
         // @TODO : Grab all this from the Web/OV
         for (Category category : Category.values()) {
+
             System.out.println("category = " + category.value());
+
+            List<ClientStub> clientList = new ArrayList<ClientStub>();
 
             List<String> pathes = StubRegistry.getInstance().getKnownApplicationResourcePathsForCategory(category);
             for (String path : pathes) {
+
                 System.out.println("\tpath = " + path);
+
+                // Sets no icon to keep AppLauncherTester invisible
+                clientList.add(createClientStub(path, WAIT_NO)); // @TODO : handle wait in XML - i.e 3s for Aladin
             }
+
+            _familyLists.put(category, clientList);
         }
-
-        // Note: Use Icon URL pointing to files extracted from Jar file (see resource package)
-
-        Metadata md;
-
-        // JMMC client list:
-        final List<ClientStub> jmmcClients = new ArrayList<ClientStub>(3);
-
-        // --- AppLauncherTester ---
-        md = new Metadata();
-        md.setName("AppLauncherTester");
-        // Sets no icon to keep AppLauncherTester invisible
-        jmmcClients.add(createClientStub(md,
-                "http://apps.jmmc.fr/~smprun/AppLauncherTester/AppLauncherTester.jnlp",
-                new SampCapability[]{SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH},
-                WAIT_NO));
-
-        // --- ASPRO2 ---
-        md = new Metadata();
-        md.setName("Aspro2");
-        md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "aspro2-6464.png")); // http://www.jmmc.fr/searchcal/images/aspro2-6464.png
-        jmmcClients.add(createClientStub(md,
-                "http://apps.jmmc.fr/~swmgr/Aspro2/Aspro2.jnlp",
-                new SampCapability[]{SampCapability.LOAD_VO_TABLE},
-                WAIT_NO));
-
-        // --- SEARCHCAL ---
-        md = new Metadata();
-        md.setName("SearchCal");
-        md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "searchcal-6464.png")); // http://apps.jmmc.fr/~sclws/SearchCal/AppIcon.png
-        jmmcClients.add(createClientStub(md,
-                "http://apps.jmmc.fr/~sclws/SearchCal/SearchCal.jnlp",
-                new SampCapability[]{SampCapability.SEARCHCAL_START_QUERY},
-                WAIT_NO));
-
-        // --- LITPRO ---
-        md = new Metadata();
-        md.setName("LITpro");
-        md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "litpro-6464.png")); // http://www.jmmc.fr/images/litpro6464ws.jpg
-        jmmcClients.add(createClientStub(md,
-                "http://jmmc.fr/~swmgr/LITpro/LITpro.jnlp",
-                new SampCapability[]{SampCapability.LITPRO_START_SETTING},
-                WAIT_NO));
-
-        // Update JMMC ClientStubFamily:
-        _familyLists.put(Category.INTERFEROMETRY, jmmcClients);
-
-        // Generic client list:
-        final List<ClientStub> generalClients = new ArrayList<ClientStub>(3);
 
         /*
          * Note: Following SAMP messages must not trigger application startup:
@@ -120,40 +82,6 @@ public class HubPopulator {
          * - SampCapability.SELECT_LIST
          */
 
-        // --- ALADIN ---
-        md = new Metadata();
-        md.setName("Aladin");
-        md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "aladin-6464.png")); // http://aladin.u-strasbg.fr/aladin_large.gif
-        // Use redirected url instead of the one copied from the web pages (/java/nph-aladin.pl?frame=get&id=aladin.jnlp)
-        generalClients.add(createClientStub(md,
-                "http://aladin.u-strasbg.fr/java/aladin.jnlp",
-                new SampCapability[]{SampCapability.LOAD_VO_TABLE,
-                    /* SampCapability.POINT_COORDINATES, */
-                    SampCapability.LOAD_FITS_IMAGE,
-                    /* SampCapability.HIGHLIGHT_ROW, */
-                    SampCapability.LOAD_FITS_TABLE
-                /* SampCapability.SELECT_LIST */
-                },
-                WAIT_BEFORE_SEND));
-
-        // --- TOPCAT ---
-        md = new Metadata();
-        md.setName("topcat");
-        md.setIconUrl(FileUtils.extractResource(RESOURCE_PATH_PREFIX + "topcat-6464.png")); // "http://www.star.bris.ac.uk/~mbt/topcat/tc3.gif"
-        // TODO: Provide our own topcat JNLP (http://jmmc.fr/~bourgesl/topcat/topcat-full-appLauncher.jnlp) or convince Mark to change its JNLP to include JVM settings (memory or cmd ling args)
-        generalClients.add(createClientStub(md,
-                "http://www.star.bris.ac.uk/~mbt/topcat/topcat-full.jnlp",
-                new SampCapability[]{SampCapability.LOAD_VO_TABLE,
-                    /* SampCapability.POINT_COORDINATES, */
-                    /* SampCapability.HIGHLIGHT_ROW, */
-                    SampCapability.LOAD_FITS_TABLE
-                /* SampCapability.SELECT_LIST */
-                },
-                WAIT_NO));
-
-        // Update GENERAL ClientStubFamily:
-        _familyLists.put(Category.ESSENTIALS, generalClients);
-
         _logger.info("configuration: " + _familyLists);
         _logger.info("clients:       " + _clients);
     }
@@ -161,23 +89,19 @@ public class HubPopulator {
     /**
      * Create a new Client Stub using given arguments and store it in collections
      * 
-     * @param md SAMP meta data
-     * @param jnlpUrl JNLP URL
-     * @param capabilities samp capabilities
+     * @param path SAMP application data resource path
      * @param sleepDelayBeforeNotify sleep delay in milliseconds before sending the samp message
      * @return client stub 
      */
-    private ClientStub createClientStub(final Metadata md,
-            final String jnlpUrl,
-            final SampCapability[] capabilities,
-            final long sleepDelayBeforeNotify) {
+    private ClientStub createClientStub(final String path, final long sleepDelayBeforeNotify) {
 
-        final ClientStub client = new ClientStub(md, jnlpUrl, capabilities, sleepDelayBeforeNotify);
+        SampStub data = SampApplicationMetaData.loadSampSubFromResourcePath(path);
+        final ClientStub client = new ClientStub(data, sleepDelayBeforeNotify);
         client.addObserver(new StubMonitor());
 
         _clients.add(client);
         _clientStubMap.put(client.getApplicationName(), client);
-        _sampCapabilitySet.addAll(Arrays.asList(capabilities));
+        _sampCapabilitySet.addAll(Arrays.asList(client.getSampCapabilities()));
 
         return client;
     }

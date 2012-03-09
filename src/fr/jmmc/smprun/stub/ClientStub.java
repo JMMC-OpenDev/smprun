@@ -9,6 +9,7 @@ import fr.jmmc.jmcs.network.interop.SampMetaData;
 
 import fr.jmmc.smprun.DockWindow;
 import fr.jmmc.smprun.JnlpStarter;
+import fr.jmmc.smprun.stub.data.model.SampStub;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.Map;
@@ -73,30 +74,33 @@ public final class ClientStub extends Observable implements JobListener {
     /**
      * Constructor.
      *
-     * @param description meta data about the stub
-     * @param jnlpUrl URL of Java WebStart recipient
-     * @param mTypes handled mTypes
+     * @param data XML values
      * @param sleepDelayBeforeNotify sleep delay in milliseconds before sending the samp message
      */
-    public ClientStub(final Metadata description, final String jnlpUrl, final SampCapability[] mTypes,
-            final long sleepDelayBeforeNotify) {
+    public ClientStub(final SampStub data, final long sleepDelayBeforeNotify) {
 
-        _description = description;
-        _applicationName = description.getName();
+        _description = new Metadata();
+        for (fr.jmmc.smprun.stub.data.model.Metadata metadata : data.getMetadatas()) {
+            _description.put(metadata.getKey(), metadata.getValue());
+        }
 
-        _logPrefix = "Stub['" + _applicationName + "'] : ";
-
+        _applicationName = _description.getName();
         // Flag any created STUB for later skipping while looking for recipients
         _description.put(SampMetaData.getStubMetaDataId(_applicationName), SampMetaData.STUB_TOKEN);
+        _logPrefix = "Stub['" + _applicationName + "'] : ";
 
-        _mTypes = mTypes;
-        _jnlpUrl = jnlpUrl;
+        _jnlpUrl = _description.getString(SampMetaData.JNLP_URL.id());
         _sleepDelayBeforeNotify = sleepDelayBeforeNotify;
 
+        int i = 0;
+        _mTypes = new SampCapability[data.getSubscriptions().size()];
+        for (String capability : data.getSubscriptions()) {
+            _mTypes[i] = SampCapability.fromMType(capability);
+            i++;
+        }
+
         setState(ClientStubState.UNDEFINED);
-
         final ClientProfile profile = DefaultClientProfile.getProfile();
-
         _connector = new HubConnector(profile);
     }
 
@@ -134,6 +138,13 @@ public final class ClientStub extends Observable implements JobListener {
      */
     public String getJnlpUrl() {
         return _jnlpUrl;
+    }
+
+    /**
+     * @return the SAMP capabilities
+     */
+    public SampCapability[] getSampCapabilities() {
+        return _mTypes;
     }
 
     /**
