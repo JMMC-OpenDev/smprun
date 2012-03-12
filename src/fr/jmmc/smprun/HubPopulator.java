@@ -59,14 +59,14 @@ public class HubPopulator {
         // @TODO : Grab all this from the Web/OV
         for (Category category : Category.values()) {
 
-            System.out.println("category = " + category.value());
+            _logger.trace("Loading {} category appications.", category.value());
 
             List<ClientStub> clientList = new ArrayList<ClientStub>();
 
             List<String> pathes = StubRegistry.getInstance().getKnownApplicationResourcePathsForCategory(category);
             for (String path : pathes) {
 
-                System.out.println("\tpath = " + path);
+                _logger.trace("Loading {} appications.", path);
 
                 // Sets no icon to keep AppLauncherTester invisible
                 clientList.add(createClientStub(path, WAIT_NO)); // @TODO : handle wait in XML - i.e 3s for Aladin
