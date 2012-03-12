@@ -74,7 +74,7 @@ public class HubPopulator {
             _familyLists.put(category, clientList);
         }
 
-        removeLikelyBroadcastableSampCapabilities();
+        filterSampCapabilities();
 
         /*
          * Note: Following SAMP messages must not trigger application startup:
@@ -108,13 +108,13 @@ public class HubPopulator {
     }
 
     /**
-     * Remove any SAMP capability that is highly likely to be broadcasted.
-     * This will help preventing all stub startups at once if one of those broadcast capabilities is triggered by the user.
+     * Remove any SAMP capability that is highly likely to be broadcasted or be SAMP internal.
+     * This will help preventing all stub startups at once if one of those broadcast capabilities is triggered by the user, or false capability detection at real client startup.
      */
-    private void removeLikelyBroadcastableSampCapabilities() {
+    private void filterSampCapabilities() {
         for (Iterator<SampCapability> it = _sampCapabilitySet.iterator(); it.hasNext();) {
             SampCapability sampCapability = it.next();
-            if (sampCapability.isLikelyBroadcastable()) {
+            if (sampCapability.isFlagged()) {
                 it.remove();
             }
         }
