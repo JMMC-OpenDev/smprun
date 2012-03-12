@@ -69,7 +69,7 @@ public class HubPopulator {
                 _logger.trace("Loading {} appications.", path);
 
                 // Sets no icon to keep AppLauncherTester invisible
-                clientList.add(createClientStub(path, WAIT_NO)); // @TODO : handle wait in XML - i.e 3s for Aladin
+                clientList.add(createClientStub(path, WAIT_BEFORE_SEND)); // @TODO : handle wait in XML - i.e 3s for Aladin
             }
 
             _familyLists.put(category, clientList);
@@ -102,8 +102,21 @@ public class HubPopulator {
         _clients.add(client);
         _clientStubMap.put(client.getApplicationName(), client);
         _sampCapabilitySet.addAll(Arrays.asList(client.getSampCapabilities()));
+        removeLikelyBroadcastableSampCapabilities();
 
         return client;
+    }
+
+    /**
+     * Remove any SAMP capability that is highly likely to be broadcasted.
+     * This will help preventing all stub startups at once if one of those broadcast capabilities is triggered by the user.
+     */
+    private void removeLikelyBroadcastableSampCapabilities() {
+        for (SampCapability sampCapability : _sampCapabilitySet) {
+            if (sampCapability.isLikelyBroadcastable()) {
+                _sampCapabilitySet.remove(sampCapability);
+            }
+        }
     }
 
     /**
