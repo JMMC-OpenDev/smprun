@@ -244,7 +244,7 @@ public final class HubMonitor {
              */
             @Override
             public void run() {
-                stub.forwardMessageToRealRecipient(recipientId);
+                stub.forwardMessagesToRealRecipient(recipientId);
             }
         });
     }

@@ -74,15 +74,6 @@ public class HubPopulator {
             _familyLists.put(category, clientList);
         }
 
-        filterSampCapabilities();
-
-        /*
-         * Note: Following SAMP messages must not trigger application startup:
-         * - SampCapability.POINT_COORDINATES
-         * - SampCapability.HIGHLIGHT_ROW
-         * - SampCapability.SELECT_LIST
-         */
-
         _logger.info("configuration: " + _familyLists);
         _logger.info("clients:       " + _clients);
     }
@@ -105,19 +96,6 @@ public class HubPopulator {
         _sampCapabilitySet.addAll(Arrays.asList(client.getSampCapabilities()));
 
         return client;
-    }
-
-    /**
-     * Remove any SAMP capability that is highly likely to be broadcasted or be SAMP internal.
-     * This will help preventing all stub startups at once if one of those broadcast capabilities is triggered by the user, or false capability detection at real client startup.
-     */
-    private void filterSampCapabilities() {
-        for (Iterator<SampCapability> it = _sampCapabilitySet.iterator(); it.hasNext();) {
-            SampCapability sampCapability = it.next();
-            if (sampCapability.isFlagged()) {
-                it.remove();
-            }
-        }
     }
 
     /**
