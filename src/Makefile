@@ -165,20 +165,18 @@ clean : clean_all
 man : do_man 
 	@echo " . . . man page(s) done"
 
-#../lib/smprun-doc.jar:
-#	jmcsHTML2HelpSet JMMC-MAN-2600-0001
-#	@echo " . . . user documentation done"
+../lib/smprun-doc.jar:
+	jmcsHTML2HelpSet JMMC-MAN-2220-0001
+	@echo " . . . user documentation done"
 
 # Install stub registry stuff
 HTML_DEST = ~/public_html/stubs/
 install_html:
 	cp -af fr/jmmc/smprun/stub/data/SampStubDescriptor.xsd $(HTML_DEST)
 
-#install : ../lib/smprun-doc.jar install_all
-install : install_html install_all
+install : ../lib/smprun-doc.jar install_html install_all
 	@echo "......jnlps:"
 	jmcsDeployJnlp AppLauncher.jnlp    
 	@echo " . . . installation done"
-
 
 #___oOo___

@@ -24,6 +24,7 @@
         <!-- JMMC modules -->
         <jar href="jar/jmcs.jar" />
         <jar href="jar/smprsc.jar" />
+        <jar href="jar/smprun-doc.jar" />
 
         <!-- JMMC libs -->
         <extension href="../JmcsLibs/JmcsLibs.jnlp"/>
