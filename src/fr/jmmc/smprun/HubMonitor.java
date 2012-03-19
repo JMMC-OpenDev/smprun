@@ -95,14 +95,14 @@ public final class HubMonitor {
     private static String[] ComputeMTypeArray() {
         _logger.info("ComputeMTypeArray()");
 
-        final Set<SampCapability> sampCapabilitySet = HubPopulator.getInstance().getSampCapabilitySet();
-        final HashSet<String> mTypesSet = new HashSet<String>(sampCapabilitySet.size());
+        final HashSet<String> mTypesSet = new HashSet<String>();
 
-        for (SampCapability capability : sampCapabilitySet) {
-            mTypesSet.add(capability.mType());
+        for (SampCapability capability : SampCapability.values()) {
+            if (!capability.isFlagged()) {
+                mTypesSet.add(capability.mType());
+            }
         }
 
-        _logger.info("monitoring capabilities = " + sampCapabilitySet);
         _logger.info("monitoring MTypes       = " + mTypesSet);
 
         // Get a dynamic list of SAMP clients able to respond to the specified capability.
