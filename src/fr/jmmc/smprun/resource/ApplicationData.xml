@@ -11,7 +11,7 @@
 
     <program name="AppLauncher" version="1.0b7"/>
 
-    <compilation date="19/03/2012" compiler="JDK 1.5.0_16"/>
+    <compilation date="20/03/2012" compiler="JDK 1.5.0_16"/>
 
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools</text>
 
@@ -27,6 +27,7 @@
     <releasenotes>
         <release version="1.0">
             <prerelease version="1.0b7" tag="AL_V1_0b7">
+                <change type="FEATURE">Added VOSpec essential application.</change>
                 <change type="BUGFIX">Fixed unknown application detection to listen to all public mTypes.</change>
             </prerelease>
             <prerelease version="1.0b6" tag="AL_V1_0b6">
