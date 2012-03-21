@@ -27,6 +27,7 @@
     <releasenotes>
         <release version="1.0">
             <prerelease version="1.0b8" tag="AL_V1_0b8">
+                <change type="CHANGE">Embedded known application icons in case network is unavailable.</change>
                 <change type="FEATURE">Added SPLAT essential application.</change>
             </prerelease>
             <prerelease version="1.0b7" tag="AL_V1_0b7">

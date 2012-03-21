@@ -8,6 +8,7 @@ import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
 
+import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprun.DockWindow;
 import fr.jmmc.smprun.JnlpStarter;
 import fr.jmmc.smprun.stub.data.model.SampStub;
@@ -149,11 +150,21 @@ public final class ClientStub extends Observable implements JobListener {
      * @return the URL of the icon if any (null otherwise)
      */
     public ImageIcon getApplicationIcon() {
-        ImageIcon imageIcon = null; // @TODO : Use a generic app icon as placeholder when none available... BUT AppLauncherTester is kept invisible because of this...
+
+        // @TODO : Use a generic app icon as placeholder when none available... BUT AppLauncherTester is kept invisible because of this...
+
+        ImageIcon imageIcon = null;
+
         URL iconURL = _description.getIconUrl();
         if (iconURL != null) {
             imageIcon = new ImageIcon(iconURL);
         }
+
+        if (imageIcon == null || (imageIcon.getIconHeight() < 0 && imageIcon.getIconWidth() < 0)) {
+            // Try to load embedded one in smprrsc
+            return StubRegistry.getEmbeddedIconForApplication(_applicationName);
+        }
+
         return imageIcon;
     }
 
