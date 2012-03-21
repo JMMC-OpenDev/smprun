@@ -101,7 +101,6 @@ JARFILES       = smprun
 # <brief description of smprun jar files>
 smprun_DIRS     = fr
 smprun_EXTRAS   = fr/jmmc/smprun/resource/ApplicationData.xml \
-                  fr/jmmc/smprun/resource/*.png
 
 #
 # Java programs
