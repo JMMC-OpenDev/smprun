@@ -11,7 +11,7 @@ import fr.jmmc.jmcs.network.interop.SampMetaData;
 import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprun.DockWindow;
 import fr.jmmc.smprun.JnlpStarter;
-import fr.jmmc.smprun.stub.data.model.SampStub;
+import fr.jmmc.smprsc.data.stub.model.SampStub;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -86,7 +86,7 @@ public final class ClientStub extends Observable implements JobListener {
 
         // Retrieve each serialized SAMP meta data
         _description = new Metadata();
-        for (fr.jmmc.smprun.stub.data.model.Metadata metadata : data.getMetadatas()) {
+        for (fr.jmmc.smprsc.data.stub.model.Metadata metadata : data.getMetadatas()) {
             _description.put(metadata.getKey(), metadata.getValue());
         }
 

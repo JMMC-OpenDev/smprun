@@ -7,7 +7,7 @@ import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
 import fr.jmmc.smprun.stub.ClientStub;
-import fr.jmmc.smprun.stub.data.SampApplicationMetaData;
+import fr.jmmc.smprsc.data.stub.SampApplicationMetaData;
 import java.util.*;
 import java.util.logging.Logger;
 import javax.swing.event.ListDataEvent;

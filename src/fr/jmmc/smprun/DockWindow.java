@@ -8,7 +8,7 @@ import fr.jmmc.jmcs.gui.StatusBar;
 import fr.jmmc.jmcs.gui.SwingUtils;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.util.ImageUtils;
-import fr.jmmc.smprsc.data.model.Category;
+import fr.jmmc.smprsc.data.list.model.Category;
 import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.BorderLayout;
 import java.awt.Component;

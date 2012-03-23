@@ -4,15 +4,13 @@
 package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.network.interop.SampCapability;
-import fr.jmmc.jmcs.util.FileUtils;
 import fr.jmmc.smprsc.StubRegistry;
-import fr.jmmc.smprsc.data.model.Category;
+import fr.jmmc.smprsc.data.list.model.Category;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.StubMonitor;
-import fr.jmmc.smprun.stub.data.SampApplicationMetaData;
-import fr.jmmc.smprun.stub.data.model.SampStub;
+import fr.jmmc.smprsc.data.stub.SampApplicationMetaData;
+import fr.jmmc.smprsc.data.stub.model.SampStub;
 import java.util.*;
-import org.astrogrid.samp.Metadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
