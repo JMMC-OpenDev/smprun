@@ -87,6 +87,9 @@ Description: Store JMMC AppLauncher Stub meta data.
 
         <xsd:attribute name="uid" type="xsd:string" use="required"/>
 
+        <!-- time (in milliseconds) before which the waiting message should not be forwarded (e.g to let application startup finish) -->
+        <xsd:attribute name="lag" type="xsd:integer" default="-1"/>
+
     </xsd:complexType>
     
     

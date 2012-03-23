@@ -1,6 +1,7 @@
 
 package fr.jmmc.smprun.stub.data.model;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -29,6 +30,7 @@ import javax.xml.bind.annotation.XmlType;
  *         &lt;element name="subscription" type="{http://www.w3.org/2001/XMLSchema}string" maxOccurs="unbounded"/>
  *       &lt;/sequence>
  *       &lt;attribute name="uid" use="required" type="{http://www.w3.org/2001/XMLSchema}string" />
+ *       &lt;attribute name="lag" type="{http://www.w3.org/2001/XMLSchema}integer" default="-1" />
  *     &lt;/restriction>
  *   &lt;/complexContent>
  * &lt;/complexType>
@@ -50,6 +52,8 @@ public class SampStub {
     protected List<String> subscriptions;
     @XmlAttribute(name = "uid", required = true)
     protected String uid;
+    @XmlAttribute(name = "lag")
+    protected BigInteger lag;
 
     /**
      * Gets the value of the metadatas property.
@@ -151,6 +155,38 @@ public class SampStub {
 
     public boolean isSetUid() {
         return (this.uid!= null);
+    }
+
+    /**
+     * Gets the value of the lag property.
+     * 
+     * @return
+     *     possible object is
+     *     {@link BigInteger }
+     *     
+     */
+    public BigInteger getLag() {
+        if (lag == null) {
+            return new BigInteger("-1");
+        } else {
+            return lag;
+        }
+    }
+
+    /**
+     * Sets the value of the lag property.
+     * 
+     * @param value
+     *     allowed object is
+     *     {@link BigInteger }
+     *     
+     */
+    public void setLag(BigInteger value) {
+        this.lag = value;
+    }
+
+    public boolean isSetLag() {
+        return (this.lag!= null);
     }
 
 }

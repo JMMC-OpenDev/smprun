@@ -29,10 +29,6 @@ public class HubPopulator {
     private static final String RESOURCE_PATH_PREFIX = "fr/jmmc/smprun/resource/";
     /** HubPopulator singleton */
     private static final HubPopulator INSTANCE = new HubPopulator();
-    /** no sleeping delay before sending the samp message */
-    public final static long WAIT_NO = -1L;
-    /** 3 second sleeping delay before sending the samp message */
-    public final static long WAIT_BEFORE_SEND = 3000L;
     /* members */
     /** all client stubs */
     private final List<ClientStub> _clients = new ArrayList<ClientStub>();
@@ -56,7 +52,6 @@ public class HubPopulator {
      */
     private HubPopulator() {
 
-        // @TODO : Grab all this from the Web/OV
         for (Category category : Category.values()) {
 
             _logger.trace("Loading {} category appications.", category.value());
@@ -68,7 +63,7 @@ public class HubPopulator {
 
                 _logger.trace("Loading {} appications.", path);
 
-                clientList.add(createClientStub(path, WAIT_BEFORE_SEND)); // @TODO : handle wait in XML - i.e 3s for Aladin
+                clientList.add(createClientStub(path));
             }
 
             _familyLists.put(category, clientList);
@@ -82,13 +77,12 @@ public class HubPopulator {
      * Create a new Client Stub using given arguments and store it in collections
      * 
      * @param path SAMP application data resource path
-     * @param sleepDelayBeforeNotify sleep delay in milliseconds before sending the samp message
      * @return client stub 
      */
-    private ClientStub createClientStub(final String path, final long sleepDelayBeforeNotify) {
+    private ClientStub createClientStub(final String path) {
 
         SampStub data = SampApplicationMetaData.loadSampSubFromResourcePath(path);
-        final ClientStub client = new ClientStub(data, sleepDelayBeforeNotify);
+        final ClientStub client = new ClientStub(data);
         client.addObserver(new StubMonitor());
 
         _clients.add(client);

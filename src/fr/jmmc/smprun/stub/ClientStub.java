@@ -82,7 +82,7 @@ public final class ClientStub extends Observable implements JobListener {
      * @param data XML values
      * @param sleepDelayBeforeNotify sleep delay in milliseconds before sending the samp message
      */
-    public ClientStub(final SampStub data, final long sleepDelayBeforeNotify) {
+    public ClientStub(final SampStub data) {
 
         // Retrieve each serialized SAMP meta data
         _description = new Metadata();
@@ -94,7 +94,7 @@ public final class ClientStub extends Observable implements JobListener {
         _applicationName = _description.getName();
         _logPrefix = "Stub['" + _applicationName + "'] : ";
         _jnlpUrl = _description.getString(SampMetaData.JNLP_URL.id());
-        _sleepDelayBeforeNotify = sleepDelayBeforeNotify;
+        _sleepDelayBeforeNotify = data.getLag().intValue();
 
         // Add a custom flag to all our created STUB for later skipping while looking for real recipients
         _description.put(SampMetaData.getStubMetaDataId(_applicationName), SampMetaData.STUB_TOKEN);
