@@ -63,7 +63,7 @@ public class HubPopulator {
 
             List<ClientStub> clientList = new ArrayList<ClientStub>();
 
-            List<String> pathes = StubRegistry.getInstance().getKnownApplicationResourcePathsForCategory(category);
+            List<String> pathes = StubRegistry.getInstance().getCategoryApplicationResourcePathes(category);
             for (String path : pathes) {
 
                 _logger.trace("Loading {} appications.", path);

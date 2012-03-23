@@ -154,7 +154,7 @@ public final class ClientStub extends Observable implements JobListener {
         // @TODO : Use a generic app icon as placeholder when none available... BUT AppLauncherTester is kept invisible because of this...
 
         // Try to load embedded one in smprrsc
-        return StubRegistry.getEmbeddedIconForApplication(_applicationName);
+        return StubRegistry.getEmbeddedApplicationIcon(_applicationName);
     }
 
     /**
