@@ -4,7 +4,7 @@
 package fr.jmmc.smprun.stub;
 
 import fr.jmmc.jmcs.App;
-import fr.jmmc.jmcs.gui.SwingUtils;
+import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.gui.WindowCenterer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
