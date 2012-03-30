@@ -5,7 +5,7 @@ package fr.jmmc.smprun.stub;
 
 import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
-import fr.jmmc.jmcs.gui.util.WindowCenterer;
+import fr.jmmc.jmcs.gui.util.WindowUtils;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
@@ -47,7 +47,7 @@ public class StubMonitor implements Observer {
                 _window.setTitle("JMMC AppLauncher");
                 _window.setVisible(false);
                 _window.pack();
-                WindowCenterer.centerOnMainScreen(_window);
+                WindowUtils.centerOnMainScreen(_window);
             }
         });
     }
