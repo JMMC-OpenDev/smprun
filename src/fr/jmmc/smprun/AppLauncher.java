@@ -6,18 +6,22 @@ package fr.jmmc.smprun;
 import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.FeedbackReport;
+import fr.jmmc.jmcs.gui.PreferencesView;
 import fr.jmmc.jmcs.gui.util.SwingSettings;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.gui.util.WindowUtils;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
+import fr.jmmc.smprsc.data.list.ApplicationListSelectionPanel;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.event.ActionEvent;
+import java.util.LinkedHashMap;
 import java.util.List;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import org.astrogrid.samp.client.SampException;
 import org.ivoa.util.runner.LocalLauncher;
 import org.slf4j.Logger;
@@ -80,6 +84,18 @@ public class AppLauncher extends App {
             @Override
             public void run() {
                 App.setFrame(DockWindow.getInstance());
+
+                // Retrieve application preference panes and attach them to their view
+                LinkedHashMap<String, JPanel> panels = new LinkedHashMap<String, JPanel>();
+                ApplicationListSelectionPanel applicationListSelectionPanel = new ApplicationListSelectionPanel();
+                panels.put("Application Selection", applicationListSelectionPanel);
+                /*
+                 * @TODO : Create another panel to :
+                 * - hide dock window on launch or not;
+                 * - sync stubs creation to applcation selection or not.
+                 */
+                PreferencesView preferencesView = new PreferencesView(Preferences.getInstance(), panels);
+                preferencesView.init();
 
                 // @TODO : Handle JMMC app mimetypes to open our apps !!!
             }
