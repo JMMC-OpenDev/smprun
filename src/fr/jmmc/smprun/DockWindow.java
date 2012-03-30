@@ -4,7 +4,7 @@
 package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.App;
-import fr.jmmc.jmcs.gui.StatusBar;
+import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.util.ImageUtils;

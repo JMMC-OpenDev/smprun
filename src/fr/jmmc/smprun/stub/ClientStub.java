@@ -3,7 +3,7 @@
  ******************************************************************************/
 package fr.jmmc.smprun.stub;
 
-import fr.jmmc.jmcs.gui.StatusBar;
+import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
