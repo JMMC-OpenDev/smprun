@@ -4,11 +4,15 @@
 package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.App;
+import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
+import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.util.ImageUtils;
 import fr.jmmc.smprsc.data.list.model.Category;
+import fr.jmmc.smprun.preference.PreferenceKey;
+import fr.jmmc.smprun.preference.Preferences;
 import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.BorderLayout;
 import java.awt.Component;
@@ -18,8 +22,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -34,13 +37,14 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
+import org.ivoa.util.CollectionUtils;
 
 /**
  * Main window. This class is at one central point and play the mediator role.
 
  * @author Sylvain LAFRASSE, Laurent BOURGES
  */
-public class DockWindow extends JFrame {
+public class DockWindow extends JFrame implements Observer {
 
     /** default serial UID for Serializable interface */
     private static final long serialVersionUID = 1;
@@ -55,6 +59,8 @@ public class DockWindow extends JFrame {
     private final HashMap<JButton, ClientStub> _clientButtons = new HashMap<JButton, ClientStub>(8);
     /** client / button map */
     private final HashMap<ClientStub, JButton> _buttonClients = new HashMap<ClientStub, JButton>(8);
+    /** User-chosen application name list */
+    private ArrayList<String> _selectedApplicationNameList = null;
 
     /**
      * Return the DockWindow singleton 
@@ -63,6 +69,7 @@ public class DockWindow extends JFrame {
     public static DockWindow getInstance() {
         if (instance == null) {
             instance = new DockWindow();
+            instance.init();
         }
         return instance;
     }
@@ -74,11 +81,14 @@ public class DockWindow extends JFrame {
 
         super("AppLauncher");
 
-        prepareFrame();
-        preparePane();
+        update(null, null);
 
         // Show the user the app is ready to be used
         StatusBar.show("application ready.");
+    }
+
+    public void init() {
+        Preferences.getInstance().addObserver(this);
     }
 
     /**
@@ -123,7 +133,7 @@ public class DockWindow extends JFrame {
                 continue;
             }
 
-            familyLabel = new JLabel("<html><b>" + clientFamily.value() + "</b></html>");
+            familyLabel = new JLabel("<HTML><B>" + clientFamily.value() + "</B></HTML>");
             verticalListPane.add(familyLabel);
             iconPane.setAlignmentX(0.01f);
             verticalListPane.add(iconPane);
@@ -177,6 +187,11 @@ public class DockWindow extends JFrame {
 
         JButton button;
         for (final ClientStub client : clients) {
+
+            // If the current client is not in the selected application
+            if ((_selectedApplicationNameList != null) && (!_selectedApplicationNameList.contains(client.getApplicationName()))){
+                continue;
+            }
 
             // if the current stub should remain invisble
             if (client.getApplicationIcon() == null) {
@@ -239,6 +254,21 @@ public class DockWindow extends JFrame {
         button.setBorder(border);
 
         return button;
+    }
+
+    @Override
+    public void update(Observable o, Object o1) {
+        try {
+            _selectedApplicationNameList = Preferences.getInstance().getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
+        } catch (MissingPreferenceException ex) {
+            _logger.severe("" + ex);
+        } catch (PreferencesException ex) {
+            _logger.severe("" + ex);
+        }
+        System.out.println("_selectedApplicationNameList :" + CollectionUtils.toString(_selectedApplicationNameList));
+
+        prepareFrame();
+        preparePane();
     }
 
     /**
