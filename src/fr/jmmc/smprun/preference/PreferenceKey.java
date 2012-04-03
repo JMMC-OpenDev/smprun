@@ -9,7 +9,8 @@ package fr.jmmc.smprun.preference;
  */
 public enum PreferenceKey {
 
-        FIRST_START_FLAG("first.start.flag");
+        FIRST_START_FLAG("first.start.flag"),
+        SELECTED_APPLICATION_LIST("selected.application.list");
     
     /** the preferenced value identifying token */
     private final String _key;
