@@ -8,7 +8,6 @@ import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
-import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.util.ImageUtils;
 import fr.jmmc.smprsc.data.list.model.Category;
 import fr.jmmc.smprun.preference.PreferenceKey;
@@ -23,7 +22,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.*;
-import java.util.logging.Logger;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -37,7 +35,8 @@ import javax.swing.JViewport;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import org.ivoa.util.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Main window. This class is at one central point and play the mediator role.
@@ -49,9 +48,9 @@ public class DockWindow extends JFrame implements Observer {
     /** default serial UID for Serializable interface */
     private static final long serialVersionUID = 1;
     /** Logger */
-    private static final Logger _logger = Logger.getLogger(DockWindow.class.getName());
+    private static final Logger _logger = LoggerFactory.getLogger(DockWindow.class.getName());
     /** DockWindow singleton */
-    private static DockWindow instance = null;
+    private static DockWindow _instance = null;
     /** window dimensions */
     private static final Dimension _windowDimension = new Dimension(640, 120);
     /* members */
@@ -60,18 +59,20 @@ public class DockWindow extends JFrame implements Observer {
     /** client / button map */
     private final HashMap<ClientStub, JButton> _buttonClients = new HashMap<ClientStub, JButton>(8);
     /** User-chosen application name list */
+    private final Preferences _preferences;
     private ArrayList<String> _selectedApplicationNameList = null;
+    private static final ArrayList<String> ALL = null;
 
     /**
      * Return the DockWindow singleton 
      * @return DockWindow singleton
      */
     public static DockWindow getInstance() {
-        if (instance == null) {
-            instance = new DockWindow();
-            instance.init();
+        if (_instance == null) {
+            _instance = new DockWindow();
+            _instance.init();
         }
-        return instance;
+        return _instance;
     }
 
     /**
@@ -81,6 +82,9 @@ public class DockWindow extends JFrame implements Observer {
 
         super("AppLauncher");
 
+        _preferences = Preferences.getInstance();
+
+        prepareFrame();
         update(null, null);
 
         // Show the user the app is ready to be used
@@ -88,13 +92,55 @@ public class DockWindow extends JFrame implements Observer {
     }
 
     public void init() {
-        Preferences.getInstance().addObserver(this);
+        _preferences.addObserver(this);
+    }
+
+    @Override
+    public void update(final Observable observable, Object param) {
+        System.out.println("DockWindow::Reading selected applications.");
+
+        _selectedApplicationNameList = ALL;
+        try {
+            _selectedApplicationNameList = _preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
+        } catch (MissingPreferenceException ex) {
+            _logger.error("MissingPreferenceException :", ex);
+        } catch (PreferencesException ex) {
+            _logger.error("PreferencesException :", ex);
+        }
+
+        // Using invokeAndWait to be in sync with this thread :
+        // note: invokeAndWaitEDT throws an IllegalStateException if any exception occurs
+        SwingUtils.invokeAndWaitEDT(new Runnable() {
+
+            /**
+             * Initializes the swing components with their actions in EDT
+             */
+            @Override
+            public void run() {
+
+                // If the selected application list changed (preference uptdate)
+                if (observable == _preferences) {
+                    _logger.debug("Removing all previous components on preference update.");
+
+                    // @TODO : remove button listerner before clearing map.
+                    _clientButtons.clear();
+                    _buttonClients.clear();
+
+                    // Empty the frame
+                    getContentPane().removeAll();
+                }
+
+                // Fill the frame
+                preparePane();
+            }
+        });
     }
 
     /**
      * Prepare the frame
      */
     private void prepareFrame() {
+
         setMinimumSize(_windowDimension);
         setMaximumSize(_windowDimension);
 
@@ -118,6 +164,7 @@ public class DockWindow extends JFrame implements Observer {
      * Prepare the content pane
      */
     private void preparePane() {
+
         final Container mainPane = getContentPane();
         mainPane.setLayout(new BorderLayout());
 
@@ -142,6 +189,8 @@ public class DockWindow extends JFrame implements Observer {
 
         mainPane.add(verticalListPane, BorderLayout.CENTER);
         mainPane.add(new StatusBar(), BorderLayout.SOUTH);
+
+        pack();
     }
 
     /**
@@ -149,7 +198,7 @@ public class DockWindow extends JFrame implements Observer {
      * @param family client family
      * @return built scroll pane, or null if nothing to display (e.g daemon category)
      */
-    public final JScrollPane buildScrollPane(final Category family) {
+    private final JScrollPane buildScrollPane(final Category family) {
 
         final JPanel horizontalRowPane = new JPanel();
         horizontalRowPane.setLayout(new BoxLayout(horizontalRowPane, BoxLayout.X_AXIS));
@@ -185,27 +234,34 @@ public class DockWindow extends JFrame implements Observer {
             }
         };
 
-        JButton button;
+        boolean categoryIsEmpty = true;
         for (final ClientStub client : clients) {
 
             // If the current client is not in the selected application
-            if ((_selectedApplicationNameList != null) && (!_selectedApplicationNameList.contains(client.getApplicationName()))){
+            final String applicationName = client.getApplicationName();
+            if ((_selectedApplicationNameList != ALL) && (!_selectedApplicationNameList.contains(applicationName))) {
                 continue;
             }
 
+            final JButton button = buildClientButton(client);
             // if the current stub should remain invisble
-            if (client.getApplicationIcon() == null) {
+            if (button == null) {
                 continue; // Skip GUI stuff creation
             }
 
-            button = buildClientButton(client);
-            button.addActionListener(buttonActionListener);
+            categoryIsEmpty = false;
 
             _clientButtons.put(button, client);
             _buttonClients.put(client, button);
 
+            button.addActionListener(buttonActionListener);
+
             horizontalRowPane.add(button);
             horizontalRowPane.add(emptyRigidArea);
+        }
+
+        if (categoryIsEmpty) {
+            return null;
         }
 
         horizontalRowPane.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -225,12 +281,15 @@ public class DockWindow extends JFrame implements Observer {
     /**
      * Create the button representing one client stub (application)
      * @param client client stub instance
-     * @return created button
+     * @return created button, or null if not visible.
      */
     private JButton buildClientButton(final ClientStub client) {
 
         final String clientName = client.getApplicationName();
         ImageIcon clientIcon = client.getApplicationIcon();
+        if (clientIcon == null) {
+            return null;
+        }
 
         // Resize the icon up to 64*64 pixels
         final int iconHeight = clientIcon.getIconHeight();
@@ -256,52 +315,9 @@ public class DockWindow extends JFrame implements Observer {
         return button;
     }
 
-    @Override
-    public void update(Observable o, Object o1) {
-        try {
-            _selectedApplicationNameList = Preferences.getInstance().getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
-        } catch (MissingPreferenceException ex) {
-            _logger.severe("" + ex);
-        } catch (PreferencesException ex) {
-            _logger.severe("" + ex);
-        }
-        System.out.println("_selectedApplicationNameList :" + CollectionUtils.toString(_selectedApplicationNameList));
-
-        prepareFrame();
-        preparePane();
-    }
-
     /**
-     * Called to show the preferences window.
-     */
-    protected class ShowPreferencesAction extends RegisteredAction {
-
-        /** default serial UID for Serializable interface */
-        private static final long serialVersionUID = 1;
-
-        /**
-         * Action constructor
-         * @param classPath the path of the class containing the field pointing to
-         * the action, in the form returned by 'getClass().getName();'.
-         * @param fieldName the name of the field pointing to the action.
-         */
-        ShowPreferencesAction(final String classPath, final String fieldName) {
-            super(classPath, fieldName);
-            flagAsPreferenceAction();
-        }
-
-        @Override
-        public void actionPerformed(java.awt.event.ActionEvent e) {
-            _logger.entering("ShowPreferencesAction", "actionPerformed");
-
-            // Show the Preferences window
-            //_preferencesView.setVisible(true);
-        }
-    }
-
-    /**
-     * Callback to reenable the button representing the client stub
-     * @param client client stub to reenable
+     * Callback to re-enable the button representing the client stub
+     * @param client client stub to re-enable
      * @param enabled button state
      */
     public void defineButtonEnabled(final ClientStub client, final boolean enabled) {
