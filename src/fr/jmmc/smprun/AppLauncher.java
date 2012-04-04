@@ -13,7 +13,7 @@ import fr.jmmc.jmcs.gui.util.WindowUtils;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
-import fr.jmmc.smprsc.data.list.ApplicationListSelectionPanel;
+import fr.jmmc.smprun.preference.ApplicationListSelectionView;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import fr.jmmc.smprun.stub.ClientStub;
@@ -87,12 +87,14 @@ public class AppLauncher extends App {
 
                 // Retrieve application preference panes and attach them to their view
                 LinkedHashMap<String, JPanel> panels = new LinkedHashMap<String, JPanel>();
-                ApplicationListSelectionPanel applicationListSelectionPanel = new ApplicationListSelectionPanel();
-                panels.put("Application Selection", applicationListSelectionPanel);
+                ApplicationListSelectionView applicationListSelectionView = new ApplicationListSelectionView();
+                panels.put("Application Selection", applicationListSelectionView);
+                Preferences.getInstance().addObserver(applicationListSelectionView);
                 /*
                  * @TODO : Create another panel to :
                  * - hide dock window on launch or not;
-                 * - sync stubs creation to applcation selection or not.
+                 * - sync stubs creation to applcation selection or not;
+                 * - skip quit warning window;
                  */
                 PreferencesView preferencesView = new PreferencesView(Preferences.getInstance(), panels);
                 preferencesView.init();
