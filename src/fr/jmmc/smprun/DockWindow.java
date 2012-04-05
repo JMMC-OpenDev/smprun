@@ -107,6 +107,8 @@ public class DockWindow extends JFrame implements Observer {
             _logger.error("PreferencesException :", ex);
         }
 
+        _logger.debug("Preferenced list of selected applications updated : {}", _selectedApplicationNameList);
+
         // Using invokeAndWait to be in sync with this thread :
         // note: invokeAndWaitEDT throws an IllegalStateException if any exception occurs
         SwingUtils.invokeAndWaitEDT(new Runnable() {
