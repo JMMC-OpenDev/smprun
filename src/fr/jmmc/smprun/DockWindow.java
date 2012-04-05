@@ -97,7 +97,6 @@ public class DockWindow extends JFrame implements Observer {
 
     @Override
     public void update(final Observable observable, Object param) {
-        System.out.println("DockWindow::Reading selected applications.");
 
         _selectedApplicationNameList = ALL;
         try {
@@ -198,7 +197,7 @@ public class DockWindow extends JFrame implements Observer {
      * @param family client family
      * @return built scroll pane, or null if nothing to display (e.g daemon category)
      */
-    private final JScrollPane buildScrollPane(final Category family) {
+    private JScrollPane buildScrollPane(final Category family) {
 
         final JPanel horizontalRowPane = new JPanel();
         horizontalRowPane.setLayout(new BoxLayout(horizontalRowPane, BoxLayout.X_AXIS));
