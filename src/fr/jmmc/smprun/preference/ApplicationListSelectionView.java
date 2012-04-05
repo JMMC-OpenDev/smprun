@@ -6,11 +6,10 @@ package fr.jmmc.smprun.preference;
 import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.smprsc.data.list.ApplicationListSelectionPanel;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
-import org.ivoa.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,12 +30,11 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
     }
 
     @Override
-    public void update(Observable o, Object o1) {
-
-        System.out.println("ApplicationListSelectionView::Reading selected applications.");
+    public void update(Observable observable, Object parameter) {
 
         try {
-            setCheckedApplicationNames(preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST));
+            final ArrayList<String> selectedApplicationList = preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
+            setCheckedApplicationNames(selectedApplicationList);
         } catch (MissingPreferenceException ex) {
             _logger.error("MissingPreferenceException :", ex);
         } catch (PreferencesException ex) {
@@ -47,11 +45,13 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
     @Override
     protected void checkedApplicationChanged(List<String> checkedApplicationList) {
 
-        if (checkedApplicationList == null){
+        if (checkedApplicationList == null) {
             return;
         }
 
-        System.out.println("ApplicationListSelectionView::Writing selected applications : " + CollectionUtils.toString(checkedApplicationList, ", ", "{", "}") + ".");
+        if (checkedApplicationList.size() == 0) {
+            return;
+        }
 
         try {
             preferences.setPreference(PreferenceKey.SELECTED_APPLICATION_LIST, checkedApplicationList);
