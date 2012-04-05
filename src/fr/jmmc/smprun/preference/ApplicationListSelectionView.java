@@ -32,18 +32,26 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
     @Override
     public void update(Observable observable, Object parameter) {
 
+        ArrayList<String> selectedApplicationList = null;
         try {
-            final ArrayList<String> selectedApplicationList = preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
-            setCheckedApplicationNames(selectedApplicationList);
+            selectedApplicationList = preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
         } catch (MissingPreferenceException ex) {
             _logger.error("MissingPreferenceException :", ex);
         } catch (PreferencesException ex) {
             _logger.error("PreferencesException :", ex);
         }
+
+        _logger.debug("Preferenced list of selected applications updated : {}", selectedApplicationList);
+
+        if (selectedApplicationList != null) {
+            setCheckedApplicationNames(selectedApplicationList);
+        }
     }
 
     @Override
     protected void checkedApplicationChanged(List<String> checkedApplicationList) {
+
+        _logger.debug("New list of selected applications received : {}", checkedApplicationList);
 
         if (checkedApplicationList == null) {
             return;
