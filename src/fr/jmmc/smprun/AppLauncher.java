@@ -3,6 +3,7 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
+import com.jidesoft.plaf.LookAndFeelFactory;
 import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.FeedbackReport;
@@ -166,6 +167,9 @@ public class AppLauncher extends App {
      */
     @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public static void main(final String[] args) {
+
+        // To ensure the use of TriStateCheckBoxes in the Jide CheckBoxTree
+        LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
 
         // init swing application for science
         SwingSettings.setup();
