@@ -5,12 +5,9 @@ package fr.jmmc.smprun.preference;
 
 import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.ivoa.util.CollectionUtils;
 
 /**
  * Manage AppLauncher user's default values.
@@ -23,7 +20,7 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
     /** Singleton instance */
     private static Preferences _instance = null;
     /** Default selected application list */
-    private static final ArrayList<String> _defaultSelectedApplicationList = new ArrayList<String>(Arrays.asList("Aspro2", "SearchCal", "LITpro", "topcat", "Aladin"));
+    private static final List<String> _defaultSelectedApplicationList = Arrays.asList("Aspro2", "SearchCal", "LITpro", "topcat", "Aladin");
 
     /**
      * @return the singleton instance.
@@ -65,7 +62,7 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         System.out.println("---------------\n" + "Current Preferences Dump :\n" + currentPrefs + "\n---------------");
 
         try {
-            ArrayList<String> list = prefs.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
+            List<String> list = prefs.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
             System.out.println("Selected Application List : " + list + "\n---------------");
         } catch (MissingPreferenceException ex) {
             System.out.println("MissingPreferenceException = " + ex);

@@ -60,8 +60,8 @@ public class DockWindow extends JFrame implements Observer {
     private final HashMap<ClientStub, JButton> _buttonClients = new HashMap<ClientStub, JButton>(8);
     /** User-chosen application name list */
     private final Preferences _preferences;
-    private ArrayList<String> _selectedApplicationNameList = null;
-    private static final ArrayList<String> ALL = null;
+    private List<String> _selectedApplicationNameList = null;
+    private static final List<String> ALL = null;
 
     /**
      * Return the DockWindow singleton 

@@ -32,7 +32,7 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
     @Override
     public void update(Observable observable, Object parameter) {
 
-        ArrayList<String> selectedApplicationList = null;
+        List<String> selectedApplicationList = null;
         try {
             selectedApplicationList = preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
         } catch (MissingPreferenceException ex) {
