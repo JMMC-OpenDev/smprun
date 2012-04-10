@@ -6,7 +6,6 @@ package fr.jmmc.smprun.preference;
 import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.smprsc.data.list.ApplicationListSelectionPanel;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -20,11 +19,11 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
 
     /** Logger - get from given class name */
     private static final Logger _logger = LoggerFactory.getLogger(ApplicationListSelectionPanel.class.getName());
-    private final Preferences preferences;
+    private final Preferences _preferences;
 
     public ApplicationListSelectionView() {
         super();
-        preferences = Preferences.getInstance();
+        _preferences = Preferences.getInstance();
         update(null, null);
     }
 
@@ -33,7 +32,7 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
 
         List<String> selectedApplicationList = null;
         try {
-            selectedApplicationList = preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
+            selectedApplicationList = _preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
         } catch (MissingPreferenceException ex) {
             _logger.error("MissingPreferenceException :", ex);
         } catch (PreferencesException ex) {
@@ -61,7 +60,7 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
         }
 
         try {
-            preferences.setPreference(PreferenceKey.SELECTED_APPLICATION_LIST, checkedApplicationList);
+            _preferences.setPreference(PreferenceKey.SELECTED_APPLICATION_LIST, checkedApplicationList);
         } catch (PreferencesException ex) {
             _logger.error("PreferencesException :", ex);
         }
