@@ -49,7 +49,13 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
     @Override
     protected void setDefaultPreferences() throws PreferencesException {
         // By default always consider it is the first time ever AppLauncher is started
-        setDefaultPreference(PreferenceKey.FIRST_START_FLAG, "true");
+        setDefaultPreference(PreferenceKey.FIRST_START_FLAG, true);
+        // By default always show dock window on startup
+        setDefaultPreference(PreferenceKey.SHOW_DOCK_WINDOW, true);
+        // By default always start all stubs
+        setDefaultPreference(PreferenceKey.START_ALL_STUBS, true);
+        // By default always show exit warning
+        setDefaultPreference(PreferenceKey.SHOW_EXIT_WARNING, true);
         // By default always show JMC and ESSENTIALS applications
         setDefaultPreference(PreferenceKey.SELECTED_APPLICATION_LIST, _defaultSelectedApplicationList);
     }
