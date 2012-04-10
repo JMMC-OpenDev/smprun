@@ -4,6 +4,8 @@
 package fr.jmmc.smprun.preference;
 
 import fr.jmmc.jmcs.data.preference.PreferencesException;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.LinkedHashMap;
@@ -39,9 +41,15 @@ public class GeneralSettingsView extends JPanel implements Observer, ChangeListe
         _booleanPreferencesHashMap.put(PreferenceKey.SHOW_DOCK_WINDOW, new JCheckBox("Show Dock window on startup"));
         _booleanPreferencesHashMap.put(PreferenceKey.SHOW_EXIT_WARNING, new JCheckBox("Show warning before shuting down SAMP hub while quitting"));
         _booleanPreferencesHashMap.put(PreferenceKey.START_ALL_STUBS, new JCheckBox("Only provide selected application SAMP handling on startup"));
+    }
+
+    public void init() {
+
+        JPanel topPanel = new JPanel();
+        topPanel.setOpaque(false);
 
         // Layout management
-        setLayout(new GridBagLayout());
+        topPanel.setLayout(new GridBagLayout());
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.fill = GridBagConstraints.HORIZONTAL;
         gridBagConstraints.weightx = 1;
@@ -50,18 +58,17 @@ public class GeneralSettingsView extends JPanel implements Observer, ChangeListe
 
         // Initialize all checkboxes
         for (JCheckBox checkBox : _booleanPreferencesHashMap.values()) {
+            topPanel.add(checkBox, gridBagConstraints);
             checkBox.addChangeListener(this);
-            add(checkBox, gridBagConstraints);
             gridBagConstraints.gridy++;
         }
+        add(topPanel);
 
         update(null, null);
     }
 
     @Override
     public void update(Observable observable, Object parameter) {
-
-        System.out.println("Preferences changed:");
 
         _programaticUpdateUnderway = true;
 
@@ -73,7 +80,7 @@ public class GeneralSettingsView extends JPanel implements Observer, ChangeListe
             final PreferenceKey currentPreferenceKey = entry.getKey();
             final boolean currentPreferenceState = _preferences.getPreferenceAsBoolean(currentPreferenceKey);
 
-            System.out.println("\t - Setting checkbox '" + currentCheckBoxName + "' to '" + currentPreferenceState + "' (was '" + currentCheckBoxState + "').");
+            _logger.debug("Set checkbox '" + currentCheckBoxName + "' to '" + currentPreferenceState + "' (was '" + currentCheckBoxState + "').");
             currentCheckBox.setSelected(currentPreferenceState);
         }
 
@@ -89,15 +96,15 @@ public class GeneralSettingsView extends JPanel implements Observer, ChangeListe
 
         JCheckBox clickedCheckBox = (JCheckBox) ev.getSource();
         if (clickedCheckBox == null) {
-            System.out.println("Could not retrieve event source : " + ev);
+            _logger.error("Could not retrieve event source : " + ev);
             return;
         }
 
         final String clickedCheckBoxName = clickedCheckBox.getText();
-        System.out.println("Checkbox '" + clickedCheckBoxName + "' state changed:");
+        _logger.debug("Checkbox '" + clickedCheckBoxName + "' state changed:");
 
         if (_programaticUpdateUnderway) {
-            System.out.println("\t- Programatic update underway, SKIPPING.");
+            _logger.trace("Programatic update underway, SKIPPING.");
             return;
         }
 
@@ -113,12 +120,12 @@ public class GeneralSettingsView extends JPanel implements Observer, ChangeListe
             final boolean clickedCheckBoxState = currentCheckBox.isSelected();
 
             if (clickedCheckBoxState == currentPreferenceState) {
-                System.out.println("\t- State did not trully changed (" + clickedCheckBoxState + " == " + currentPreferenceState + "), SKIPPING.");
+                _logger.trace("State did not trully changed (" + clickedCheckBoxState + " == " + currentPreferenceState + "), SKIPPING.");
                 return;
             }
 
             try {
-                System.out.println("\t- State did changed (" + currentPreferenceState + " -> " + clickedCheckBoxState + "), WRITING.");
+                _logger.debug("State did changed (" + currentPreferenceState + " -> " + clickedCheckBoxState + "), WRITING.");
                 _preferences.setPreference(currentPreferenceKey, clickedCheckBoxState);
             } catch (PreferencesException ex) {
                 _logger.warn("Could not set preference : " + ex);
@@ -130,8 +137,9 @@ public class GeneralSettingsView extends JPanel implements Observer, ChangeListe
 
     public static void main(String[] args) {
         JFrame frame = new JFrame();
-        final GeneralSettingsView applicationListSelectionPanel = new GeneralSettingsView();
-        frame.add(applicationListSelectionPanel);
+        final GeneralSettingsView generalSettingsView = new GeneralSettingsView();
+        generalSettingsView.init();
+        frame.add(generalSettingsView);
         frame.pack();
         frame.setVisible(true);
     }
