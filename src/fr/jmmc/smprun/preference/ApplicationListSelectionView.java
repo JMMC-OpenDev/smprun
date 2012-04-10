@@ -14,8 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * @author lafrasse
+ * @author Sylvain LAFRASSE
  */
 public class ApplicationListSelectionView extends ApplicationListSelectionPanel implements Observer {
 
