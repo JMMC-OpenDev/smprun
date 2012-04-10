@@ -4,8 +4,6 @@
 package fr.jmmc.smprun.preference;
 
 import fr.jmmc.jmcs.data.preference.PreferencesException;
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.LinkedHashMap;
