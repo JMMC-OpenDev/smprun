@@ -28,14 +28,10 @@ public class HubPopulator {
     /** HubPopulator singleton */
     private static final HubPopulator INSTANCE = new HubPopulator();
     /* members */
-    /** all client stubs */
-    private final List<ClientStub> _clients = new ArrayList<ClientStub>();
     /** Client family  / client stub mapping */
     private EnumMap<Category, List<ClientStub>> _familyLists = new EnumMap<Category, List<ClientStub>>(Category.class);
     /** Client stub map keyed by application name */
     private HashMap<String, ClientStub> _clientStubMap = new HashMap<String, ClientStub>();
-    /** SampCapability set */
-    private Set<SampCapability> _sampCapabilitySet = new HashSet<SampCapability>();
 
     /**
      * Return the HubPopulator singleton
@@ -68,7 +64,6 @@ public class HubPopulator {
         }
 
         _logger.info("configuration: " + _familyLists);
-        _logger.info("clients:       " + _clients);
     }
 
     /**
@@ -83,19 +78,9 @@ public class HubPopulator {
         final ClientStub client = new ClientStub(data);
         client.addObserver(new StubMonitor());
 
-        _clients.add(client);
         _clientStubMap.put(client.getApplicationName(), client);
-        _sampCapabilitySet.addAll(Arrays.asList(client.getSampCapabilities()));
 
         return client;
-    }
-
-    /**
-     * Return the SampCapability set managed by client stubs
-     * @return SampCapability set
-     */
-    public Set<SampCapability> getSampCapabilitySet() {
-        return _sampCapabilitySet;
     }
 
     /**
@@ -125,18 +110,10 @@ public class HubPopulator {
     }
 
     /**
-     * Return all client stubs
-     * @return client stubs
-     */
-    public List<ClientStub> getClients() {
-        return _clients;
-    }
-
-    /**
      * Properly disconnect connected clients
      */
     public void disconnectAllStubs() {
-        for (ClientStub client : _clients) {
+        for (ClientStub client : _clientStubMap.values()) {
             client.disconnect();
         }
     }

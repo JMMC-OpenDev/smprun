@@ -6,6 +6,7 @@ package fr.jmmc.smprun;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
+import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprsc.data.stub.SampApplicationMetaData;
 import java.util.*;
@@ -145,7 +146,8 @@ public final class HubMonitor {
     private void loopOverHubClients(final Client[] clients) {
         _logger.info("loopOverHubClients() invoked by thread [" + Thread.currentThread() + "]");
 
-        for (ClientStub stub : HubPopulator.getInstance().getClients()) {
+        final Collection<ClientStub> clientStubList = HubPopulator.getInstance().getClientStubMap().values();
+        for (ClientStub stub : clientStubList) {
 
             String stubName = stub.getApplicationName();
             boolean recipientFound = false;
@@ -221,8 +223,8 @@ public final class HubMonitor {
             Metadata md = client.getMetadata();
             String clientName = md.getName();
 
-            ClientStub unknownApplicationStub = HubPopulator.getInstance().getClientStub(clientName);
-            if (unknownApplicationStub == null) {
+            // If the cuurent application is not in the registry yet
+            if (!StubRegistry.isApplicationKnown(clientName)) {
 
                 _logger.info("Detected an unknown application '" + clientName + "'.");
                 retrieveRealRecipientMetadata(client);
