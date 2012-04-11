@@ -98,19 +98,23 @@ public class AppLauncher extends App {
             }
 
             private void preparePreferencesWindow() {
+
                 // Retrieve application preference panes and attach them to their view
                 final Preferences preferences = Preferences.getInstance();
                 LinkedHashMap<String, JPanel> panels = new LinkedHashMap<String, JPanel>();
 
+                // Create application selection pane
                 ApplicationListSelectionView applicationListSelectionView = new ApplicationListSelectionView();
                 panels.put("Application Selection", applicationListSelectionView);
                 preferences.addObserver(applicationListSelectionView);
 
+                // Create general settings pane
                 GeneralSettingsView generalSettingsView = new GeneralSettingsView();
                 generalSettingsView.init();
                 panels.put("General Settings", generalSettingsView);
                 preferences.addObserver(generalSettingsView);
 
+                // Finalize prefence window
                 PreferencesView preferencesView = new PreferencesView(preferences, panels);
                 preferencesView.init();
             }
