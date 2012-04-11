@@ -7,7 +7,8 @@ import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manage AppLauncher user's default values.
@@ -16,11 +17,13 @@ import java.util.logging.Logger;
 public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
 
     /** Logger */
-    private static final Logger _logger = Logger.getLogger(Preferences.class.getName());
+    private static final Logger _logger = LoggerFactory.getLogger(Preferences.class.getName());
     /** Singleton instance */
     private static Preferences _instance = null;
     /** Default selected application list */
     private static final List<String> _defaultSelectedApplicationList = Arrays.asList("Aspro2", "SearchCal", "LITpro", "topcat", "Aladin");
+    /** Constant to detect that no application is deselected */
+    public List<String> ALL_APPLICATIONS_SELECTED = null;
 
     /**
      * @return the singleton instance.
@@ -58,6 +61,29 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         setDefaultPreference(PreferenceKey.SHOW_EXIT_WARNING, true);
         // By default always show JMC and ESSENTIALS applications
         setDefaultPreference(PreferenceKey.SELECTED_APPLICATION_LIST, _defaultSelectedApplicationList);
+    }
+
+    public List<String> getSelectedApplicationNames() {
+
+        List<String> selectedApplicationList = ALL_APPLICATIONS_SELECTED;
+
+        try {
+            selectedApplicationList = getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
+        } catch (MissingPreferenceException ex) {
+            _logger.error("MissingPreferenceException :", ex);
+        } catch (PreferencesException ex) {
+            _logger.error("PreferencesException :", ex);
+        }
+
+        return selectedApplicationList;
+    }
+
+    public boolean isApplicationNameSelected(String applicationName) {
+        List<String> selectedApplicationNameList = getSelectedApplicationNames();
+        if ((selectedApplicationNameList == ALL_APPLICATIONS_SELECTED) || (selectedApplicationNameList.contains(applicationName))) {
+            return true;
+        }
+        return false;
     }
 
     public static void main(String[] args) {

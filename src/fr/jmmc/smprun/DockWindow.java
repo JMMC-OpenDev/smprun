@@ -4,8 +4,6 @@
 package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.App;
-import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
-import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.util.ImageUtils;
@@ -61,8 +59,6 @@ public class DockWindow extends JFrame implements Observer {
     private final HashMap<ClientStub, JButton> _buttonClients = new HashMap<ClientStub, JButton>(8);
     /** User-chosen application name list */
     private final Preferences _preferences;
-    private List<String> _selectedApplicationNameList = null;
-    private static final List<String> ALL = null;
 
     /**
      * Return the DockWindow singleton 
@@ -128,17 +124,6 @@ public class DockWindow extends JFrame implements Observer {
 
     @Override
     public void update(final Observable observable, Object param) {
-
-        _selectedApplicationNameList = ALL;
-        try {
-            _selectedApplicationNameList = _preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
-        } catch (MissingPreferenceException ex) {
-            _logger.error("MissingPreferenceException :", ex);
-        } catch (PreferencesException ex) {
-            _logger.error("PreferencesException :", ex);
-        }
-
-        _logger.debug("Preferenced list of selected applications updated : {}", _selectedApplicationNameList);
 
         // Using invokeAndWait to be in sync with this thread :
         // note: invokeAndWaitEDT throws an IllegalStateException if any exception occurs
@@ -244,11 +229,13 @@ public class DockWindow extends JFrame implements Observer {
             }
         };
 
+        boolean categoryIsEmpty = true;
+
         // Try to create GUI stuff for each visible and selected application
         for (final String visibleClientName : visibleClientNames) {
 
             // If the current client has not been selected by the user
-            if ((_selectedApplicationNameList != ALL) && (!_selectedApplicationNameList.contains(visibleClientName))) {
+            if (!Preferences.getInstance().isApplicationNameSelected(visibleClientName)) {
                 continue; // Skip its creation
             }
 
@@ -265,6 +252,8 @@ public class DockWindow extends JFrame implements Observer {
                 continue; // Skip GUI stuff creation
             }
 
+            categoryIsEmpty = false;
+
             _clientButtons.put(button, clientStub);
             _buttonClients.put(clientStub, button);
 
@@ -272,6 +261,10 @@ public class DockWindow extends JFrame implements Observer {
 
             horizontalRowPane.add(button);
             horizontalRowPane.add(emptyRigidArea);
+        }
+
+        if (categoryIsEmpty) {
+            return null;
         }
 
         horizontalRowPane.setBorder(new EmptyBorder(10, 10, 10, 10));

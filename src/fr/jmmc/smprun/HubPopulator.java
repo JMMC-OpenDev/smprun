@@ -3,8 +3,6 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
-import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
-import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprsc.data.list.model.Category;
 import fr.jmmc.smprun.stub.ClientStub;
@@ -50,8 +48,6 @@ public class HubPopulator {
      */
     private HubPopulator() {
 
-        final List<String> selectedApplicationNames = loadSelectedApplicationListFromPreference();
-
         // For each known category
         for (Category currentCategory : Category.values()) {
 
@@ -62,10 +58,15 @@ public class HubPopulator {
             List<String> applicationNames = StubRegistry.getCategoryApplicationNames(currentCategory);
             for (String applicationName : applicationNames) {
 
-                // If the current application stub should not be created (i.e was not selected by the iser)
-                if ((selectedApplicationNames != ALL) && (!selectedApplicationNames.contains(applicationName))) {
-                    System.out.println("Skipping unwanted '" + applicationName + "' application.");
-                    continue; // Skip stub creation
+                // If the user asked through preferences not to start all stubs
+                final Preferences preferences = Preferences.getInstance();
+                if (preferences.getPreferenceAsBoolean(PreferenceKey.START_SELECTED_STUBS)) {
+
+                    // If the current application stub should not be created (i.e was not selected by the iser)
+                    if (!preferences.isApplicationNameSelected(applicationName)) {
+                        System.out.println("Skipping unwanted '" + applicationName + "' application.");
+                        continue; // Skip stub creation
+                    }
                 }
 
                 // Forge stub XML description file resource path
@@ -80,25 +81,6 @@ public class HubPopulator {
         }
 
         _logger.info("configuration: " + _familyLists);
-    }
-
-    private List<String> loadSelectedApplicationListFromPreference() throws MissingPreferenceException {
-
-        List<String> selectedApplicationNames = ALL;
-
-        final Preferences preferences = Preferences.getInstance();
-        try {
-            final boolean shouldOnlyStartSelectedStubs = preferences.getPreferenceAsBoolean(PreferenceKey.START_SELECTED_STUBS);
-            if (shouldOnlyStartSelectedStubs) {
-                selectedApplicationNames = preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
-            }
-        } catch (MissingPreferenceException ex) {
-            _logger.error("MissingPreferenceException :", ex);
-        } catch (PreferencesException ex) {
-            _logger.error("PreferencesException :", ex);
-        }
-
-        return selectedApplicationNames;
     }
 
     /**

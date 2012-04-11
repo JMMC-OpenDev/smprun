@@ -3,7 +3,6 @@
  ******************************************************************************/
 package fr.jmmc.smprun.preference;
 
-import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.smprsc.data.list.ApplicationListSelectionPanel;
 import java.util.List;
@@ -30,15 +29,7 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
     @Override
     public void update(Observable observable, Object parameter) {
 
-        List<String> selectedApplicationList = null;
-        try {
-            selectedApplicationList = _preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
-        } catch (MissingPreferenceException ex) {
-            _logger.error("MissingPreferenceException :", ex);
-        } catch (PreferencesException ex) {
-            _logger.error("PreferencesException :", ex);
-        }
-
+        List<String> selectedApplicationList = _preferences.getSelectedApplicationNames();
         _logger.debug("Preferenced list of selected applications updated : {}", selectedApplicationList);
 
         if (selectedApplicationList != null) {
