@@ -3,7 +3,6 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
-import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprsc.data.list.model.Category;
 import fr.jmmc.smprun.stub.ClientStub;
@@ -26,19 +25,20 @@ public class HubPopulator {
     /** Resource path prefix */
     private static final String RESOURCE_PATH_PREFIX = "fr/jmmc/smprun/resource/";
     /** HubPopulator singleton */
-    private static final HubPopulator INSTANCE = new HubPopulator();
+    private static final HubPopulator _singleton = new HubPopulator();
     /* members */
     /** Client family  / client stub mapping */
     private EnumMap<Category, List<ClientStub>> _familyLists = new EnumMap<Category, List<ClientStub>>(Category.class);
     /** Client stub map keyed by application name */
     private HashMap<String, ClientStub> _clientStubMap = new HashMap<String, ClientStub>();
+    private static final List<String> ALL = null;
 
     /**
      * Return the HubPopulator singleton
      * @return HubPopulator singleton
      */
     public static HubPopulator getInstance() {
-        return INSTANCE;
+        return _singleton;
     }
 
     /**
@@ -52,12 +52,15 @@ public class HubPopulator {
 
             List<ClientStub> clientList = new ArrayList<ClientStub>();
 
-            List<String> pathes = StubRegistry.getCategoryApplicationResourcePaths(category);
-            for (String path : pathes) {
+            // Forge each application description file resource path
+            List<String> applicationNames = StubRegistry.getCategoryApplicationNames(category); //.getCategoryApplicationResourcePaths(category);
+            for (String applicationName : applicationNames) {
 
-                _logger.trace("Loading {} appications.", path);
+                final String forgedApplicationResourcePath = StubRegistry.forgeApplicationResourcePath(applicationName);
 
-                clientList.add(createClientStub(path));
+                _logger.trace("Loading '{}' application data from resopurce '{}'.", applicationName, forgedApplicationResourcePath);
+
+                clientList.add(createClientStub(forgedApplicationResourcePath));
             }
 
             _familyLists.put(category, clientList);
@@ -87,8 +90,9 @@ public class HubPopulator {
      * Return the client stub map keyed by application name
      * @return client stub map keyed by application name
      */
-    public Map<String, ClientStub> getClientStubMap() {
-        return _clientStubMap;
+    public static Map<String, ClientStub> getClientStubMap() {
+
+        return _singleton._clientStubMap;
     }
 
     /**
@@ -96,15 +100,15 @@ public class HubPopulator {
      * @param name application name to match
      * @return client stub or null if not found
      */
-    public ClientStub getClientStub(final String name) {
-        return _clientStubMap.get(name);
+    public static ClientStub getClientStub(final String name) {
+        return _singleton._clientStubMap.get(name);
     }
 
     /**
      * Properly disconnect connected clients
      */
-    public void disconnectAllStubs() {
-        for (ClientStub client : _clientStubMap.values()) {
+    public static void disconnectAllStubs() {
+        for (ClientStub client : _singleton._clientStubMap.values()) {
             client.disconnect();
         }
     }

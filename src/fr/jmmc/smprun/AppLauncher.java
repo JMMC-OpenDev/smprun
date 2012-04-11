@@ -18,7 +18,6 @@ import fr.jmmc.smprun.preference.ApplicationListSelectionView;
 import fr.jmmc.smprun.preference.GeneralSettingsView;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
-import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -165,7 +164,7 @@ public class AppLauncher extends App {
     @Override
     public void onFinish() {
         // Properly disconnect connected clients:
-        HubPopulator.getInstance().disconnectAllStubs();
+        HubPopulator.disconnectAllStubs();
 
         // Stop job runner:
         LocalLauncher.shutdown();

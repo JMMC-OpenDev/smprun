@@ -244,21 +244,23 @@ public class DockWindow extends JFrame implements Observer {
             }
         };
 
+        // Try to create GUI stuff for each visible and selected application
         for (final String visibleClientName : visibleClientNames) {
 
-            // If the current client is not in the selected application
+            // If the current client has not been selected by the user
             if ((_selectedApplicationNameList != ALL) && (!_selectedApplicationNameList.contains(visibleClientName))) {
-                continue;
+                continue; // Skip its creation
             }
 
-            final ClientStub clientStub = HubPopulator.getInstance().getClientStub(visibleClientName);
+            // REtrieve corresponding stub (if any)
+            final ClientStub clientStub = HubPopulator.getClientStub(visibleClientName);
             if (clientStub == null) {
-                System.out.println("!!!!!!!!!!!!!!!! Could not get '" + visibleClientName + "' stub !!!!!!!!!!!!!!!!!!!!!!!!");
+                _logger.error("Could not get '{}' stub.", visibleClientName);
                 continue;
             }
 
+            // If the current stub should remain invisble
             final JButton button = buildClientButton(clientStub);
-            // if the current stub should remain invisble
             if (button == null) {
                 continue; // Skip GUI stuff creation
             }

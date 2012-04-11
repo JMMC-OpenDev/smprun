@@ -146,7 +146,7 @@ public final class HubMonitor {
     private void loopOverHubClients(final Client[] clients) {
         _logger.info("loopOverHubClients() invoked by thread [" + Thread.currentThread() + "]");
 
-        final Collection<ClientStub> clientStubList = HubPopulator.getInstance().getClientStubMap().values();
+        final Collection<ClientStub> clientStubList = HubPopulator.getClientStubMap().values();
         for (ClientStub stub : clientStubList) {
 
             String stubName = stub.getApplicationName();
