@@ -253,7 +253,7 @@ public class DockWindow extends JFrame implements Observer {
             }
 
             // REtrieve corresponding stub (if any)
-            final ClientStub clientStub = HubPopulator.getClientStub(visibleClientName);
+            final ClientStub clientStub = HubPopulator.retrieveClientStub(visibleClientName);
             if (clientStub == null) {
                 _logger.error("Could not get '{}' stub.", visibleClientName);
                 continue;

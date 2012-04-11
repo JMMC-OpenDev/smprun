@@ -100,7 +100,7 @@ public class HubPopulator {
      * @param name application name to match
      * @return client stub or null if not found
      */
-    public static ClientStub getClientStub(final String name) {
+    public static ClientStub retrieveClientStub(final String name) {
         return _singleton._clientStubMap.get(name);
     }
 
