@@ -280,7 +280,7 @@ public final class ClientStub extends Observable implements JobListener {
         synchronized (_lock) {
             // Note: when the javaws does not start correctly the application => it will never connect to SAMP; let the user retry ...
 
-            StatusBar.show("Starting '" + getApplicationName() + "' recipient ...");
+            StatusBar.show("starting '" + getApplicationName() + "' recipient ...");
 
             setClientButtonEnabled(false);
 
@@ -342,7 +342,7 @@ public final class ClientStub extends Observable implements JobListener {
                 setState(ClientStubState.LISTENING);
 
                 // Update GUI
-                StatusBar.show("Failed to start " + getApplicationName() + ".");
+                StatusBar.show("failed to start " + getApplicationName() + ".");
                 setClientButtonEnabled(true);
             }
         }
@@ -538,7 +538,7 @@ public final class ClientStub extends Observable implements JobListener {
                 setJobContextId(null);
 
                 // Update GUI
-                StatusBar.show("Started " + getApplicationName() + ".");
+                StatusBar.show("started " + getApplicationName() + ".");
 
                 setClientButtonEnabled(true);
                 break;
@@ -582,7 +582,7 @@ public final class ClientStub extends Observable implements JobListener {
                 }
 
                 // Update GUI
-                StatusBar.show("Failed to start '" + getApplicationName() + "' recipient.");
+                StatusBar.show("failed to start '" + getApplicationName() + "' recipient.");
                 setClientButtonEnabled(true);
 
                 break;
