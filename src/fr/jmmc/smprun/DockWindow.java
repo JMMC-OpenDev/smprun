@@ -9,6 +9,7 @@ import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.util.ImageUtils;
+import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprsc.data.list.model.Category;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
@@ -89,14 +90,40 @@ public class DockWindow extends JFrame implements Observer {
         _preferences = Preferences.getInstance();
 
         prepareFrame();
+    }
+
+    public void init() {
+
         update(null, null);
+
+        _preferences.addObserver(this);
 
         // Show the user the app is ready to be used
         StatusBar.show("application ready.");
     }
 
-    public void init() {
-        _preferences.addObserver(this);
+    /**
+     * Prepare the frame
+     */
+    private void prepareFrame() {
+
+        setMinimumSize(_windowDimension);
+        setMaximumSize(_windowDimension);
+
+        // @TODO : Put it in System Tray ??
+
+        // Previous adapter manages the windowClosing(event) :
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+
+        // Properly quit the application when main window close button is clicked
+        addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosing(final WindowEvent e) {
+                // Callback on exit :
+                App.quitAction().actionPerformed(null);
+            }
+        });
     }
 
     @Override
@@ -137,30 +164,6 @@ public class DockWindow extends JFrame implements Observer {
 
                 // Fill the frame
                 preparePane();
-            }
-        });
-    }
-
-    /**
-     * Prepare the frame
-     */
-    private void prepareFrame() {
-
-        setMinimumSize(_windowDimension);
-        setMaximumSize(_windowDimension);
-
-        // @TODO : Put it in System Tray ??
-
-        // Previous adapter manages the windowClosing(event) :
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-        // Properly quit the application when main window close button is clicked
-        addWindowListener(new WindowAdapter() {
-
-            @Override
-            public void windowClosing(final WindowEvent e) {
-                // Callback on exit :
-                App.quitAction().actionPerformed(null);
             }
         });
     }
@@ -212,12 +215,14 @@ public class DockWindow extends JFrame implements Observer {
         final Component emptyRigidArea = Box.createRigidArea(new Dimension(100, 0));
         horizontalRowPane.add(emptyRigidArea);
 
-        final List<ClientStub> clients = HubPopulator.getInstance().getClientList(family);
-        if (clients == null) {
+        // Get the list of visible applications for current category
+        final List<String> visibleClientNames = StubRegistry.getCategoryVisibleApplicationNames(family);
+        if (visibleClientNames == null) {
             return null;
         }
 
         // Create the button action listener once:
+        // TODO : Move it in the public class to easily remove it from button action listener before cleanup
         final ActionListener buttonActionListener = new ActionListener() {
 
             /**
@@ -239,34 +244,32 @@ public class DockWindow extends JFrame implements Observer {
             }
         };
 
-        boolean categoryIsEmpty = true;
-        for (final ClientStub client : clients) {
+        for (final String visibleClientName : visibleClientNames) {
 
             // If the current client is not in the selected application
-            final String applicationName = client.getApplicationName();
-            if ((_selectedApplicationNameList != ALL) && (!_selectedApplicationNameList.contains(applicationName))) {
+            if ((_selectedApplicationNameList != ALL) && (!_selectedApplicationNameList.contains(visibleClientName))) {
                 continue;
             }
 
-            final JButton button = buildClientButton(client);
+            final ClientStub clientStub = HubPopulator.getInstance().getClientStub(visibleClientName);
+            if (clientStub == null) {
+                System.out.println("!!!!!!!!!!!!!!!! Could not get '" + visibleClientName + "' stub !!!!!!!!!!!!!!!!!!!!!!!!");
+                continue;
+            }
+
+            final JButton button = buildClientButton(clientStub);
             // if the current stub should remain invisble
             if (button == null) {
                 continue; // Skip GUI stuff creation
             }
 
-            categoryIsEmpty = false;
-
-            _clientButtons.put(button, client);
-            _buttonClients.put(client, button);
+            _clientButtons.put(button, clientStub);
+            _buttonClients.put(clientStub, button);
 
             button.addActionListener(buttonActionListener);
 
             horizontalRowPane.add(button);
             horizontalRowPane.add(emptyRigidArea);
-        }
-
-        if (categoryIsEmpty) {
-            return null;
         }
 
         horizontalRowPane.setBorder(new EmptyBorder(10, 10, 10, 10));

@@ -69,12 +69,12 @@ public class HubPopulator {
     /**
      * Create a new Client Stub using given arguments and store it in collections
      * 
-     * @param path SAMP application data resource path
+     * @param resourcePath SAMP application data resource path
      * @return client stub 
      */
-    private ClientStub createClientStub(final String path) {
+    private ClientStub createClientStub(final String resourcePath) {
 
-        SampStub data = SampApplicationMetaData.loadSampSubFromResourcePath(path);
+        SampStub data = SampApplicationMetaData.loadSampSubFromResourcePath(resourcePath);
         final ClientStub client = new ClientStub(data);
         client.addObserver(new StubMonitor());
 
@@ -98,15 +98,6 @@ public class HubPopulator {
      */
     public ClientStub getClientStub(final String name) {
         return _clientStubMap.get(name);
-    }
-
-    /**
-     * Return the client stubs per client family
-     * @param family client family
-     * @return client stubs
-     */
-    public List<ClientStub> getClientList(final Category family) {
-        return _familyLists.get(family);
     }
 
     /**
