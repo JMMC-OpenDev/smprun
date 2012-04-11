@@ -59,7 +59,7 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         setDefaultPreference(PreferenceKey.START_SELECTED_STUBS, false);
         // By default always show exit warning
         setDefaultPreference(PreferenceKey.SHOW_EXIT_WARNING, true);
-        // By default always show JMC and ESSENTIALS applications
+        // By default always show JMMC and ESSENTIALS applications
         setDefaultPreference(PreferenceKey.SELECTED_APPLICATION_LIST, _defaultSelectedApplicationList);
     }
 
