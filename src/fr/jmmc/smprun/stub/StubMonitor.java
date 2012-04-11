@@ -3,9 +3,9 @@
  ******************************************************************************/
 package fr.jmmc.smprun.stub;
 
-import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.gui.util.WindowUtils;
+import fr.jmmc.smprun.AppLauncher;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
@@ -108,8 +108,8 @@ public class StubMonitor implements Observer {
 
                     cancelButton.setEnabled(isLaunching);
 
-                    // bring this application to front :
-                    App.showFrameToFront();
+                    // Bring this application to front
+                    AppLauncher.showFrameToFront();
 
                     _window.getLabelMessage().setText("Redirecting to " + applicationName + ":");
 

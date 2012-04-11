@@ -15,6 +15,7 @@ import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.smprun.preference.ApplicationListSelectionView;
+import fr.jmmc.smprun.preference.GeneralSettingsView;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import fr.jmmc.smprun.stub.ClientStub;
@@ -39,6 +40,7 @@ public class AppLauncher extends App {
     protected static final Logger _logger = LoggerFactory.getLogger(AppLauncher.class.getName());
     /** Export to SAMP action */
     public LaunchJnlpSampAutoTestAction _launchJnlpSampAutoTestAction;
+    private static DockWindow _dockWindow = null;
 
     /**
      * Launch the AppLauncher application.
@@ -50,6 +52,8 @@ public class AppLauncher extends App {
      */
     public AppLauncher(final String[] args) {
         super(args);
+        // For debugging purpose only, to dismiss splashscreen
+        //super(args, false, true, false);
     }
 
     /**
@@ -84,23 +88,32 @@ public class AppLauncher extends App {
              */
             @Override
             public void run() {
-                App.setFrame(DockWindow.getInstance());
 
-                // Retrieve application preference panes and attach them to their view
-                LinkedHashMap<String, JPanel> panels = new LinkedHashMap<String, JPanel>();
-                ApplicationListSelectionView applicationListSelectionView = new ApplicationListSelectionView();
-                panels.put("Application Selection", applicationListSelectionView);
-                Preferences.getInstance().addObserver(applicationListSelectionView);
-                /*
-                 * @TODO : Create another panel to :
-                 * - hide dock window on launch or not;
-                 * - sync stubs creation to applcation selection or not;
-                 * - skip quit warning window;
-                 */
-                PreferencesView preferencesView = new PreferencesView(Preferences.getInstance(), panels);
-                preferencesView.init();
+                // Prepare dock window
+                _dockWindow = DockWindow.getInstance();
+                App.setFrame(_dockWindow);
+
+                preparePreferencesWindow();
 
                 // @TODO : Handle JMMC app mimetypes to open our apps !!!
+            }
+
+            private void preparePreferencesWindow() {
+                // Retrieve application preference panes and attach them to their view
+                final Preferences preferences = Preferences.getInstance();
+                LinkedHashMap<String, JPanel> panels = new LinkedHashMap<String, JPanel>();
+
+                ApplicationListSelectionView applicationListSelectionView = new ApplicationListSelectionView();
+                panels.put("Application Selection", applicationListSelectionView);
+                preferences.addObserver(applicationListSelectionView);
+
+                GeneralSettingsView generalSettingsView = new GeneralSettingsView();
+                generalSettingsView.init();
+                panels.put("General Settings", generalSettingsView);
+                preferences.addObserver(generalSettingsView);
+
+                PreferencesView preferencesView = new PreferencesView(preferences, panels);
+                preferencesView.init();
             }
         });
     }
@@ -135,9 +148,12 @@ public class AppLauncher extends App {
             public void run() {
                 _logger.debug("Setting AppLauncher GUI up.");
 
-                final JFrame frame = getFrame();
-                WindowUtils.centerOnMainScreen(frame);
-                frame.setVisible(true);
+                // Show Dock window if not hidden
+                if (_dockWindow != null) {
+                    final JFrame frame = getFrame();
+                    WindowUtils.centerOnMainScreen(frame);
+                    frame.setVisible(true);
+                }
             }
         });
     }
@@ -158,6 +174,15 @@ public class AppLauncher extends App {
         LocalLauncher.shutdown();
 
         super.onFinish();
+    }
+
+    /**
+     * Show the application frame and bring it to front only if the DockWindow is visible
+     */
+    public static void showFrameToFront() {
+        if (_dockWindow != null) {
+            App.showFrameToFront();
+        }
     }
 
     /**

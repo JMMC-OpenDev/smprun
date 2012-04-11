@@ -171,6 +171,14 @@ public final class ClientStub extends Observable implements JobListener {
         return _mTypes;
     }
 
+    private void setClientButtonEnabled(boolean state) {
+        // Only if DockWindow is visible
+        final DockWindow dockWindow = DockWindow.getInstance();
+        if (dockWindow != null) {
+            dockWindow.setClientButtonEnabled(this, state);
+        }
+    }
+
     /**
      * Define the job context identifier
      * @param jobContextId job context identifier to set
@@ -274,7 +282,7 @@ public final class ClientStub extends Observable implements JobListener {
 
             StatusBar.show("Starting '" + getApplicationName() + "' recipient ...");
 
-            DockWindow.getInstance().defineButtonEnabled(this, false);
+            setClientButtonEnabled(false);
 
             if (isConnected()) {
                 // only change state if this stub is running:
@@ -335,7 +343,7 @@ public final class ClientStub extends Observable implements JobListener {
 
                 // Update GUI
                 StatusBar.show("Failed to start " + getApplicationName() + ".");
-                DockWindow.getInstance().defineButtonEnabled(this, true);
+                setClientButtonEnabled(true);
             }
         }
     }
@@ -532,7 +540,7 @@ public final class ClientStub extends Observable implements JobListener {
                 // Update GUI
                 StatusBar.show("Started " + getApplicationName() + ".");
 
-                DockWindow.getInstance().defineButtonEnabled(this, true);
+                setClientButtonEnabled(true);
                 break;
 
             case STATE_FINISHED_ERROR:
@@ -575,7 +583,7 @@ public final class ClientStub extends Observable implements JobListener {
 
                 // Update GUI
                 StatusBar.show("Failed to start '" + getApplicationName() + "' recipient.");
-                DockWindow.getInstance().defineButtonEnabled(this, true);
+                setClientButtonEnabled(true);
 
                 break;
 

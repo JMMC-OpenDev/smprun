@@ -69,8 +69,12 @@ public class DockWindow extends JFrame implements Observer {
      */
     public static DockWindow getInstance() {
         if (_instance == null) {
-            _instance = new DockWindow();
-            _instance.init();
+            // Instantiate only if not hidden
+            final boolean shouldShowDockWindow = Preferences.getInstance().getPreferenceAsBoolean(PreferenceKey.SHOW_DOCK_WINDOW);
+            if (shouldShowDockWindow) {
+                _instance = new DockWindow();
+                _instance.init();
+            }
         }
         return _instance;
     }
@@ -321,7 +325,7 @@ public class DockWindow extends JFrame implements Observer {
      * @param client client stub to re-enable
      * @param enabled button state
      */
-    public void defineButtonEnabled(final ClientStub client, final boolean enabled) {
+    public void setClientButtonEnabled(final ClientStub client, final boolean enabled) {
         final JButton button = _buttonClients.get(client);
         if (button != null) {
             SwingUtils.invokeEDT(new Runnable() {
