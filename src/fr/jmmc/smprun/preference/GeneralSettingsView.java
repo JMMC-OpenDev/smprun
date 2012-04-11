@@ -37,8 +37,8 @@ public class GeneralSettingsView extends JPanel implements Observer, ChangeListe
 
         _booleanPreferencesHashMap = new LinkedHashMap<PreferenceKey, JCheckBox>();
         _booleanPreferencesHashMap.put(PreferenceKey.SHOW_DOCK_WINDOW, new JCheckBox("Show Dock window on startup"));
+        _booleanPreferencesHashMap.put(PreferenceKey.START_SELECTED_STUBS, new JCheckBox("Only provide SAMP support to your selected applications on startup"));
         //_booleanPreferencesHashMap.put(PreferenceKey.SHOW_EXIT_WARNING, new JCheckBox("Show warning before shuting down SAMP hub while quitting"));
-        _booleanPreferencesHashMap.put(PreferenceKey.START_SELECTED_STUBS, new JCheckBox("Only provide selected application SAMP handling on startup"));
     }
 
     public void init() {
