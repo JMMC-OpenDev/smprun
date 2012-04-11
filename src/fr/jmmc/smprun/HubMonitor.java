@@ -9,7 +9,6 @@ import fr.jmmc.jmcs.network.interop.SampMetaData;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprsc.data.stub.SampApplicationMetaData;
 import java.util.*;
-import java.util.logging.Logger;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import org.astrogrid.samp.Client;
@@ -17,6 +16,8 @@ import org.astrogrid.samp.Metadata;
 import org.astrogrid.samp.Subscriptions;
 import org.astrogrid.samp.gui.SubscribedClientListModel;
 import org.ivoa.util.concurrent.ThreadExecutors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Monitor hub connections (register / unregister) for MTypes corresponding to all client stubs.
@@ -26,7 +27,7 @@ import org.ivoa.util.concurrent.ThreadExecutors;
 public final class HubMonitor {
 
     /** Logger */
-    private static final Logger _logger = Logger.getLogger(HubMonitor.class.getName());
+    private static final Logger _logger = LoggerFactory.getLogger(HubMonitor.class.getName());
     /** HubMonitor singleton */
     private static final HubMonitor INSTANCE = new HubMonitor();
     /* members  */
@@ -62,19 +63,19 @@ public final class HubMonitor {
 
             @Override
             public void contentsChanged(final ListDataEvent e) {
-                _logger.entering("ListDataListener", "contentsChanged");
+                _logger.trace("ListDataListener", "contentsChanged");
                 handleHubEvent();
             }
 
             @Override
             public void intervalAdded(final ListDataEvent e) {
-                _logger.entering("ListDataListener", "intervalAdded");
+                _logger.trace("ListDataListener", "intervalAdded");
                 handleHubEvent();
             }
 
             @Override
             public void intervalRemoved(final ListDataEvent e) {
-                _logger.entering("ListDataListener", "intervalRemoved");
+                _logger.trace("ListDataListener", "intervalRemoved");
                 // note: this event is never invoked by JSamp code (1.3) !
                 handleHubEvent();
             }
@@ -262,7 +263,7 @@ public final class HubMonitor {
         // TODO : store previously dismissed apps in preference
 
         if (!_sniffedRealApplications.containsKey(name)) {
-            _logger.info("Sniffed new real application '" + name + "' : backed up its metadata and subscriptions.");
+            _logger.info("Sniffed new real application ''{0}'' : backed up its metadata and subscriptions.", name);
             SampApplicationMetaData stubMetaData = new SampApplicationMetaData(md, subscriptions);
             _sniffedRealApplications.put(name, stubMetaData);
             stubMetaData.reportToCentralRepository();
