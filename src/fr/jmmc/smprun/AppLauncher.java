@@ -164,11 +164,8 @@ public class AppLauncher extends App {
      */
     @Override
     public void onFinish() {
-
         // Properly disconnect connected clients:
-        for (ClientStub client : HubPopulator.getInstance().getClients()) {
-            client.disconnect();
-        }
+        HubPopulator.getInstance().disconnectAllStubs();
 
         // Stop job runner:
         LocalLauncher.shutdown();

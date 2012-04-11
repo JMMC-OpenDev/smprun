@@ -131,4 +131,13 @@ public class HubPopulator {
     public List<ClientStub> getClients() {
         return _clients;
     }
+
+    /**
+     * Properly disconnect connected clients
+     */
+    public void disconnectAllStubs() {
+        for (ClientStub client : _clients) {
+            client.disconnect();
+        }
+    }
 }
