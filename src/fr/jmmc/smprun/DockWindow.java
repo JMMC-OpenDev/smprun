@@ -59,6 +59,8 @@ public class DockWindow extends JFrame implements Observer {
     private final HashMap<ClientStub, JButton> _buttonClients = new HashMap<ClientStub, JButton>(8);
     /** User-chosen application name list */
     private final Preferences _preferences;
+    /** Unique application button action listener */
+    private final ActionListener _buttonActionListener;
 
     /**
      * Return the DockWindow singleton 
@@ -85,10 +87,31 @@ public class DockWindow extends JFrame implements Observer {
 
         _preferences = Preferences.getInstance();
 
+        _buttonActionListener = new ActionListener() {
+
+            /**
+             * Start client application when its icon is clicked
+             */
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+
+                if (e.getSource() instanceof JButton) {
+                    final JButton button = (JButton) e.getSource();
+
+                    final ClientStub stub = _clientButtons.get(button);
+
+                    // Start application in background:
+                    if (stub != null) {
+                        stub.launchRealApplication();
+                    }
+                }
+            }
+        };
+
         prepareFrame();
     }
 
-    public void init() {
+    private void init() {
 
         update(null, null);
 
@@ -139,7 +162,11 @@ public class DockWindow extends JFrame implements Observer {
                 if (observable == _preferences) {
                     _logger.debug("Removing all previous components on preference update.");
 
-                    // @TODO : remove button listerner before clearing map.
+                    // Remove button listerner before clearing map.
+                    for (JButton button : _buttonClients.values()) {
+                        button.removeActionListener(_buttonActionListener);
+                    }
+
                     _clientButtons.clear();
                     _buttonClients.clear();
 
@@ -206,29 +233,6 @@ public class DockWindow extends JFrame implements Observer {
             return null;
         }
 
-        // Create the button action listener once:
-        // TODO : Move it in the public class to easily remove it from button action listener before cleanup
-        final ActionListener buttonActionListener = new ActionListener() {
-
-            /**
-             * Start client application when its icon is clicked
-             */
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-
-                if (e.getSource() instanceof JButton) {
-                    final JButton button = (JButton) e.getSource();
-
-                    final ClientStub stub = _clientButtons.get(button);
-
-                    // Start application in background:
-                    if (stub != null) {
-                        stub.launchRealApplication();
-                    }
-                }
-            }
-        };
-
         boolean categoryIsEmpty = true;
 
         // Try to create GUI stuff for each visible and selected application
@@ -257,7 +261,7 @@ public class DockWindow extends JFrame implements Observer {
             _clientButtons.put(button, clientStub);
             _buttonClients.put(clientStub, button);
 
-            button.addActionListener(buttonActionListener);
+            button.addActionListener(_buttonActionListener);
 
             horizontalRowPane.add(button);
             horizontalRowPane.add(emptyRigidArea);
