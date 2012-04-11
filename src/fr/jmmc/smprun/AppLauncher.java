@@ -76,7 +76,7 @@ public class AppLauncher extends App {
         LocalLauncher.startUp();
 
         // First initialize the Client descriptions:
-        HubPopulator.getInstance();
+        HubPopulator.start();
 
         // Using invokeAndWait to be in sync with this thread :
         // note: invokeAndWaitEDT throws an IllegalStateException if any exception occurs

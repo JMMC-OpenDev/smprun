@@ -27,7 +27,7 @@ public class HubPopulator {
     /** Resource path prefix */
     private static final String RESOURCE_PATH_PREFIX = "fr/jmmc/smprun/resource/";
     /** HubPopulator singleton */
-    private static final HubPopulator _singleton = new HubPopulator();
+    private static HubPopulator _singleton = null;
     /* members */
     /** Client family  / client stub mapping */
     private EnumMap<Category, List<ClientStub>> _familyLists = new EnumMap<Category, List<ClientStub>>(Category.class);
@@ -39,7 +39,10 @@ public class HubPopulator {
      * Return the HubPopulator singleton
      * @return HubPopulator singleton
      */
-    public static HubPopulator getInstance() {
+    public static HubPopulator start() {
+        if (_singleton == null) {
+            _singleton = new HubPopulator();
+        }
         return _singleton;
     }
 
@@ -106,7 +109,7 @@ public class HubPopulator {
      */
     public static Map<String, ClientStub> getClientStubMap() {
 
-        return _singleton._clientStubMap;
+        return start()._clientStubMap;
     }
 
     /**
@@ -115,14 +118,14 @@ public class HubPopulator {
      * @return client stub or null if not found
      */
     public static ClientStub retrieveClientStub(final String name) {
-        return _singleton._clientStubMap.get(name);
+        return start()._clientStubMap.get(name);
     }
 
     /**
      * Properly disconnect connected clients
      */
     public static void disconnectAllStubs() {
-        for (ClientStub client : _singleton._clientStubMap.values()) {
+        for (ClientStub client : start()._clientStubMap.values()) {
             client.disconnect();
         }
     }
