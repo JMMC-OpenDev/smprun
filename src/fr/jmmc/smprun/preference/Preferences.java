@@ -53,7 +53,7 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         // By default always show dock window on startup
         setDefaultPreference(PreferenceKey.SHOW_DOCK_WINDOW, true);
         // By default always start all stubs
-        setDefaultPreference(PreferenceKey.START_ALL_STUBS, true);
+        setDefaultPreference(PreferenceKey.START_SELECTED_STUBS, false);
         // By default always show exit warning
         setDefaultPreference(PreferenceKey.SHOW_EXIT_WARNING, true);
         // By default always show JMC and ESSENTIALS applications

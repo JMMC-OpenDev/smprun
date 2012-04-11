@@ -11,7 +11,7 @@ public enum PreferenceKey {
 
         FIRST_START_FLAG("first.start.flag"),
         SHOW_DOCK_WINDOW("show.dock.window"),
-        START_ALL_STUBS("start.all.stubs"),
+        START_SELECTED_STUBS("start.selected.stubs"),
         SHOW_EXIT_WARNING("show.exit.warning"),
         SELECTED_APPLICATION_LIST("selected.application.list");
     
