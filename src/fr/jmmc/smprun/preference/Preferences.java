@@ -73,7 +73,7 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         } catch (MissingPreferenceException ex) {
             System.out.println("MissingPreferenceException = " + ex);
         } catch (PreferencesException ex) {
-            System.out.println("PreferencesException = "  +ex);
+            System.out.println("PreferencesException = " + ex);
         }
     }
 }
