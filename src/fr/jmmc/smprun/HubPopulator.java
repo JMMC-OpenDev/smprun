@@ -3,12 +3,16 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
+import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
+import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprsc.data.list.model.Category;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.StubMonitor;
 import fr.jmmc.smprsc.data.stub.SampApplicationMetaData;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
+import fr.jmmc.smprun.preference.PreferenceKey;
+import fr.jmmc.smprun.preference.Preferences;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,27 +50,55 @@ public class HubPopulator {
      */
     private HubPopulator() {
 
-        for (Category category : Category.values()) {
+        final List<String> selectedApplicationNames = loadSelectedApplicationListFromPreference();
 
-            _logger.trace("Loading {} category appications.", category.value());
+        // For each known category
+        for (Category currentCategory : Category.values()) {
 
-            List<ClientStub> clientList = new ArrayList<ClientStub>();
+            // Forge the list of stub for the current category
+            List<ClientStub> currentCategoryClientList = new ArrayList<ClientStub>();
 
-            // Forge each application description file resource path
-            List<String> applicationNames = StubRegistry.getCategoryApplicationNames(category); //.getCategoryApplicationResourcePaths(category);
+            // For each application name of the category
+            List<String> applicationNames = StubRegistry.getCategoryApplicationNames(currentCategory);
             for (String applicationName : applicationNames) {
 
-                final String forgedApplicationResourcePath = StubRegistry.forgeApplicationResourcePath(applicationName);
+                // If the current application stub should not be created (i.e was not selected by the iser)
+                if ((selectedApplicationNames != ALL) && (!selectedApplicationNames.contains(applicationName))) {
+                    System.out.println("Skipping unwanted '" + applicationName + "' application.");
+                    continue; // Skip stub creation
+                }
 
-                _logger.trace("Loading '{}' application data from resopurce '{}'.", applicationName, forgedApplicationResourcePath);
+                // Forge stub XML description file resource path
+                final String stubMetaDataResourcePAth = StubRegistry.forgeApplicationResourcePath(applicationName);
 
-                clientList.add(createClientStub(forgedApplicationResourcePath));
+                _logger.debug("Loading '{}' category's stub '{}' data from resource '{}'.", new Object[]{currentCategory.value(), applicationName, stubMetaDataResourcePAth});
+                final ClientStub newClientStub = createClientStub(stubMetaDataResourcePAth);
+                currentCategoryClientList.add(newClientStub);
             }
 
-            _familyLists.put(category, clientList);
+            _familyLists.put(currentCategory, currentCategoryClientList);
         }
 
         _logger.info("configuration: " + _familyLists);
+    }
+
+    private List<String> loadSelectedApplicationListFromPreference() throws MissingPreferenceException {
+
+        List<String> selectedApplicationNames = ALL;
+
+        final Preferences preferences = Preferences.getInstance();
+        try {
+            final boolean shouldOnlyStartSelectedStubs = preferences.getPreferenceAsBoolean(PreferenceKey.START_SELECTED_STUBS);
+            if (shouldOnlyStartSelectedStubs) {
+                selectedApplicationNames = preferences.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
+            }
+        } catch (MissingPreferenceException ex) {
+            _logger.error("MissingPreferenceException :", ex);
+        } catch (PreferencesException ex) {
+            _logger.error("PreferencesException :", ex);
+        }
+
+        return selectedApplicationNames;
     }
 
     /**
