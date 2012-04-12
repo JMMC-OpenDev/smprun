@@ -15,7 +15,7 @@ import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.smprun.preference.ApplicationListSelectionView;
-import fr.jmmc.smprun.preference.GeneralSettingsView;
+import fr.jmmc.jmcs.gui.component.BooleanSettingsView;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import java.awt.event.ActionEvent;
@@ -109,7 +109,11 @@ public class AppLauncher extends App {
                 preferences.addObserver(applicationListSelectionView);
 
                 // Create general settings pane
-                GeneralSettingsView generalSettingsView = new GeneralSettingsView();
+                LinkedHashMap<Object, String> generalSettingsMap = new LinkedHashMap<Object, String>();
+                generalSettingsMap.put(PreferenceKey.SHOW_DOCK_WINDOW, "Show Dock window on startup");
+                generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Only provide SAMP support to your selected applications on startup");
+                //generalSettingsMap.put(PreferenceKey.SHOW_EXIT_WARNING, "Show warning before shuting down SAMP hub while quitting");
+                BooleanSettingsView generalSettingsView = new BooleanSettingsView(preferences, generalSettingsMap);
                 generalSettingsView.init();
                 panels.put("General Settings", generalSettingsView);
                 preferences.addObserver(generalSettingsView);
