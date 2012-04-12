@@ -111,7 +111,7 @@ public class AppLauncher extends App {
                 // Create general settings pane
                 LinkedHashMap<Object, String> generalSettingsMap = new LinkedHashMap<Object, String>();
                 generalSettingsMap.put(PreferenceKey.SHOW_DOCK_WINDOW, "Show Dock window on startup");
-                generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Only provide SAMP support to your selected applications on startup");
+                generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Restrict SAMP support to your selected applications on startup");
                 //generalSettingsMap.put(PreferenceKey.SHOW_EXIT_WARNING, "Show warning before shuting down SAMP hub while quitting");
                 BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(preferences, generalSettingsMap);
                 generalSettingsView.init();
