@@ -56,4 +56,9 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
             _logger.error("PreferencesException :", ex);
         }
     }
+
+    @Override
+    protected boolean isApplicationBetaJnlpUrlInUse(String applicationName) {
+        return Preferences.getInstance().isApplicationNameBeta(applicationName);
+    }
 }

@@ -5,6 +5,7 @@ package fr.jmmc.smprun.preference;
 
 import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.slf4j.Logger;
@@ -61,6 +62,8 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         setDefaultPreference(PreferenceKey.SHOW_EXIT_WARNING, true);
         // By default always show JMMC and ESSENTIALS applications
         setDefaultPreference(PreferenceKey.SELECTED_APPLICATION_LIST, _defaultSelectedApplicationList);
+        // By default no application should be used as beta
+        setDefaultPreference(PreferenceKey.BETA_APPLICATION_LIST, new ArrayList<String>());
     }
 
     public List<String> getSelectedApplicationNames() {
@@ -86,6 +89,24 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         return false;
     }
 
+    public boolean isApplicationNameBeta(String applicationName) {
+
+        List<String> betaApplicationNameList = ALL_APPLICATIONS_SELECTED;
+
+        try {
+            betaApplicationNameList = getPreferenceAsStringList(PreferenceKey.BETA_APPLICATION_LIST);
+        } catch (MissingPreferenceException ex) {
+            _logger.error("MissingPreferenceException :", ex);
+        } catch (PreferencesException ex) {
+            _logger.error("PreferencesException :", ex);
+        }
+
+        if ((betaApplicationNameList == ALL_APPLICATIONS_SELECTED) || (betaApplicationNameList.contains(applicationName))) {
+            return true;
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
 
         final Preferences prefs = Preferences.getInstance();
@@ -96,6 +117,15 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         try {
             List<String> list = prefs.getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
             System.out.println("Selected Application List : " + list + "\n---------------");
+        } catch (MissingPreferenceException ex) {
+            System.out.println("MissingPreferenceException = " + ex);
+        } catch (PreferencesException ex) {
+            System.out.println("PreferencesException = " + ex);
+        }
+
+        try {
+            List<String> list = prefs.getPreferenceAsStringList(PreferenceKey.BETA_APPLICATION_LIST);
+            System.out.println("Beta Application List : " + list + "\n---------------");
         } catch (MissingPreferenceException ex) {
             System.out.println("MissingPreferenceException = " + ex);
         } catch (PreferencesException ex) {
