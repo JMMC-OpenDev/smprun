@@ -170,14 +170,14 @@ public class AppLauncher extends App {
      * @see App#exit(int)
      */
     @Override
-    public void onFinish() {
+    public void cleanup() {
         // Properly disconnect connected clients:
         HubPopulator.disconnectAllStubs();
 
         // Stop job runner:
         LocalLauncher.shutdown();
 
-        super.onFinish();
+        super.cleanup();
     }
 
     /**
