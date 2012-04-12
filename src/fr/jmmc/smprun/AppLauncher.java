@@ -113,7 +113,7 @@ public class AppLauncher extends App {
                 generalSettingsMap.put(PreferenceKey.SHOW_DOCK_WINDOW, "Show Dock window on startup");
                 generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Restrict SAMP support to your selected applications on startup");
                 //generalSettingsMap.put(PreferenceKey.SHOW_EXIT_WARNING, "Show warning before shuting down SAMP hub while quitting");
-                BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(preferences, generalSettingsMap);
+                BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(preferences, generalSettingsMap, BooleanPreferencesView.SAVE_AND_RESTART_MESSAGE);
                 generalSettingsView.init();
                 panels.put("General Settings", generalSettingsView);
                 preferences.addObserver(generalSettingsView);
