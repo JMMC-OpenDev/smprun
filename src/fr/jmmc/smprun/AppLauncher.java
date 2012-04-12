@@ -112,7 +112,7 @@ public class AppLauncher extends App {
                 LinkedHashMap<Object, String> generalSettingsMap = new LinkedHashMap<Object, String>();
                 generalSettingsMap.put(PreferenceKey.SHOW_DOCK_WINDOW, "Show Dock window on startup");
                 generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Restrict SAMP support to your selected applications on startup");
-                //generalSettingsMap.put(PreferenceKey.SHOW_EXIT_WARNING, "Show warning before shuting down SAMP hub while quitting");
+                generalSettingsMap.put(PreferenceKey.SHOW_EXIT_WARNING, "Show warning before shuting down SAMP hub while quitting");
                 BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(preferences, generalSettingsMap, BooleanPreferencesView.SAVE_AND_RESTART_MESSAGE);
                 generalSettingsView.init();
                 panels.put("General Settings", generalSettingsView);
@@ -163,6 +163,13 @@ public class AppLauncher extends App {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean shouldSilentlyKillSampHubOnQuit() {
+
+        final boolean shouldSilentlyKillSampHubOnQuit = !Preferences.getInstance().getPreferenceAsBoolean(PreferenceKey.SHOW_EXIT_WARNING);
+        return shouldSilentlyKillSampHubOnQuit;
     }
 
     /**

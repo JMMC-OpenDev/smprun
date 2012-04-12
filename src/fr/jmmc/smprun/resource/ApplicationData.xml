@@ -30,6 +30,7 @@
                 <change type="FEATURE">Added a preference tab for general settings.</change>
                 <change type="FEATURE">Added a preference to hide the Dock window on startup.</change>
                 <change type="FEATURE">Added a preference to restrict SAMP support to selected applications on startup.</change>
+                <change type="FEATURE">Added a preference to skip SAMP hub quitting confirmation message.</change>
             </prerelease>
             <prerelease version="1.0b10" tag="AL_V1_0b10">
                 <change type="FEATURE">Added a preference window to select Dock applications.</change>
