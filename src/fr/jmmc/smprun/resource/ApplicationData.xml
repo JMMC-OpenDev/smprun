@@ -11,7 +11,7 @@
 
     <program name="AppLauncher" version="1.0b11"/>
 
-    <compilation date="11/04/2012" compiler="JDK 1.5.0_16"/>
+    <compilation date="12/04/2012" compiler="JDK 1.5.0_16"/>
 
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools</text>
 
@@ -28,9 +28,11 @@
         <release version="1.0">
             <prerelease version="1.0b11" tag="AL_V1_0b11">
                 <change type="FEATURE">Added a preference tab for general settings.</change>
+                <change type="FEATURE">Added a preference to hide the Dock window on startup.</change>
+                <change type="FEATURE">Added a preference to restrict SAMP support to selected applications on startup.</change>
             </prerelease>
             <prerelease version="1.0b10" tag="AL_V1_0b10">
-                <change type="FEATURE">Added a preference window to select dock applications.</change>
+                <change type="FEATURE">Added a preference window to select Dock applications.</change>
             </prerelease>
             <prerelease version="1.0b9" tag="AL_V1_0b9">
                 <change type="CHANGE">Only wait before transfering waiting messages for lazy-starting applications.</change>
