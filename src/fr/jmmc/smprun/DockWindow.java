@@ -13,6 +13,7 @@ import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -44,6 +45,8 @@ import org.slf4j.LoggerFactory;
  */
 public class DockWindow extends JFrame implements Observer {
 
+    // Constants
+    private static final String BETA_SIGN = " ß";
     /** default serial UID for Serializable interface */
     private static final long serialVersionUID = 1;
     /** Logger */
@@ -239,7 +242,7 @@ public class DockWindow extends JFrame implements Observer {
         for (final String visibleClientName : visibleClientNames) {
 
             // If the current client has not been selected by the user
-            if (!Preferences.getInstance().isApplicationNameSelected(visibleClientName)) {
+            if (!_preferences.isApplicationNameSelected(visibleClientName)) {
                 continue; // Skip its creation
             }
 
@@ -312,9 +315,14 @@ public class DockWindow extends JFrame implements Observer {
         final int topVerticalMargin = squareSize - borderSize - newHeight; // Space to fill above if the icon is smaller than 64 pixels
         final Border border = new EmptyBorder(topVerticalMargin, midHorizontalMargin, borderSize, midHorizontalMargin);
 
-        // Horizontally center application name below its icon
+        // Horizontally center application name (with optional beta sign if needed) below its icon
         final JButton button = new JButton(clientIcon);
-        button.setText(clientName);
+        String buttonLabel = clientName;
+        if (_preferences.isApplicationReleaseBeta(clientName)) {
+            buttonLabel += BETA_SIGN;
+            button.setForeground(Color.RED);
+        }
+        button.setText(buttonLabel);
         button.setVerticalTextPosition(SwingConstants.BOTTOM);
         button.setHorizontalTextPosition(SwingConstants.CENTER);
         button.setBorder(border);
