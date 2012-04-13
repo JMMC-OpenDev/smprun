@@ -40,6 +40,7 @@ public class AppLauncher extends App {
     /** Export to SAMP action */
     public LaunchJnlpSampAutoTestAction _launchJnlpSampAutoTestAction;
     private static DockWindow _dockWindow = null;
+    private final Preferences _preferences;
 
     /**
      * Launch the AppLauncher application.
@@ -53,6 +54,7 @@ public class AppLauncher extends App {
         super(args);
         // For debugging purpose only, to dismiss splashscreen
         //super(args, false, true, false);
+        _preferences = Preferences.getInstance();
     }
 
     /**
@@ -100,7 +102,6 @@ public class AppLauncher extends App {
             private void preparePreferencesWindow() {
 
                 // Retrieve application preference panes and attach them to their view
-                final Preferences preferences = Preferences.getInstance();
                 LinkedHashMap<String, JPanel> panels = new LinkedHashMap<String, JPanel>();
 
                 // Create application selection pane
@@ -113,12 +114,12 @@ public class AppLauncher extends App {
                 generalSettingsMap.put(PreferenceKey.SHOW_DOCK_WINDOW, "Show Dock window on startup");
                 generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Restrict SAMP support to your selected applications on startup");
                 generalSettingsMap.put(PreferenceKey.SHOW_EXIT_WARNING, "Show warning before shuting down SAMP hub while quitting");
-                BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(preferences, generalSettingsMap, BooleanPreferencesView.SAVE_AND_RESTART_MESSAGE);
+                BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(_preferences, generalSettingsMap, BooleanPreferencesView.SAVE_AND_RESTART_MESSAGE);
                 generalSettingsView.init();
                 panels.put("General Settings", generalSettingsView);
 
                 // Finalize prefence window
-                PreferencesView preferencesView = new PreferencesView(preferences, panels);
+                PreferencesView preferencesView = new PreferencesView(_preferences, panels);
                 preferencesView.init();
             }
         });
@@ -167,7 +168,7 @@ public class AppLauncher extends App {
     @Override
     public boolean shouldSilentlyKillSampHubOnQuit() {
 
-        final boolean shouldSilentlyKillSampHubOnQuit = !Preferences.getInstance().getPreferenceAsBoolean(PreferenceKey.SHOW_EXIT_WARNING);
+        final boolean shouldSilentlyKillSampHubOnQuit = !_preferences.getPreferenceAsBoolean(PreferenceKey.SHOW_EXIT_WARNING);
         return shouldSilentlyKillSampHubOnQuit;
     }
 
@@ -225,8 +226,7 @@ public class AppLauncher extends App {
     private boolean checkJnlpSampAbilitiesOnFirstRun() {
 
         // If it is the first time ever AppLauncher is started
-        Preferences preferences = Preferences.getInstance();
-        if (preferences.getPreferenceAsBoolean(PreferenceKey.FIRST_START_FLAG) == true) {
+        if (_preferences.getPreferenceAsBoolean(PreferenceKey.FIRST_START_FLAG) == true) {
 
             _logger.info("First time AppLauncher is starting (no preference file found).");
 
@@ -240,8 +240,8 @@ public class AppLauncher extends App {
 
                 // Create preference file to skip this test for future starts
                 try {
-                    preferences.setPreference(PreferenceKey.FIRST_START_FLAG, false);
-                    preferences.saveToFile();
+                    _preferences.setPreference(PreferenceKey.FIRST_START_FLAG, false);
+                    _preferences.saveToFile();
                 } catch (PreferencesException ex) {
                     _logger.warn("Could not write to preference file :", ex);
                 }
