@@ -141,7 +141,7 @@ public class AppLauncher extends App {
 
         // Perform JNLP/SAMP auto-test on first AppLauncher start
         if (!checkJnlpSampAbilitiesOnFirstRun()) {
-            return; // Stop execution right now if auto-test failed
+            throw new RuntimeException("Could not perform SAMP auto-test succesfully. Please report !");
         }
 
         // If JNLP/SAMP startup test went fine
