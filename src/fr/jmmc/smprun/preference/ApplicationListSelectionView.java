@@ -66,10 +66,6 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
             return;
         }
 
-        if (stringList.size() == 0) {
-            return;
-        }
-
         try {
             _preferences.setPreference(preference, stringList);
         } catch (PreferencesException ex) {
