@@ -89,7 +89,7 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         return false;
     }
 
-    public boolean isApplicationNameBeta(String applicationName) {
+    public boolean isApplicationReleaseBeta(String applicationName) {
 
         List<String> betaApplicationNameList = ALL_APPLICATIONS_SELECTED;
 
