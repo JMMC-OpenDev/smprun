@@ -38,7 +38,7 @@ public class JnlpStarter {
      */
     public static Long launch(final ClientStub client) throws IllegalStateException {
 
-        final String jnlpUrl = client.getJnlpUrl();
+        final String jnlpUrl = client.getFinalJnlpUrl();
 
         if (_logger.isLoggable(Level.INFO)) {
             _logger.info("launch: " + jnlpUrl);
