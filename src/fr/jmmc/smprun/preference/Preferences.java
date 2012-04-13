@@ -68,17 +68,26 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
 
     public List<String> getSelectedApplicationNames() {
 
-        List<String> selectedApplicationList = ALL_APPLICATIONS_SELECTED;
+        return getStringListPreference(PreferenceKey.SELECTED_APPLICATION_LIST);
+    }
+
+    public List<String> getBetaApplicationNames() {
+
+        return getStringListPreference(PreferenceKey.BETA_APPLICATION_LIST);
+    }
+
+    private List<String> getStringListPreference(PreferenceKey preference) {
+        List<String> stringList = ALL_APPLICATIONS_SELECTED;
 
         try {
-            selectedApplicationList = getPreferenceAsStringList(PreferenceKey.SELECTED_APPLICATION_LIST);
+            stringList = getPreferenceAsStringList(preference);
         } catch (MissingPreferenceException ex) {
             _logger.error("MissingPreferenceException :", ex);
         } catch (PreferencesException ex) {
             _logger.error("PreferencesException :", ex);
         }
 
-        return selectedApplicationList;
+        return stringList;
     }
 
     public boolean isApplicationNameSelected(String applicationName) {
