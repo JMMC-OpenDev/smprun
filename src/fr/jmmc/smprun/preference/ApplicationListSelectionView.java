@@ -25,7 +25,11 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
         _preferences = Preferences.getInstance();
     }
 
+    @Override
     public void init() {
+
+        super.init();
+
         update(null, null);
         _preferences.addObserver(this);
     }
