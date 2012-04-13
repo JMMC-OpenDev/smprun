@@ -16,6 +16,7 @@ import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.smprun.preference.ApplicationListSelectionView;
 import fr.jmmc.jmcs.gui.component.BooleanPreferencesView;
+import fr.jmmc.jmcs.gui.component.MessagePane;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import java.awt.event.ActionEvent;
@@ -35,12 +36,22 @@ import org.slf4j.LoggerFactory;
  */
 public class AppLauncher extends App {
 
+    private final String WELCOME_MESSAGE = "\tWelcome to AppLauncher !!!\n"
+            + "\n"
+            + "And thank you for your confidence in the JMMC automatic SAMP application launcher.\n"
+            + "\n"
+            + " - First, an auto-test procedure will proceed (after you clicked 'OK') to confirm everything is fine for AppLauncher to work well;\n\n"
+            + " - You can configure (among other things) which applications are shown in the Dock using the preferences window;\n\n"
+            + " - Further documentation is available directly from the Help menu, so don't hesitate to have a look;\n\n"
+            + " - You can easily provide (greatly appreciated) feedback and bug reports to us from the dedicated entry in the Help menu.\n"
+            + "\n"
+            + "We hope you will appreciate using AppLauncher as much as we had fun making it !";
     /** Logger */
     protected static final Logger _logger = LoggerFactory.getLogger(AppLauncher.class.getName());
     /** Export to SAMP action */
     public LaunchJnlpSampAutoTestAction _launchJnlpSampAutoTestAction;
     private static DockWindow _dockWindow = null;
-    private final Preferences _preferences;
+    private Preferences _preferences;
 
     /**
      * Launch the AppLauncher application.
@@ -54,7 +65,6 @@ public class AppLauncher extends App {
         super(args);
         // For debugging purpose only, to dismiss splashscreen
         //super(args, false, true, false);
-        _preferences = Preferences.getInstance();
     }
 
     /**
@@ -65,6 +75,8 @@ public class AppLauncher extends App {
      */
     @Override
     protected void init(final String[] args) {
+
+        _preferences = Preferences.getInstance();
 
         _launchJnlpSampAutoTestAction = new LaunchJnlpSampAutoTestAction(getClass().getName(), "_launchJnlpSampAutoTestAction");
 
@@ -93,6 +105,7 @@ public class AppLauncher extends App {
                 // Prepare dock window
                 _dockWindow = DockWindow.getInstance();
                 App.setFrame(_dockWindow);
+                WindowUtils.centerOnMainScreen(_dockWindow);
 
                 preparePreferencesWindow();
 
@@ -140,10 +153,8 @@ public class AppLauncher extends App {
     @Override
     protected void execute() {
 
-        // Perform JNLP/SAMP auto-test on first AppLauncher start
-        if (!checkJnlpSampAbilitiesOnFirstRun()) {
-            throw new RuntimeException("Could not perform SAMP auto-test succesfully. Please report !");
-        }
+        // Show Welcome pane and perform JNLP/SAMP auto-test on first AppLauncher start
+        performFirstRunTasks();
 
         // If JNLP/SAMP startup test went fine
         SwingUtils.invokeLaterEDT(new Runnable() {
@@ -158,7 +169,6 @@ public class AppLauncher extends App {
                 // Show Dock window if not hidden
                 if (_dockWindow != null) {
                     final JFrame frame = getFrame();
-                    WindowUtils.centerOnMainScreen(frame);
                     frame.setVisible(true);
                 }
             }
@@ -197,58 +207,36 @@ public class AppLauncher extends App {
     }
 
     /**
-     * Main entry point
-     *
-     * @param args command line arguments (open file ...)
-     */
-    @SuppressWarnings("ResultOfObjectAllocationIgnored")
-    public static void main(final String[] args) {
-
-        // To ensure the use of TriStateCheckBoxes in the Jide CheckBoxTree
-        LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
-
-        // init swing application for science
-        SwingSettings.setup();
-
-        final long start = System.nanoTime();
-        try {
-            // Start application with the command line arguments
-            new AppLauncher(args);
-        } finally {
-            final long time = (System.nanoTime() - start);
-            _logger.debug("Startup duration = {} ms.", 1e-6d * time);
-        }
-    }
-
-    /**
      * @return true if the test went fine, false otherwise
      */
-    private boolean checkJnlpSampAbilitiesOnFirstRun() {
+    private void performFirstRunTasks() {
 
         // If it is the first time ever AppLauncher is started
-        if (_preferences.getPreferenceAsBoolean(PreferenceKey.FIRST_START_FLAG) == true) {
-
-            _logger.info("First time AppLauncher is starting (no preference file found).");
-
-            // Run JNLP/SAMP abailities test
-            if (!checkJnlpSampAbilities()) {
-                _logger.error("Could not succesfully perform JNLP/SAMP auto-test, aborting.");
-                return false;
-            } else {
-
-                _logger.info("Succesfully performed JNLP/SAMP auto-test.");
-
-                // Create preference file to skip this test for future starts
-                try {
-                    _preferences.setPreference(PreferenceKey.FIRST_START_FLAG, false);
-                    _preferences.saveToFile();
-                } catch (PreferencesException ex) {
-                    _logger.warn("Could not write to preference file :", ex);
-                }
-            }
+        final boolean isFirstRun = _preferences.getPreferenceAsBoolean(PreferenceKey.FIRST_START_FLAG);
+        if (!isFirstRun) {
+            return; // Skip first run tasks
         }
 
-        return true;
+        _logger.info("First time AppLauncher is starting (no preference file found).");
+
+        // Show a Welcome pane
+        MessagePane.showMessage(WELCOME_MESSAGE, "Welcome to AppLauncher !!!");
+
+        // Run JNLP/SAMP abailities test
+        if (!checkJnlpSampAbilities()) {
+            _logger.error("Could not succesfully perform JNLP/SAMP auto-test, aborting.");
+            return;
+        }
+
+        _logger.info("Succesfully performed first run tasks.");
+
+        // Create preference file to skip this test for future starts
+        try {
+            _preferences.setPreference(PreferenceKey.FIRST_START_FLAG, false);
+            _preferences.saveToFile();
+        } catch (PreferencesException ex) {
+            _logger.warn("Could not write to preference file :", ex);
+        }
     }
 
     /**
@@ -288,6 +276,30 @@ public class AppLauncher extends App {
         @Override
         public void actionPerformed(ActionEvent ae) {
             checkJnlpSampAbilities();
+        }
+    }
+
+    /**
+     * Main entry point
+     *
+     * @param args command line arguments (open file ...)
+     */
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
+    public static void main(final String[] args) {
+
+        // To ensure the use of TriStateCheckBoxes in the Jide CheckBoxTree
+        LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
+
+        // init swing application for science
+        SwingSettings.setup();
+
+        final long start = System.nanoTime();
+        try {
+            // Start application with the command line arguments
+            new AppLauncher(args);
+        } finally {
+            final long time = (System.nanoTime() - start);
+            _logger.debug("Startup duration = {} ms.", 1e-6d * time);
         }
     }
 }

@@ -27,6 +27,7 @@
     <releasenotes>
         <release version="1.0">
             <prerelease version="1.0b13" tag="AL_V1_0b13">
+                <change type="FEATURE">Added a welcome message on first launch.</change>
                 <change type="CHANGE">Now raise a FeedBack report window in case SAMP auto-test failed.</change>
             </prerelease>
             <prerelease version="1.0b12" tag="AL_V1_0b12">
