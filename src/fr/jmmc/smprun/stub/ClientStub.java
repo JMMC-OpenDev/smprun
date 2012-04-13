@@ -12,14 +12,13 @@ import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprun.DockWindow;
 import fr.jmmc.smprun.JnlpStarter;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
-import java.net.URL;
+import fr.jmmc.smprun.preference.Preferences;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Queue;
-import java.util.logging.Level;
 import javax.swing.ImageIcon;
 
 import org.astrogrid.samp.Message;
@@ -38,6 +37,8 @@ import org.ivoa.util.runner.RootContext;
 import org.ivoa.util.runner.RunContext;
 import org.ivoa.util.runner.RunState;
 import org.ivoa.util.runner.process.ProcessContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Registers a fake application to the hub, and later dispatch any received message to the freshly started recipient.
@@ -47,7 +48,7 @@ import org.ivoa.util.runner.process.ProcessContext;
 public final class ClientStub extends Observable implements JobListener {
 
     /** Class logger */
-    private static final java.util.logging.Logger _logger = java.util.logging.Logger.getLogger(ClientStub.class.getName());
+    private static final Logger _logger = LoggerFactory.getLogger(ClientStub.class.getName());
     /* members : app meta data object */
     /** Store desired stub application meta data */
     private final Metadata _description;
@@ -55,8 +56,6 @@ public final class ClientStub extends Observable implements JobListener {
     private final String _applicationName;
     /** Store desired stub SAMP capabilities */
     private final SampCapability[] _mTypes;
-    /** Store desired JNLP URL */
-    private final String _jnlpUrl;
     /** sleep delay in milliseconds before sending the samp message (application startup workaround) */
     private final long _sleepDelayBeforeNotify;
     /** log prefix */
@@ -93,7 +92,6 @@ public final class ClientStub extends Observable implements JobListener {
         // Retrieve real application name, JNLP URL and startup delay
         _applicationName = _description.getName();
         _logPrefix = "Stub['" + _applicationName + "'] : ";
-        _jnlpUrl = _description.getString(SampMetaData.JNLP_URL.id());
         _sleepDelayBeforeNotify = data.getLag().intValue();
 
         // Add a custom flag to all our created STUB for later skipping while looking for real recipients
@@ -108,12 +106,12 @@ public final class ClientStub extends Observable implements JobListener {
 
             // Do not register SAMP internal or likely broadcasted capabilities
             if (sampCapability.isFlagged()) {
-                _logger.fine(_logPrefix + "Looks like '" + capability + "' SAMP capability is either broadcastable or of internal use ... skipping.");
+                _logger.debug(_logPrefix + "Looks like '" + capability + "' SAMP capability is either broadcastable or of internal use ... skipping.");
                 continue;
             }
             // Do not register UNKNOWN capabilities
             if (sampCapability == SampCapability.UNKNOWN) {
-                _logger.warning(_logPrefix + "Could not retrieve '" + capability + "' unknown SAMP capability ... skipping.");
+                _logger.warn(_logPrefix + "Could not retrieve '" + capability + "' unknown SAMP capability ... skipping.");
                 continue;
             }
 
@@ -158,10 +156,19 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
-     * @return the JNLP URL
+     * @return the good JNLP URL, whether production or beta one according to user preferences current state.
      */
-    public String getJnlpUrl() {
-        return _jnlpUrl;
+    public String getFinalJnlpUrl() {
+
+        final List<String> betaApplicationNames = Preferences.getInstance().getBetaApplicationNames();
+
+        SampMetaData sampFinalJnlpId = SampMetaData.JNLP_URL;
+        if (betaApplicationNames.contains(_applicationName)) {
+            sampFinalJnlpId = SampMetaData.JNLP_BETA_URL;
+        }
+
+        final String finalJnlpUrl = _description.getString(sampFinalJnlpId.id());
+        return finalJnlpUrl;
     }
 
     /**
@@ -289,7 +296,7 @@ public final class ClientStub extends Observable implements JobListener {
                 setState(ClientStubState.LAUNCHING);
             }
 
-            _logger.info(_logPrefix + "Launching JNLP '" + _jnlpUrl + "' ...");
+            _logger.info(_logPrefix + "Launching JNLP '" + getFinalJnlpUrl() + "' ...");
 
             // get the process context to be able to kill it later ...
             setJobContextId(JnlpStarter.launch(this));
@@ -327,9 +334,9 @@ public final class ClientStub extends Observable implements JobListener {
 
                 // Handle error
                 if (!_messages.isEmpty()) {
-                    _logger.severe(_logPrefix + "Unable to deliver '" + _messages.size() + "' message(s) :");
+                    _logger.error(_logPrefix + "Unable to deliver '" + _messages.size() + "' message(s) :");
                     for (Message msg : _messages) {
-                        _logger.severe("\t- '" + msg + "';");
+                        _logger.error("\t- '" + msg + "';");
                     }
 
                     // @TODO : MessagePane ... => State = FAILED => Window (hide)
@@ -488,7 +495,7 @@ public final class ClientStub extends Observable implements JobListener {
                                 try {
                                     _connector.getConnection().notify(recipientId, msg);
                                 } catch (SampException se) {
-                                    _logger.log(Level.SEVERE, "Samp notication exception", se);
+                                    _logger.error("Samp notication exception", se);
                                 }
                                 _logger.info(_logPrefix + "Forwarded message (" + messageIndex + "/" + nbOfMessages + ").");
                             } else {
@@ -566,9 +573,9 @@ public final class ClientStub extends Observable implements JobListener {
 
                     // Handle error
                     if (!_messages.isEmpty()) {
-                        _logger.severe(_logPrefix + "Unable to deliver '" + _messages.size() + "' message(s) :");
+                        _logger.error(_logPrefix + "Unable to deliver '" + _messages.size() + "' message(s) :");
                         for (Message msg : _messages) {
-                            _logger.severe("\t- '" + msg + "';");
+                            _logger.error("\t- '" + msg + "';");
                         }
 
                         // MessagePane ... => State= FAILED => Window (hide)
@@ -601,9 +608,7 @@ public final class ClientStub extends Observable implements JobListener {
      */
     @Override
     public void performTaskEvent(final RootContext jobContext, final RunContext runCtx) {
-        if (_logger.isLoggable(Level.FINE)) {
-            _logger.fine(_logPrefix + "job : " + runCtx);
-        }
+        _logger.debug(_logPrefix + "job : " + runCtx);
     }
 
     /**
