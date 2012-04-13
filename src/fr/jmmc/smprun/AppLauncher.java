@@ -105,8 +105,8 @@ public class AppLauncher extends App {
 
                 // Create application selection pane
                 ApplicationListSelectionView applicationListSelectionView = new ApplicationListSelectionView();
+                applicationListSelectionView.init();
                 panels.put("Application Selection", applicationListSelectionView);
-                preferences.addObserver(applicationListSelectionView);
 
                 // Create general settings pane
                 LinkedHashMap<Object, String> generalSettingsMap = new LinkedHashMap<Object, String>();
@@ -116,7 +116,6 @@ public class AppLauncher extends App {
                 BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(preferences, generalSettingsMap, BooleanPreferencesView.SAVE_AND_RESTART_MESSAGE);
                 generalSettingsView.init();
                 panels.put("General Settings", generalSettingsView);
-                preferences.addObserver(generalSettingsView);
 
                 // Finalize prefence window
                 PreferencesView preferencesView = new PreferencesView(preferences, panels);
