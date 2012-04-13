@@ -9,9 +9,9 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.0b11"/>
+    <program name="AppLauncher" version="1.0b12"/>
 
-    <compilation date="12/04/2012" compiler="JDK 1.5.0_16"/>
+    <compilation date="13/04/2012" compiler="JDK 1.5.0_16"/>
 
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools</text>
 
@@ -26,6 +26,9 @@
 
     <releasenotes>
         <release version="1.0">
+            <prerelease version="1.0b12" tag="AL_V1_0b12">
+                <change type="FEATURE">Added a preference to use beta version of applications in priority.</change>
+            </prerelease>
             <prerelease version="1.0b11" tag="AL_V1_0b11">
                 <change type="FEATURE">Added a preference tab for general settings.</change>
                 <change type="FEATURE">Added a preference to hide the Dock window on startup.</change>
