@@ -94,7 +94,7 @@ public class HubPopulator {
      */
     private ClientStub createClientStub(final String resourcePath) {
 
-        SampStub data = SampApplicationMetaData.loadSampSubFromResourcePath(resourcePath);
+        SampStub data = SampApplicationMetaData.loadSampStubFromResourcePath(resourcePath);
         final ClientStub client = new ClientStub(data);
         client.addObserver(new StubMonitor());
 
