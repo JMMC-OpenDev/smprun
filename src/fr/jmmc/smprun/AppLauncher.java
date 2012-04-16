@@ -16,7 +16,7 @@ import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.smprun.preference.ApplicationListSelectionView;
 import fr.jmmc.jmcs.gui.component.BooleanPreferencesView;
-import fr.jmmc.jmcs.gui.component.MessagePane;
+import fr.jmmc.jmcs.gui.component.ResizableTextViewFactory;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import java.awt.event.ActionEvent;
@@ -36,16 +36,17 @@ import org.slf4j.LoggerFactory;
  */
 public class AppLauncher extends App {
 
-    private final String WELCOME_MESSAGE = "\tWelcome to AppLauncher !!!\n"
-            + "\n"
-            + "And thank you for your confidence in the JMMC automatic SAMP application launcher.\n"
-            + "\n"
-            + " - First, an auto-test procedure will proceed (after you clicked 'OK') to confirm everything is fine for AppLauncher to work well;\n\n"
-            + " - You can configure (among other things) which applications are shown in the Dock using the preferences window;\n\n"
-            + " - Further documentation is available directly from the Help menu, so don't hesitate to have a look;\n\n"
-            + " - You can easily provide (greatly appreciated) feedback and bug reports to us from the dedicated entry in the Help menu.\n"
-            + "\n"
-            + "We hope you will appreciate using AppLauncher as much as we had fun making it !";
+    private final static String WELCOME_MESSAGE = "<HTML><HEAD></HEAD><BODY>"
+            + "<CENTER><H2>Welcome to AppLauncher !!!</H2></CENTER>"
+            + "<BR/>"
+            + "And thank you for your confidence in the JMMC automatic SAMP application launcher.<BR/>"
+            + "<BR/>"
+            + "- First, an auto-test procedure will now proceed to confirm everything is fine for AppLauncher to work well;<BR/>"
+            + "- You can customize (among other things) which applications are shown in the Dock using the preferences window;<BR/>"
+            + "- Further documentation is available directly from the Help menu, so don't hesitate to have a look;<BR/>"
+            + "- You can easily provide (greatly appreciated) feedback and bug reports to us from the dedicated entry in the Help menu.<BR/>"
+            + "<BR/>"
+            + "<B>We hope you will appreciate using AppLauncher as much as we had fun making it !</B>";
     /** Logger */
     protected static final Logger _logger = LoggerFactory.getLogger(AppLauncher.class.getName());
     /** Export to SAMP action */
@@ -220,9 +221,10 @@ public class AppLauncher extends App {
         _logger.info("First time AppLauncher is starting (no preference file found).");
 
         // Show a Welcome pane
-        MessagePane.showMessage(WELCOME_MESSAGE, "Welcome to AppLauncher !!!");
+        ResizableTextViewFactory.createHtmlWindow(WELCOME_MESSAGE, "Welcome to AppLauncher !!!");
 
         // Run JNLP/SAMP abailities test
+        // TODO : Do not work anymore ?!?
         if (!checkJnlpSampAbilities()) {
             _logger.error("Could not succesfully perform JNLP/SAMP auto-test, aborting.");
             return;
