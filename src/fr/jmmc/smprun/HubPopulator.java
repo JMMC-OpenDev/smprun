@@ -67,7 +67,7 @@ public class HubPopulator {
 
                     // If the current application stub should not be created (i.e was not selected by the iser)
                     if (!preferences.isApplicationNameSelected(applicationName)) {
-                        System.out.println("Skipping unwanted '" + applicationName + "' application.");
+                        _logger.debug("Skipping unwanted '{}' application.", applicationName);
                         continue; // Skip stub creation
                     }
                 }
@@ -80,7 +80,7 @@ public class HubPopulator {
             _familyLists.put(currentCategory, currentCategoryClientList);
         }
 
-        _logger.info("configuration: " + _familyLists);
+        _logger.info("configuration: {}", _familyLists);
     }
 
     /**

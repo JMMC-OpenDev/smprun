@@ -64,19 +64,19 @@ public final class HubMonitor {
 
             @Override
             public void contentsChanged(final ListDataEvent e) {
-                _logger.trace("ListDataListener", "contentsChanged");
+                _logger.trace("ListDataListener.contentsChanged");
                 handleHubEvent();
             }
 
             @Override
             public void intervalAdded(final ListDataEvent e) {
-                _logger.trace("ListDataListener", "intervalAdded");
+                _logger.trace("ListDataListener.intervalAdded");
                 handleHubEvent();
             }
 
             @Override
             public void intervalRemoved(final ListDataEvent e) {
-                _logger.trace("ListDataListener", "intervalRemoved");
+                _logger.trace("ListDataListener.intervalRemoved");
                 // note: this event is never invoked by JSamp code (1.3) !
                 handleHubEvent();
             }

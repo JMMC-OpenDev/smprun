@@ -10,10 +10,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
-import java.util.logging.Level;
 import javax.swing.JButton;
 import javax.swing.JProgressBar;
 import javax.swing.Timer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Monitor Window controller.
@@ -23,7 +24,7 @@ import javax.swing.Timer;
 public class StubMonitor implements Observer {
 
     /** Class logger */
-    private static final java.util.logging.Logger _logger = java.util.logging.Logger.getLogger(StubMonitor.class.getName());
+    private static final Logger _logger = LoggerFactory.getLogger(StubMonitor.class.getName());
     /** auto hide delay in milliseconds */
     public final static int AUTO_HIDE_DELAY = 3000;
     /* members */
@@ -70,8 +71,8 @@ public class StubMonitor implements Observer {
         final int minStep = ClientStubState.LISTENING.step();
         final int maxStep = ClientStubState.DIYING.step();
 
-        if (_logger.isLoggable(Level.FINE)) {
-            _logger.fine("StubMonitor['" + applicationName + "'] : '" + state.message() + "' (" + step + " / " + maxStep + ").");
+        if (_logger.isDebugEnabled()) {
+            _logger.debug("StubMonitor['{}'] : '{}' ({} / {}).", new Object[]{applicationName, state.message(), step, maxStep});
         }
 
         // Do not display initialization statuses:

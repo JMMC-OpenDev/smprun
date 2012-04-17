@@ -5,9 +5,10 @@ package fr.jmmc.smprun;
 
 import fr.jmmc.jmcs.util.FileUtils;
 import fr.jmmc.smprun.stub.ClientStub;
-import java.util.logging.Level;
 import org.ivoa.util.runner.LocalLauncher;
 import org.ivoa.util.runner.RootContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wrapper on http://code.google.com/p/vo-urp/ task runner.
@@ -17,7 +18,7 @@ import org.ivoa.util.runner.RootContext;
 public class JnlpStarter {
 
     /** Class logger */
-    private static final java.util.logging.Logger _logger = java.util.logging.Logger.getLogger(JnlpStarter.class.getName());
+    private static final Logger _logger = LoggerFactory.getLogger(JnlpStarter.class.getName());
     /** application identifier for LocalLauncher */
     public final static String APP_NAME = "JnlpStarter";
     /** user for LocalLauncher */
@@ -40,15 +41,13 @@ public class JnlpStarter {
 
         final String jnlpUrl = client.getFinalJnlpUrl();
 
-        if (_logger.isLoggable(Level.INFO)) {
-            _logger.info("launch: " + jnlpUrl);
-        }
+        _logger.info("launch: {}", jnlpUrl);
 
         // create the execution context without log file:
         final RootContext jobContext = LocalLauncher.prepareMainJob(APP_NAME, USER_NAME, FileUtils.getTempDirPath(), null);
 
         // command line: 'javaws -Xnosplash <jnlpUrl>'
-        LocalLauncher.prepareChildJob(jobContext, TASK_NAME, new String[]{"javaws", "-Xnosplash", jnlpUrl});
+        LocalLauncher.prepareChildJob(jobContext, TASK_NAME, new String[]{"javaws", "-verbose", "-Xnosplash", jnlpUrl});
 
         // puts the job in the job queue :
         // can throw IllegalStateException if job not queued :
