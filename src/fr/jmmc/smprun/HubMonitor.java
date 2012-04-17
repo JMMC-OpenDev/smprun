@@ -9,7 +9,12 @@ import fr.jmmc.jmcs.network.interop.SampMetaData;
 import fr.jmmc.smprsc.data.list.StubRegistry;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprsc.data.stub.StubMetaData;
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import org.astrogrid.samp.Client;
@@ -95,8 +100,6 @@ public final class HubMonitor {
      * @return A String array containing all listened mTypes.
      */
     private static String[] ComputeMTypeArray() {
-        _logger.info("ComputeMTypeArray()");
-
         final HashSet<String> mTypesSet = new HashSet<String>();
 
         for (SampCapability capability : SampCapability.values()) {
@@ -105,7 +108,7 @@ public final class HubMonitor {
             }
         }
 
-        _logger.info("monitoring MTypes       = " + mTypesSet);
+        _logger.info("monitoring MTypes: {}", mTypesSet);
 
         // Get a dynamic list of SAMP clients able to respond to the specified capability.
         final String[] mTypesStrings = new String[mTypesSet.size()];
@@ -159,7 +162,7 @@ public final class HubMonitor {
      * @param clients current hub registered clients
      */
     private void loopOverHubClients(final Client[] clients) {
-        _logger.info("loopOverHubClients() invoked by thread [" + Thread.currentThread() + "]");
+        _logger.info("loopOverHubClients() - start");
 
         final Collection<ClientStub> clientStubList = HubPopulator.getClientStubMap().values();
         for (ClientStub stub : clientStubList) {
@@ -181,11 +184,11 @@ public final class HubMonitor {
                     // If current client is one of our STUB
                     Object clientIsAStubFlag = md.get(SampMetaData.getStubMetaDataId(clientName));
                     if (SampMetaData.STUB_TOKEN.equals(clientIsAStubFlag)) {
-                        _logger.info("Found STUB recipient '" + clientName + "' [" + recipientId + "] : leaving it alone.");
+                        _logger.info("Found STUB recipient '{}' [{}]: leaving it alone.", clientName, recipientId);
                     } else {
 
                         if (stub.isConnected()) {
-                            _logger.info("Found REAL recipient '" + clientName + "' [" + recipientId + "] : running STUB trickery !");
+                            _logger.info("Found REAL recipient '{}' [{}]: running STUB trickery !", clientName, recipientId);
 
                             // Retrieve real application metadata for sniffing purpose
                             retrieveRealRecipientMetadata(client);
@@ -193,7 +196,7 @@ public final class HubMonitor {
                             // Perform callback on client stub in background
                             handleNewRealRecipientDetection(stub, recipientId);
                         } else {
-                            _logger.info("Found REAL recipient '" + clientName + "' [" + recipientId + "] : but the STUB is already disconnected.");
+                            _logger.info("Found REAL recipient '{}' [{}]: but the STUB is already disconnected.", clientName, recipientId);
                         }
                     }
 
@@ -206,9 +209,9 @@ public final class HubMonitor {
 
                 if (stub.isConnected()) {
                     // Could not append !!! If the stub is already connected, a client was necesserarly found.
-                    _logger.info("Found NO recipient at all for '" + stubName + "' : but the STUB is already connected.");
+                    _logger.info("Found NO recipient at all for '{}': but the STUB is already connected.", stubName);
                 } else {
-                    _logger.info("Found NO recipient at all for '" + stubName + "' : scheduling corresponding STUB startup.");
+                    _logger.info("Found NO recipient at all for '{}': scheduling corresponding STUB startup.", stubName);
 
                     // Schedule stub for startup (by adding it to the unique set of client stubs to start asap)
                     _clientStubsToStart.add(stub);
@@ -217,14 +220,14 @@ public final class HubMonitor {
         }
 
         if (isThereSomeStubsLeftToStart()) {
-            _logger.info("Stub recipients waiting to start : " + _clientStubsToStart);
+            _logger.info("Stub recipients waiting to start: {}", _clientStubsToStart);
 
             // Do launch one client stub at a time (hub will then send one registration event that will cause this method to be invoked again soon for those left)
             final Iterator<ClientStub> it = _clientStubsToStart.iterator();
             if (it.hasNext()) {
                 final ClientStub first = it.next();
 
-                _logger.info("Starting STUB recipient '" + first + "'.");
+                _logger.info("Starting STUB recipient '{}'.", first);
                 first.connect();
 
                 // Remove this one from the waiting queue
@@ -241,10 +244,11 @@ public final class HubMonitor {
             // If the cuurent application is not in the registry yet
             if (!StubRegistry.isApplicationKnown(clientName)) {
 
-                _logger.info("Detected an unknown application '" + clientName + "'.");
+                _logger.info("Detected an unknown application '{}'.", clientName);
                 retrieveRealRecipientMetadata(client);
             }
         }
+        _logger.info("loopOverHubClients() - done");
     }
 
     /**
@@ -280,8 +284,9 @@ public final class HubMonitor {
         // TODO : store previously dismissed apps in preference
 
         if (!_sniffedRealApplications.containsKey(name)) {
-            _logger.info("Sniffed new real application '{}' : backed up its metadata and subscriptions.", name);
-            StubMetaData stubMetaData = new StubMetaData(md, subscriptions);
+            _logger.info("Sniffed new real application '{}': backed up its metadata and subscriptions.", name);
+            
+            final StubMetaData stubMetaData = new StubMetaData(md, subscriptions);
             _sniffedRealApplications.put(name, stubMetaData);
             stubMetaData.reportToCentralRepository();
         }

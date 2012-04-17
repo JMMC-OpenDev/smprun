@@ -79,7 +79,6 @@ public final class ClientStub extends Observable implements JobListener {
      * Constructor.
      *
      * @param data XML values
-     * @param sleepDelayBeforeNotify sleep delay in milliseconds before sending the samp message
      */
     public ClientStub(final SampStub data) {
 
@@ -91,7 +90,7 @@ public final class ClientStub extends Observable implements JobListener {
 
         // Retrieve real application name, JNLP URL and startup delay
         _applicationName = _description.getName();
-        _logPrefix = "Stub['" + _applicationName + "'] : ";
+        _logPrefix = "Stub['" + _applicationName + "'] ";
         _sleepDelayBeforeNotify = data.getLag().intValue();
 
         // Add a custom flag to all our created STUB for later skipping while looking for real recipients
@@ -106,16 +105,17 @@ public final class ClientStub extends Observable implements JobListener {
 
             // Do not register SAMP internal or likely broadcasted capabilities
             if (sampCapability.isFlagged()) {
-                _logger.debug(_logPrefix + "Looks like '" + capability + "' SAMP capability is either broadcastable or of internal use ... skipping.");
+                _logger.debug("{}Looks like '{}' SAMP capability is either broadcastable or of internal use ... skipping.", _logPrefix, capability);
                 continue;
             }
             // Do not register UNKNOWN capabilities
             if (sampCapability == SampCapability.UNKNOWN) {
-                _logger.warn(_logPrefix + "Could not retrieve '" + capability + "' unknown SAMP capability ... skipping.");
+                _logger.warn("{}Could not retrieve '{}' unknown SAMP capability ... skipping.", _logPrefix, capability);
                 continue;
             }
 
-            _logger.info(_logPrefix + "Found '" + capability + "' SAMP capability.");
+            _logger.info("{}Found '{}' SAMP capability.", _logPrefix, capability);
+
             capabilityList.add(sampCapability);
         }
         _mTypes = capabilityList.toArray(new SampCapability[0]);
@@ -167,8 +167,7 @@ public final class ClientStub extends Observable implements JobListener {
             sampFinalJnlpId = SampMetaData.JNLP_BETA_URL;
         }
 
-        final String finalJnlpUrl = _description.getString(sampFinalJnlpId.id());
-        return finalJnlpUrl;
+        return _description.getString(sampFinalJnlpId.id());
     }
 
     /**
@@ -178,7 +177,11 @@ public final class ClientStub extends Observable implements JobListener {
         return _mTypes;
     }
 
-    private void setClientButtonEnabled(boolean state) {
+    /**
+     * Change the application button state (enabled or disabled) on the dock window
+     * @param state true to enable the application button
+     */
+    private void setClientButtonEnabled(final boolean state) {
         // Only if DockWindow is visible
         final DockWindow dockWindow = DockWindow.getInstance();
         if (dockWindow != null) {
@@ -218,7 +221,7 @@ public final class ClientStub extends Observable implements JobListener {
      * Perform initialization (connect to hub, register MTypes ...)
      */
     public void connect() {
-        _logger.info(_logPrefix + "connect() invoked by thread [" + Thread.currentThread() + "]");
+        _logger.info("{}connect()", _logPrefix);
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
@@ -252,7 +255,7 @@ public final class ClientStub extends Observable implements JobListener {
      * Disconnect from hub 
      */
     public void disconnect() {
-        _logger.info(_logPrefix + "disconnect() invoked by thread [" + Thread.currentThread() + "]");
+        _logger.info("{}disconnect()", _logPrefix);
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
@@ -261,18 +264,19 @@ public final class ClientStub extends Observable implements JobListener {
                 // Kill the stub client
                 setState(ClientStubState.DISCONNECTING);
 
-                _logger.info(_logPrefix + "Disconnecting from hub ...");
+                _logger.info("{}Disconnecting from hub ...", _logPrefix);
 
                 // Disconnect from hub
                 _connector.setActive(false);
 
-                _logger.info(_logPrefix + "Dying ...");
+                _logger.info("{}Dying ...", _logPrefix);
+
                 setState(ClientStubState.DIYING);
 
                 resetMessageQueue();
                 setJobContextId(null);
 
-                _logger.info(_logPrefix + "Disconnected");
+                _logger.info("{}Disconnected.", _logPrefix);
             }
         }
     }
@@ -281,7 +285,7 @@ public final class ClientStub extends Observable implements JobListener {
      * Launch the real application
      */
     public void launchRealApplication() {
-        _logger.info(_logPrefix + "launchRealApplication() invoked by thread [" + Thread.currentThread() + "]");
+        _logger.info("{}launchRealApplication()", _logPrefix);
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
@@ -296,7 +300,9 @@ public final class ClientStub extends Observable implements JobListener {
                 setState(ClientStubState.LAUNCHING);
             }
 
-            _logger.info(_logPrefix + "Launching JNLP '" + getFinalJnlpUrl() + "' ...");
+            if (_logger.isInfoEnabled()) {
+                _logger.info("{}Launching JNLP '{}' ...", _logPrefix, getFinalJnlpUrl());
+            }
 
             // get the process context to be able to kill it later ...
             setJobContextId(JnlpStarter.launch(this));
@@ -309,7 +315,7 @@ public final class ClientStub extends Observable implements JobListener {
      * TODO: DO not work (javaws can be killed but it will not kill sub processes like java ...)
      */
     public void killRealApplication() {
-        _logger.info(_logPrefix + "killRealApplication() invoked by thread [" + Thread.currentThread() + "]");
+        _logger.info("{}killRealApplication()", _logPrefix);
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
@@ -334,9 +340,9 @@ public final class ClientStub extends Observable implements JobListener {
 
                 // Handle error
                 if (!_messages.isEmpty()) {
-                    _logger.error(_logPrefix + "Unable to deliver '" + _messages.size() + "' message(s) :");
+                    _logger.error("{}Unable to deliver '{}' message(s) :", _logPrefix, _messages.size());
                     for (Message msg : _messages) {
-                        _logger.error("\t- '" + msg + "';");
+                        _logger.error("\t- '{}'", msg);
                     }
 
                     // @TODO : MessagePane ... => State = FAILED => Window (hide)
@@ -363,7 +369,7 @@ public final class ClientStub extends Observable implements JobListener {
 
         setState(ClientStubState.CONNECTING);
 
-        _logger.info(_logPrefix + "connecting to hub ...");
+        _logger.info("{}connecting to hub ...", _logPrefix);
 
         // Set connector up
         _connector.declareMetadata(_description);
@@ -372,7 +378,7 @@ public final class ClientStub extends Observable implements JobListener {
         _connector.setActive(true);
 
         if (!_connector.isConnected()) {
-            _logger.info(_logPrefix + "could not connect to an existing hub.");
+            _logger.info("{}could not connect to an existing hub.", _logPrefix);
             return false;
         }
 
@@ -381,7 +387,7 @@ public final class ClientStub extends Observable implements JobListener {
 
         registerStubCapabilities();
 
-        _logger.info(_logPrefix + "connected.");
+        _logger.info("{}connected.", _logPrefix);
 
         return true;
     }
@@ -414,12 +420,12 @@ public final class ClientStub extends Observable implements JobListener {
                     @Override
                     public final Map<?, ?> processCall(final HubConnection connection, final String senderId, final Message message) throws SampException {
 
-                        _logger.info("processCall() invoked by thread [" + Thread.currentThread() + "]");
+                        _logger.info("{}processCall()", _logPrefix);
 
                         // Backup message and pending queue for later delivery
                         _messages.add(message);
 
-                        _logger.info(_logPrefix + "received '" + mType.mType() + "' message from '" + senderId + "' : '" + message + "'.");
+                        _logger.info("{}received '{}' message from '{}' : '{}'.", new Object[]{_logPrefix, mType.mType(), senderId, message});
 
                         // Start application in background:
                         launchRealApplication();
@@ -443,7 +449,7 @@ public final class ClientStub extends Observable implements JobListener {
         // This step is required to update message handlers into the hub:
         _connector.declareSubscriptions(_connector.computeSubscriptions());
 
-        _logger.info(_logPrefix + " has declared subscriptions.");
+        _logger.info("{} has declared subscriptions.", _logPrefix);
 
         setState(ClientStubState.LISTENING);
     }
@@ -455,19 +461,19 @@ public final class ClientStub extends Observable implements JobListener {
      * @param recipientId recipient identifier of the real application.
      */
     public void forwardMessagesToRealRecipient(final String recipientId) {
-        _logger.info(_logPrefix + "forwardMessageToRealRecipient() invoked by thread [" + Thread.currentThread() + "]");
+        _logger.info("{}forwardMessageToRealRecipient()", _logPrefix);
 
         // Reentrance check
         synchronized (_lock) {
             if (_status.after(ClientStubState.REGISTERING) && _status.before(ClientStubState.DISCONNECTING)) {
-                _logger.info(_logPrefix + "Forwarding message(s) to real recipient connected with id '" + recipientId + "'.");
+                _logger.info("{}Forwarding message(s) to real recipient connected with id '{}'.", _logPrefix, recipientId);
 
                 // Forward all received message to recipient (if any)
                 if (!_messages.isEmpty()) {
                     setState(ClientStubState.SEEKING);
 
                     if (_sleepDelayBeforeNotify > 0L) {
-                        _logger.info(_logPrefix + "Waiting " + _sleepDelayBeforeNotify + " milliseconds to let real recipient finish its startup ...");
+                        _logger.info("{}Waiting {} milliseconds to let real recipient finish its startup ...", _logPrefix, _sleepDelayBeforeNotify);
 
                         // Wait a while for application startup to finish...
                         ThreadExecutors.sleep(_sleepDelayBeforeNotify);
@@ -495,11 +501,11 @@ public final class ClientStub extends Observable implements JobListener {
                                 try {
                                     _connector.getConnection().notify(recipientId, msg);
                                 } catch (SampException se) {
-                                    _logger.error("Samp notication exception", se);
+                                    _logger.error("{}Samp notication exception:", _logPrefix, se);
                                 }
-                                _logger.info(_logPrefix + "Forwarded message (" + messageIndex + "/" + nbOfMessages + ").");
+                                _logger.info("{}Forwarded message ({} / {}).", new Object[]{_logPrefix, messageIndex, nbOfMessages});
                             } else {
-                                _logger.info(_logPrefix + "Could not find '" + msg.getMType() + "' mType ... skipping.");
+                                _logger.info("{}Could not find '{}' mType ... skipping.", _logPrefix, msg.getMType());
                             }
                             messageIndex++;
                         }
@@ -507,7 +513,7 @@ public final class ClientStub extends Observable implements JobListener {
                         resetMessageQueue();
                     }
                 } else {
-                    _logger.info(_logPrefix + "No message to forward.");
+                    _logger.info("{}No message to forward.", _logPrefix);
                 }
 
                 // Kill the stub client
@@ -526,7 +532,7 @@ public final class ClientStub extends Observable implements JobListener {
     @Override
     @SuppressWarnings("fallthrough")
     public void performJobEvent(final RootContext jobContext) {
-        _logger.info(_logPrefix + "performJobEvent() invoked by thread [" + Thread.currentThread() + "]");
+        _logger.info("{}performJobEvent()", _logPrefix);
 
         ProcessContext pCtx;
 
@@ -534,12 +540,12 @@ public final class ClientStub extends Observable implements JobListener {
             case STATE_FINISHED_OK:
 
                 // JNLP process done
-                _logger.info(_logPrefix + "JNLP execution status: " + jobContext.getState()
-                        + "\n" + jobContext.getRing().getContent("Ring buffer:\n"));
+                _logger.info("{}JNLP execution status: {}\n{}",
+                        new Object[]{_logPrefix, jobContext.getState(), jobContext.getRing().getContent("Ring buffer:\n")});
 
                 pCtx = (ProcessContext) jobContext.getChildContexts().get(0);
 
-                _logger.info(_logPrefix + "DONE (with status '" + pCtx.getExitCode() + "').");
+                _logger.info("{}DONE (with status '{}').", _logPrefix, pCtx.getExitCode());
 
                 // Reset job context
                 setJobContextId(null);
@@ -552,13 +558,12 @@ public final class ClientStub extends Observable implements JobListener {
 
             case STATE_FINISHED_ERROR:
                 // JNLP process failed
-                _logger.info(_logPrefix + "JNLP execution status : " + jobContext.getState()
-                        + "\n" + jobContext.getRing().getContent("Ring buffer:\n"));
-
+                _logger.info("{}JNLP execution status: {}\n{}",
+                        new Object[]{_logPrefix, jobContext.getState(), jobContext.getRing().getContent("Ring buffer:\n")});
 
                 pCtx = (ProcessContext) jobContext.getChildContexts().get(0);
 
-                _logger.info(_logPrefix + "DONE (with status '" + pCtx.getExitCode() + "').");
+                _logger.info("{}DONE (with status '{}').", _logPrefix, pCtx.getExitCode());
 
             case STATE_CANCELED:
             case STATE_INTERRUPTED:
@@ -573,9 +578,9 @@ public final class ClientStub extends Observable implements JobListener {
 
                     // Handle error
                     if (!_messages.isEmpty()) {
-                        _logger.error(_logPrefix + "Unable to deliver '" + _messages.size() + "' message(s) :");
+                        _logger.error("{}Unable to deliver '{}' message(s) :", _logPrefix, _messages.size());
                         for (Message msg : _messages) {
-                            _logger.error("\t- '" + msg + "';");
+                            _logger.error("\t- '{}'", msg);
                         }
 
                         // MessagePane ... => State= FAILED => Window (hide)
@@ -608,7 +613,7 @@ public final class ClientStub extends Observable implements JobListener {
      */
     @Override
     public void performTaskEvent(final RootContext jobContext, final RunContext runCtx) {
-        _logger.debug(_logPrefix + "job : " + runCtx);
+        _logger.debug("{}job : {}", _logPrefix, runCtx);
     }
 
     /**
