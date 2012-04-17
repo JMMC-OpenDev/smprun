@@ -8,7 +8,7 @@ import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
 
-import fr.jmmc.smprsc.StubRegistry;
+import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprun.DockWindow;
 import fr.jmmc.smprun.JnlpStarter;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
@@ -152,7 +152,7 @@ public final class ClientStub extends Observable implements JobListener {
         // @TODO : Use a generic app icon as placeholder when none available... BUT AppLauncherTester is kept invisible because of this...
 
         // Try to load embedded one in smprrsc
-        return StubRegistry.getEmbeddedApplicationIcon(_applicationName);
+        return StubMetaData.getEmbeddedApplicationIcon(_applicationName);
     }
 
     /**

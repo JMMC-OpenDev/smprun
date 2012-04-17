@@ -7,7 +7,7 @@ import fr.jmmc.smprsc.StubRegistry;
 import fr.jmmc.smprsc.data.list.model.Category;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.StubMonitor;
-import fr.jmmc.smprsc.data.stub.SampApplicationMetaData;
+import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
@@ -91,7 +91,7 @@ public class HubPopulator {
      */
     private ClientStub createClientStub(final String applicationName) {
 
-        SampStub data = SampApplicationMetaData.retrieveSampStubForApplication(applicationName);
+        SampStub data = StubMetaData.retrieveSampStubForApplication(applicationName);
 
         final ClientStub client = new ClientStub(data);
         client.addObserver(new StubMonitor());
