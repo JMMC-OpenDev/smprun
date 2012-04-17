@@ -114,6 +114,21 @@ public final class HubMonitor {
         return mTypesStrings;
     }
 
+    public void waitForStubsStartup() {
+        while (isThereSomeStubsLeftToStart()) {
+            try {
+                _logger.info("Waiting for stubs startup to complete...");
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                _logger.error("Could not wait for stubs to finish startup.", ex);
+            }
+        }
+    }
+
+    private boolean isThereSomeStubsLeftToStart() {
+        return _clientStubsToStart.size() > 0;
+    }
+
     /**
      * Process hub clients in background using the dedicated thread executor
      */
@@ -201,7 +216,7 @@ public final class HubMonitor {
             }
         }
 
-        if (!_clientStubsToStart.isEmpty()) {
+        if (isThereSomeStubsLeftToStart()) {
             _logger.info("Stub recipients waiting to start : " + _clientStubsToStart);
 
             // Do launch one client stub at a time (hub will then send one registration event that will cause this method to be invoked again soon for those left)
