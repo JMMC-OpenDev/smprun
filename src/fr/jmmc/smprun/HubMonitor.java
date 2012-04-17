@@ -265,7 +265,7 @@ public final class HubMonitor {
         // TODO : store previously dismissed apps in preference
 
         if (!_sniffedRealApplications.containsKey(name)) {
-            _logger.info("Sniffed new real application ''{0}'' : backed up its metadata and subscriptions.", name);
+            _logger.info("Sniffed new real application '{}' : backed up its metadata and subscriptions.", name);
             StubMetaData stubMetaData = new StubMetaData(md, subscriptions);
             _sniffedRealApplications.put(name, stubMetaData);
             stubMetaData.reportToCentralRepository();
