@@ -7,7 +7,7 @@ import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.util.ImageUtils;
-import fr.jmmc.smprsc.StubRegistry;
+import fr.jmmc.smprsc.data.list.StubRegistry;
 import fr.jmmc.smprsc.data.list.model.Category;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;

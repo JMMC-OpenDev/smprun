@@ -3,7 +3,7 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
-import fr.jmmc.smprsc.StubRegistry;
+import fr.jmmc.smprsc.data.list.StubRegistry;
 import fr.jmmc.smprsc.data.list.model.Category;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprun.stub.StubMonitor;

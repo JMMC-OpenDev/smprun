@@ -6,7 +6,7 @@ package fr.jmmc.smprun;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
-import fr.jmmc.smprsc.StubRegistry;
+import fr.jmmc.smprsc.data.list.StubRegistry;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprsc.data.stub.StubMetaData;
 import java.util.*;
