@@ -41,7 +41,7 @@ public class AppLauncher extends App {
             + "<BR/>"
             + "And thank you for your confidence in the JMMC automatic SAMP application launcher.<BR/>"
             + "<BR/>"
-            + "- First, an auto-test procedure will now proceed to confirm everything is fine for AppLauncher to work well;<BR/>"
+            + "- First, an auto-test procedure will proceed (after you clicked OK) to confirm everything is fine for AppLauncher to work well;<BR/>"
             + "- You can customize (among other things) which applications are shown in the Dock using the preferences window;<BR/>"
             + "- Further documentation is available directly from the Help menu, so don't hesitate to have a look;<BR/>"
             + "- You can easily provide (greatly appreciated) feedback and bug reports to us from the dedicated entry in the Help menu.<BR/>"
@@ -154,9 +154,6 @@ public class AppLauncher extends App {
     @Override
     protected void execute() {
 
-        // Show Welcome pane and perform JNLP/SAMP auto-test on first AppLauncher start
-        performFirstRunTasks();
-
         // If JNLP/SAMP startup test went fine
         SwingUtils.invokeLaterEDT(new Runnable() {
 
@@ -174,6 +171,9 @@ public class AppLauncher extends App {
                 }
             }
         });
+
+        // Show Welcome pane and perform JNLP/SAMP auto-test on first AppLauncher start
+        performFirstRunTasks();
     }
 
     @Override
@@ -220,8 +220,8 @@ public class AppLauncher extends App {
 
         _logger.info("First time AppLauncher is starting (no preference file found).");
 
-        // Show a Welcome pane
-        ResizableTextViewFactory.createHtmlWindow(WELCOME_MESSAGE, "Welcome to AppLauncher !!!");
+        // Show a modal Welcome pane
+        ResizableTextViewFactory.createHtmlWindow(WELCOME_MESSAGE, "Welcome to AppLauncher !!!", true);
 
         // Run JNLP/SAMP abailities test
         // TODO : Do not work anymore ?!?
@@ -245,6 +245,9 @@ public class AppLauncher extends App {
      * @return true if the test went fine, false otherwise
      */
     private boolean checkJnlpSampAbilities() {
+
+        // First wait for stubs to finish startup
+        HubMonitor.getInstance().waitForStubsStartup();
 
         // Try to send a SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH to AppLauncherTester stub to test our whole machinery
         List<String> clientIds = SampManager.getClientIdsForName("AppLauncherTester");
