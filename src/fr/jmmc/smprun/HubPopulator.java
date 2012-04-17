@@ -72,11 +72,8 @@ public class HubPopulator {
                     }
                 }
 
-                // Forge stub XML description file resource path
-                final String stubMetaDataResourcePAth = StubRegistry.forgeApplicationResourcePath(applicationName);
-
-                _logger.debug("Loading '{}' category's stub '{}' data from resource '{}'.", new Object[]{currentCategory.value(), applicationName, stubMetaDataResourcePAth});
-                final ClientStub newClientStub = createClientStub(stubMetaDataResourcePAth);
+                _logger.debug("Loading '{}' category's stub '{}' data from resource.", currentCategory.value(), applicationName);
+                final ClientStub newClientStub = createClientStub(applicationName);
                 currentCategoryClientList.add(newClientStub);
             }
 
@@ -92,13 +89,14 @@ public class HubPopulator {
      * @param resourcePath SAMP application data resource path
      * @return client stub 
      */
-    private ClientStub createClientStub(final String resourcePath) {
+    private ClientStub createClientStub(final String applicationName) {
 
-        SampStub data = SampApplicationMetaData.loadSampStubFromResourcePath(resourcePath);
+        SampStub data = SampApplicationMetaData.retrieveSampStubForApplication(applicationName);
+
         final ClientStub client = new ClientStub(data);
         client.addObserver(new StubMonitor());
 
-        _clientStubMap.put(client.getApplicationName(), client);
+        _clientStubMap.put(applicationName, client);
 
         return client;
     }
