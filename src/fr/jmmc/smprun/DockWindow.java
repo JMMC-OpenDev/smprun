@@ -121,7 +121,7 @@ public class DockWindow extends JFrame implements Observer {
         _preferences.addObserver(this);
 
         // Show the user the app is ready to be used
-        StatusBar.show("ready.");
+        StatusBar.show("application ready.");
     }
 
     /**
