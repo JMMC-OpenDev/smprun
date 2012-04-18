@@ -11,7 +11,7 @@
 
     <program name="AppLauncher" version="1.0b13"/>
 
-    <compilation date="13/04/2012" compiler="JDK 1.5.0_16"/>
+    <compilation date="18/04/2012" compiler="JDK 1.5.0_16"/>
 
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools</text>
 
@@ -28,7 +28,6 @@
         <release version="1.0">
             <prerelease version="1.0b13" tag="AL_V1_0b13">
                 <change type="FEATURE">Added a welcome message on first launch.</change>
-                <change type="CHANGE">Now raise a FeedBack report window in case SAMP auto-test failed.</change>
             </prerelease>
             <prerelease version="1.0b12" tag="AL_V1_0b12">
                 <change type="FEATURE">Added a preference to use beta version of applications in priority.</change>
