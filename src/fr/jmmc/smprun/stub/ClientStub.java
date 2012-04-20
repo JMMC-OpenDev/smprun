@@ -10,7 +10,7 @@ import fr.jmmc.jmcs.network.interop.SampMetaData;
 
 import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprun.DockWindow;
-import fr.jmmc.smprun.JnlpStarter;
+import fr.jmmc.jmcs.util.JnlpStarter;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
 import fr.jmmc.smprun.preference.Preferences;
 import java.util.ArrayList;
@@ -305,7 +305,7 @@ public final class ClientStub extends Observable implements JobListener {
             }
 
             // get the process context to be able to kill it later ...
-            setJobContextId(JnlpStarter.launch(this));
+            setJobContextId(JnlpStarter.launch(getFinalJnlpUrl(), this));
         }
     }
 
@@ -532,7 +532,7 @@ public final class ClientStub extends Observable implements JobListener {
     @Override
     @SuppressWarnings("fallthrough")
     public void performJobEvent(final RootContext jobContext) {
-        _logger.info("{}performJobEvent()", _logPrefix);
+        _logger.debug("{}performJobEvent()", _logPrefix);
 
         ProcessContext pCtx;
 
