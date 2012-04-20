@@ -201,7 +201,7 @@ public final class ClientStub extends Observable implements JobListener {
      * Reset job context...
      */
     private void resetMessageQueue() {
-        _messages.removeAll(_messages);
+        _messages.clear();
     }
 
     /**
@@ -321,7 +321,6 @@ public final class ClientStub extends Observable implements JobListener {
         synchronized (_lock) {
 
             if (_jobContextId != null) {
-
                 /*
                  * Note: the cancel does not work on unix system:
                  * javaws is the parent command that launches another command java ...
@@ -332,32 +331,43 @@ public final class ClientStub extends Observable implements JobListener {
 
                 LocalLauncher.cancelOrKillJob(_jobContextId);
                 setJobContextId(null);
+            }
 
-                // Anyway: revert state like process failure
+            cleanupOnFailure();
+        }
+    }
 
-                // Report failure
-                setState(ClientStubState.FAILING);
+    /**
+     * Handle process failure
+     */
+    private void cleanupOnFailure() {
+        _logger.info("{}cleanupOnFailure()", _logPrefix);
 
-                // Handle error
-                if (!_messages.isEmpty()) {
-                    _logger.error("{}Unable to deliver '{}' message(s) :", _logPrefix, _messages.size());
-                    for (Message msg : _messages) {
-                        _logger.error("\t- '{}'", msg);
-                    }
+        // Reentrance / concurrency checks
+        synchronized (_lock) {
 
-                    // @TODO : MessagePane ... => State = FAILED => Window (hide)
+            // Report failure
+            setState(ClientStubState.FAILING);
+
+            // Handle error
+            if (!_messages.isEmpty()) {
+                _logger.error("{}Unable to deliver '{}' message(s) :", _logPrefix, _messages.size());
+                for (Message msg : _messages) {
+                    _logger.error("\t- '{}'", msg);
                 }
 
-                // Reset state
-                setJobContextId(null);
-                resetMessageQueue();
-
-                setState(ClientStubState.LISTENING);
-
-                // Update GUI
-                StatusBar.show("failed to start '" + getApplicationName() + "'.");
-                setClientButtonEnabled(true);
+                // @TODO : MessagePane ... => State = FAILED => Window (hide)
             }
+
+            // Reset state
+            setJobContextId(null);
+            resetMessageQueue();
+
+            setState(ClientStubState.LISTENING);
+
+            // Update GUI
+            StatusBar.show("failed to start '" + getApplicationName() + "'.");
+            setClientButtonEnabled(true);
         }
     }
 
@@ -568,35 +578,9 @@ public final class ClientStub extends Observable implements JobListener {
             case STATE_CANCELED:
             case STATE_INTERRUPTED:
             case STATE_KILLED:
+                
                 // JNLP process failed: clean up:
-
-                // Reentrance check
-                synchronized (_lock) {
-
-                    // Report failure
-                    setState(ClientStubState.FAILING);
-
-                    // Handle error
-                    if (!_messages.isEmpty()) {
-                        _logger.error("{}Unable to deliver '{}' message(s) :", _logPrefix, _messages.size());
-                        for (Message msg : _messages) {
-                            _logger.error("\t- '{}'", msg);
-                        }
-
-                        // MessagePane ... => State= FAILED => Window (hide)
-                    }
-
-                    // Reset state
-                    setJobContextId(null);
-                    resetMessageQueue();
-
-                    setState(ClientStubState.LISTENING);
-                }
-
-                // Update GUI
-                StatusBar.show("failed to start '" + getApplicationName() + "' recipient.");
-                setClientButtonEnabled(true);
-
+                cleanupOnFailure();
                 break;
 
             default: // Otherwise do nothing
