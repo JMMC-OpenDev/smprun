@@ -273,8 +273,8 @@ public final class ClientStub extends Observable implements JobListener {
 
                 setState(ClientStubState.DIYING);
 
-                resetMessageQueue();
-                setJobContextId(null);
+                // openJDK issue: detach from started javaws process:
+                cleanup(true);
 
                 _logger.info("{}Disconnected.", _logPrefix);
             }
@@ -333,21 +333,24 @@ public final class ClientStub extends Observable implements JobListener {
                 setJobContextId(null);
             }
 
-            cleanupOnFailure();
+            cleanup(false);
         }
     }
 
     /**
      * Handle process failure
+     * @param success true for success
      */
-    private void cleanupOnFailure() {
+    private void cleanup(final boolean success) {
         _logger.info("{}cleanupOnFailure()", _logPrefix);
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
 
-            // Report failure
-            setState(ClientStubState.FAILING);
+            if (!success) {
+                // Report failure
+                setState(ClientStubState.FAILING);
+            }
 
             // Handle error
             if (!_messages.isEmpty()) {
@@ -363,10 +366,12 @@ public final class ClientStub extends Observable implements JobListener {
             setJobContextId(null);
             resetMessageQueue();
 
-            setState(ClientStubState.LISTENING);
+            if (!success) {
+                setState(ClientStubState.LISTENING);
 
-            // Update GUI
-            StatusBar.show("failed to start '" + getApplicationName() + "'.");
+                // Update GUI
+                StatusBar.show("failed to start '" + getApplicationName() + "'.");
+            }
             setClientButtonEnabled(true);
         }
     }
@@ -578,9 +583,9 @@ public final class ClientStub extends Observable implements JobListener {
             case STATE_CANCELED:
             case STATE_INTERRUPTED:
             case STATE_KILLED:
-                
+
                 // JNLP process failed: clean up:
-                cleanupOnFailure();
+                cleanup(false);
                 break;
 
             default: // Otherwise do nothing
