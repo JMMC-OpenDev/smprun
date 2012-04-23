@@ -9,13 +9,12 @@ package fr.jmmc.smprun.preference;
  */
 public enum PreferenceKey {
 
-        FIRST_START_FLAG("first.start.flag"),
-        SHOW_DOCK_WINDOW("show.dock.window"),
-        START_SELECTED_STUBS("start.selected.stubs"),
-        SHOW_EXIT_WARNING("show.exit.warning"),
-        SELECTED_APPLICATION_LIST("selected.application.list"),
-        BETA_APPLICATION_LIST("beta.application.list");
-    
+    FIRST_START_FLAG("first.start.flag"),
+    SHOW_DOCK_WINDOW("show.dock.window"),
+    START_SELECTED_STUBS("start.selected.stubs"),
+    SHOW_EXIT_WARNING("show.exit.warning"),
+    SELECTED_APPLICATION_LIST("selected.application.list"),
+    BETA_APPLICATION_LIST("beta.application.list");
     /** the preferenced value identifying token */
     private final String _key;
 
