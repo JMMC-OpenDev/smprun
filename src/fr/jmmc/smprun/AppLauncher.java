@@ -17,6 +17,7 @@ import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.smprun.preference.ApplicationListSelectionView;
 import fr.jmmc.jmcs.gui.component.BooleanPreferencesView;
 import fr.jmmc.jmcs.gui.component.ResizableTextViewFactory;
+import fr.jmmc.jmcs.util.JnlpStarter;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import java.awt.event.ActionEvent;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class AppLauncher extends App {
 
+    /** welcome message */
     private final static String WELCOME_MESSAGE = "<HTML><HEAD></HEAD><BODY>"
             + "<CENTER><H2>Welcome to AppLauncher !!!</H2></CENTER>"
             + "<BR/>"
@@ -49,9 +51,11 @@ public class AppLauncher extends App {
             + "<B>We hope you will appreciate using AppLauncher as much as we had fun making it !</B>";
     /** Logger */
     protected static final Logger _logger = LoggerFactory.getLogger(AppLauncher.class.getName());
-    /** Export to SAMP action */
+    /** Launch JNLP/SAMP Auto-Test action (menu) */
     public LaunchJnlpSampAutoTestAction _launchJnlpSampAutoTestAction;
+    /** optional dock window */
     private static DockWindow _dockWindow = null;
+    /** preferences instance */
     private Preferences _preferences;
 
     /**
@@ -102,9 +106,9 @@ public class AppLauncher extends App {
              */
             @Override
             public void run() {
-
                 // Prepare dock window
                 _dockWindow = DockWindow.getInstance();
+
                 App.setFrame(_dockWindow);
                 WindowUtils.centerOnMainScreen(_dockWindow);
 
@@ -223,7 +227,7 @@ public class AppLauncher extends App {
         // Show a modal Welcome pane
         ResizableTextViewFactory.createHtmlWindow(WELCOME_MESSAGE, "Welcome to AppLauncher !!!", true);
 
-        // Run JNLP/SAMP abailities test
+        // Run JNLP/SAMP abilities test
         // TODO : Do not work anymore ?!?
         if (!checkJnlpSampAbilities()) {
             _logger.error("Could not succesfully perform JNLP/SAMP auto-test, aborting.");
@@ -249,6 +253,8 @@ public class AppLauncher extends App {
         // First wait for stubs to finish startup
         HubMonitor.getInstance().waitForStubsStartup();
 
+        // TODO: BUG = No Samp client registered for AppLauncherTester !
+        
         // Try to send a SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH to AppLauncherTester stub to test our whole machinery
         List<String> clientIds = SampManager.getClientIdsForName("AppLauncherTester");
         if (!clientIds.isEmpty()) {
@@ -256,14 +262,25 @@ public class AppLauncher extends App {
             // TODO : Should only send this message to our own stub
             String appLauncherTesterClientId = clientIds.get(0);
 
-            // try to send the dedicated test message to our stub
+            // try to send the dedicated test message to our stub:
+
+            final boolean jnlpVerbose = JnlpStarter.isJavaWebStartVerbose();
             try {
+                // restore Javaws verbose setting:
+                JnlpStarter.setJavaWebStartVerbose(true);
+
                 final String appLauncherTesterMType = SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH.mType();
                 SampManager.sendMessageTo(appLauncherTesterMType, appLauncherTesterClientId, null);
-            } catch (SampException ex) {
-                FeedbackReport.openDialog(ex);
+
+            } catch (SampException se) {
+                FeedbackReport.openDialog(se);
                 return false;
+            } finally {
+                // restore Javaws verbose setting:
+                JnlpStarter.setJavaWebStartVerbose(jnlpVerbose);
             }
+
+            // Should wait for application startup and delivery ??
         }
 
         return true;
