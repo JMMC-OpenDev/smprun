@@ -293,11 +293,11 @@ public final class ClientStub extends Observable implements JobListener {
 
             StatusBar.show("starting '" + getApplicationName() + "' recipient...");
 
-            setClientButtonEnabled(false);
-
             if (isConnected()) {
                 // only change state if this stub is running:
                 setState(ClientStubState.LAUNCHING);
+
+                setClientButtonEnabled(false);
             }
 
             if (_logger.isInfoEnabled()) {
@@ -311,11 +311,19 @@ public final class ClientStub extends Observable implements JobListener {
 
     /**
      * Cancel or kill the launch of the real application 
-     * 
-     * TODO: DO not work (javaws can be killed but it will not kill sub processes like java ...)
      */
     public void killRealApplication() {
         _logger.info("{}killRealApplication()", _logPrefix);
+
+        cleanup(false);
+    }
+
+    /**
+     * Handle cleanup (process, button state and other internal state)
+     * @param success true for success
+     */
+    private void cleanup(final boolean success) {
+        _logger.info("{}cleanup()", _logPrefix);
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
@@ -329,25 +337,22 @@ public final class ClientStub extends Observable implements JobListener {
                  * but it tricky again
                  */
 
+                if (_logger.isDebugEnabled()) {
+                    _logger.debug("{}cleanup(): cancelOrKillJob = {}", _logPrefix, _jobContextId);
+                }
+
                 LocalLauncher.cancelOrKillJob(_jobContextId);
                 setJobContextId(null);
             }
 
-            cleanup(false);
-        }
-    }
+            // check current state to avoid reporting failure twice or incorrect state:
+            final boolean doFail = !success && (_status.after(ClientStubState.PROCESSING) && _status.before(ClientStubState.DISCONNECTING));
 
-    /**
-     * Handle process failure
-     * @param success true for success
-     */
-    private void cleanup(final boolean success) {
-        _logger.info("{}cleanupOnFailure()", _logPrefix);
+            if (_logger.isDebugEnabled()) {
+                _logger.debug("{}cleanup(): doFail = {}", _logPrefix, doFail);
+            }
 
-        // Reentrance / concurrency checks
-        synchronized (_lock) {
-
-            if (!success) {
+            if (doFail) {
                 // Report failure
                 setState(ClientStubState.FAILING);
             }
@@ -366,11 +371,15 @@ public final class ClientStub extends Observable implements JobListener {
             setJobContextId(null);
             resetMessageQueue();
 
-            if (!success) {
+            if (doFail) {
                 setState(ClientStubState.LISTENING);
 
                 // Update GUI
                 StatusBar.show("failed to start '" + getApplicationName() + "'.");
+            } else if (success) {
+
+                // Update GUI
+                StatusBar.show("started '" + getApplicationName() + "'.");
             }
             setClientButtonEnabled(true);
         }
@@ -564,11 +573,6 @@ public final class ClientStub extends Observable implements JobListener {
 
                 // Reset job context
                 setJobContextId(null);
-
-                // Update GUI
-                StatusBar.show("started '" + getApplicationName() + "'.");
-
-                setClientButtonEnabled(true);
                 break;
 
             case STATE_FINISHED_ERROR:
@@ -580,9 +584,16 @@ public final class ClientStub extends Observable implements JobListener {
 
                 _logger.info("{}DONE (with status '{}').", _logPrefix, pCtx.getExitCode());
 
+                // JNLP process failed: clean up:
+                cleanup(false);
+                break;
+
             case STATE_CANCELED:
             case STATE_INTERRUPTED:
             case STATE_KILLED:
+                // JNLP process failed
+                _logger.info("{}JNLP execution status: {}\n{}",
+                        new Object[]{_logPrefix, jobContext.getState(), jobContext.getRing().getContent("Ring buffer:\n")});
 
                 // JNLP process failed: clean up:
                 cleanup(false);
