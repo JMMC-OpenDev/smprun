@@ -28,6 +28,7 @@ import java.util.concurrent.TimeoutException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.astrogrid.samp.client.SampException;
+import org.ivoa.util.concurrent.ThreadExecutors;
 import org.ivoa.util.runner.LocalLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -270,7 +271,7 @@ public class AppLauncher extends App {
             // TODO : Should only send this message to our own stub
             final String appLauncherTesterClientId = clientIds.get(0);
 
-            // REtrieve corresponding stub (if any)
+            // Retrieve corresponding stub (if any)
             final ClientStub testerStub = HubPopulator.retrieveClientStub(APP_LAUNCHER_TESTER);
             if (testerStub == null) {
                 _logger.warn("Client stub [{}] not found.", APP_LAUNCHER_TESTER);
@@ -322,7 +323,17 @@ public class AppLauncher extends App {
 
         @Override
         public void actionPerformed(ActionEvent ae) {
-            checkJnlpSampAbilities();
+
+            ThreadExecutors.getGenericExecutor().submit(new Runnable() {
+
+                /**
+                 * Launch JNLP/SAMP Auto-Test  using dedicated thread (2 minutes timeout)
+                 */
+                @Override
+                public void run() {
+                    checkJnlpSampAbilities();
+                }
+            });
         }
     }
 
