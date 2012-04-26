@@ -29,6 +29,7 @@
         <release version="1.0">
             <prerelease version="1.0b14" tag="AL_V1_0b14">
                 <change type="FEATURE">Added an entry in Help menu to launch Java WebStart viewer.</change>
+                <change type="BUGFIX" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/3">Added a 5 minutes timeout to kill and clean stuck applications in case something went wrong during launch.</change>
             </prerelease>
             <prerelease version="1.0b13" tag="AL_V1_0b13">
                 <change type="FEATURE">Added a welcome message on first launch.</change>
