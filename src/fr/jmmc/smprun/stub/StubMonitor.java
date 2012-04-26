@@ -26,10 +26,14 @@ public class StubMonitor implements Observer {
     /** Class logger */
     private static final Logger _logger = LoggerFactory.getLogger(StubMonitor.class.getName());
     /** auto hide delay in milliseconds */
-    public final static int AUTO_HIDE_DELAY = 3000;
+    public final static int AUTO_HIDE_DELAY = 5 * 1000;
+    /** cancel launching delay in milliseconds */
+    public final static int CANCEL_TIMEOUT = 5 * 60 * 1000;
     /* members */
     /** Monitor GUI */
     private MonitorWindow _window;
+    /** Cancel launching timer (timeout) */
+    private Timer _cancelTimer = null;
 
     /**
      * Set up the GUI
@@ -91,23 +95,39 @@ public class StubMonitor implements Observer {
 
                     final boolean isLaunching = (step == ClientStubState.LAUNCHING.step());
 
-                    if (isLaunching && cancelButton.getActionListeners().length == 0) {
-                        cancelButton.addActionListener(new ActionListener() {
+                    if (isLaunching) {
+                        // avoid reentrant launching:
+                        if (cancelButton.getActionListeners().length == 0) {
 
-                            /**
-                             * Kill the application if the button is clicked
-                             */
-                            @Override
-                            public void actionPerformed(final ActionEvent e) {
-                                client.killRealApplication();
+                            // Cancel task used by user or after tiemout:
+                            final ActionListener cancelTask = new ActionListener() {
 
-                                // disable cancel button:
-                                cancelButton.setEnabled(false);
-                            }
-                        });
+                                /**
+                                 * Kill (or detach) the javaws process if the button is clicked
+                                 */
+                                @Override
+                                public void actionPerformed(final ActionEvent e) {
+                                    client.killRealApplication();
+
+                                    // disable cancel button:
+                                    cancelButton.setEnabled(false);
+                                }
+                            };
+
+                            cancelButton.addActionListener(cancelTask);
+
+                            // add cancel timer:
+                            _cancelTimer = new Timer(CANCEL_TIMEOUT, cancelTask);
+                            _cancelTimer.setRepeats(false);
+                        }
+                    } else {
+                        for (ActionListener listener : cancelButton.getActionListeners()) {
+                            cancelButton.removeActionListener(listener);
+                        }
                     }
 
                     cancelButton.setEnabled(isLaunching);
+                    enableCancelTimer(isLaunching);
 
                     // Bring this application to front
                     AppLauncher.showFrameToFront();
@@ -137,6 +157,9 @@ public class StubMonitor implements Observer {
             // Should the window be hidden (DYING or FAILING states) ?
             if (step >= maxStep) {
 
+                // anyway: cancel timer:
+                enableCancelTimer(false);
+
                 // Postpone hiding to let the user see the last message
                 final ActionListener hideTask = new ActionListener() {
 
@@ -148,11 +171,35 @@ public class StubMonitor implements Observer {
                     }
                 };
 
-                // Fire after 1.5 second
+                // Fire after 3 second
                 final Timer hideTaskTimer = new Timer(AUTO_HIDE_DELAY, hideTask);
                 hideTaskTimer.setRepeats(false);
                 hideTaskTimer.start();
             }
+        }
+    }
+
+    /**
+     * Start/Stop the internal cancel timer
+     * @param enable true to enable it, false otherwise
+     */
+    private void enableCancelTimer(final boolean enable) {
+
+        if (_cancelTimer == null) {
+            return;
+        }
+
+        if (enable) {
+            if (!_cancelTimer.isRunning()) {
+                _logger.info("Starting timer: {}", _cancelTimer);
+                _cancelTimer.start();
+            }
+        } else {
+            if (_cancelTimer.isRunning()) {
+                _logger.info("Stopping timer: {}", _cancelTimer);
+                _cancelTimer.stop();
+            }
+            _cancelTimer = null;
         }
     }
 }

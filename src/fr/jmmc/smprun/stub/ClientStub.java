@@ -293,19 +293,21 @@ public final class ClientStub extends Observable implements JobListener {
 
             StatusBar.show("starting '" + getApplicationName() + "' recipient...");
 
+            _logger.info("{}Launching JNLP '{}' ...", _logPrefix, getFinalJnlpUrl());
+
+            // stub is connected i.e. monitoring samp messages ...
             if (isConnected()) {
                 // only change state if this stub is running:
                 setState(ClientStubState.LAUNCHING);
 
                 setClientButtonEnabled(false);
-            }
 
-            if (_logger.isInfoEnabled()) {
-                _logger.info("{}Launching JNLP '{}' ...", _logPrefix, getFinalJnlpUrl());
+                // get the process context to be able to kill it later ...
+                setJobContextId(JnlpStarter.launch(getFinalJnlpUrl(), this));
+            } else {
+                // just start application without callbacks:
+                JnlpStarter.launch(getFinalJnlpUrl());
             }
-
-            // get the process context to be able to kill it later ...
-            setJobContextId(JnlpStarter.launch(getFinalJnlpUrl(), this));
         }
     }
 
