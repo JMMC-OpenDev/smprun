@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Queue;
+import java.util.concurrent.TimeoutException;
 import javax.swing.ImageIcon;
 
 import org.astrogrid.samp.Message;
@@ -205,6 +206,16 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
+     * Return the internal state
+     * @return internal state
+     */
+    private ClientStubState getState() {
+        synchronized (_lock) {
+            return _status;
+        }
+    }
+
+    /**
      * Update stub internal state progression and notifies observers
      * 
      * @param status the current state
@@ -232,6 +243,31 @@ public final class ClientStub extends Observable implements JobListener {
                 if (!connectToHub()) {
                     disconnect();
                 }
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param timeout timeout in milliseconds
+     * @throws TimeoutException if the stub did not succeed in time
+     */
+    public void waitForSuccess(final long timeout) throws TimeoutException {
+        final long start = System.nanoTime();
+
+        // Wait for this client stub to die:
+        while (!getState().equals(ClientStubState.DIYING)) {
+            _logger.debug("Waiting for stub to succeed ...");
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException ie) {
+                _logger.error("Interrupted while waiting for success.", ie);
+            }
+
+            final long time = (System.nanoTime() - start) / 1000000; // ms
+            
+            if (time > timeout) {
+                throw new TimeoutException("Stub did not succeed in time !");
             }
         }
     }
