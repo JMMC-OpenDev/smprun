@@ -190,7 +190,7 @@ public final class HubMonitor {
                     // If current client is one of our STUB
                     Object clientIsAStubFlag = md.get(SampMetaData.getStubMetaDataId(clientName));
                     if (SampMetaData.STUB_TOKEN.equals(clientIsAStubFlag)) {
-                        _logger.info("Found STUB recipient '{}' [{}]: leaving it alone.", clientName, recipientId);
+                        _logger.debug("Found STUB recipient '{}' [{}]: leaving it alone.", clientName, recipientId);
                     } else {
 
                         if (stub.isConnected()) {
