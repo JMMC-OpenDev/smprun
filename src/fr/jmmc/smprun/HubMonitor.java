@@ -117,17 +117,23 @@ public final class HubMonitor {
         return mTypesStrings;
     }
 
+    /**
+     * Waits for stubs startup to complete
+     */
     public void waitForStubsStartup() {
         while (isThereSomeStubsLeftToStart()) {
+            _logger.debug("Waiting for stubs startup to complete...");
             try {
-                _logger.info("Waiting for stubs startup to complete...");
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                _logger.error("Could not wait for stubs to finish startup.", ex);
+                Thread.sleep(100L);
+            } catch (InterruptedException ie) {
+                _logger.error("Interrupted while waiting for stubs startup to complete.", ie);
             }
         }
     }
 
+    /**
+     * @return true if there is still stubs to be started 
+     */
     private boolean isThereSomeStubsLeftToStart() {
         return _clientStubsToStart.size() > 0;
     }
@@ -285,7 +291,7 @@ public final class HubMonitor {
 
         if (!_sniffedRealApplications.containsKey(name)) {
             _logger.info("Sniffed new real application '{}': backed up its metadata and subscriptions.", name);
-            
+
             final StubMetaData stubMetaData = new StubMetaData(md, subscriptions);
             _sniffedRealApplications.put(name, stubMetaData);
             stubMetaData.reportToCentralRepository();
