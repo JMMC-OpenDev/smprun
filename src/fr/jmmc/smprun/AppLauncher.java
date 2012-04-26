@@ -53,6 +53,8 @@ public class AppLauncher extends App {
     protected static final Logger _logger = LoggerFactory.getLogger(AppLauncher.class.getName());
     /** Launch JNLP/SAMP Auto-Test action (menu) */
     public LaunchJnlpSampAutoTestAction _launchJnlpSampAutoTestAction;
+    /** Launch Java WebStart Viewer action (menu) */
+    public LaunchJavaWebStartViewerAction _launchJavaWebStartViewerAction;
     /** optional dock window */
     private static DockWindow _dockWindow = null;
     /** preferences instance */
@@ -84,6 +86,7 @@ public class AppLauncher extends App {
         _preferences = Preferences.getInstance();
 
         _launchJnlpSampAutoTestAction = new LaunchJnlpSampAutoTestAction(getClass().getName(), "_launchJnlpSampAutoTestAction");
+        _launchJavaWebStartViewerAction = new LaunchJavaWebStartViewerAction(getClass().getName(), "_launchJavaWebStartViewerAction");
 
         // Start first the SampManager (connect to an existing hub or start a new one)
         // and check if it is connected to one Hub:
@@ -254,7 +257,7 @@ public class AppLauncher extends App {
         HubMonitor.getInstance().waitForStubsStartup();
 
         // TODO: BUG = No Samp client registered for AppLauncherTester !
-        
+
         // Try to send a SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH to AppLauncherTester stub to test our whole machinery
         List<String> clientIds = SampManager.getClientIdsForName("AppLauncherTester");
         if (!clientIds.isEmpty()) {
@@ -298,6 +301,21 @@ public class AppLauncher extends App {
         @Override
         public void actionPerformed(ActionEvent ae) {
             checkJnlpSampAbilities();
+        }
+    }
+
+    protected class LaunchJavaWebStartViewerAction extends RegisteredAction {
+
+        /** default serial UID for Serializable interface */
+        private static final long serialVersionUID = 1;
+
+        public LaunchJavaWebStartViewerAction(String classPath, String fieldName) {
+            super(classPath, fieldName);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            JnlpStarter.launchJavaWebStartViewer();
         }
     }
 

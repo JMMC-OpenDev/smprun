@@ -9,7 +9,7 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.0b13"/>
+    <program name="AppLauncher" version="1.0b14"/>
 
     <compilation date="18/04/2012" compiler="JDK 1.5.0_16"/>
 
@@ -21,11 +21,15 @@
     <menubar>
         <menu label="Help">
             <menu label="Launch JNLP/SAMP Auto-Test" classpath="fr.jmmc.smprun.AppLauncher" action="_launchJnlpSampAutoTestAction"/>
+            <menu label="Configure Java WebStart" classpath="fr.jmmc.smprun.AppLauncher" action="_launchJavaWebStartViewerAction"/>
         </menu>
     </menubar>
 
     <releasenotes>
         <release version="1.0">
+            <prerelease version="1.0b14" tag="AL_V1_0b14">
+                <change type="FEATURE">Added an entry in Help menu to launch Java WebStart viewer.</change>
+            </prerelease>
             <prerelease version="1.0b13" tag="AL_V1_0b13">
                 <change type="FEATURE">Added a welcome message on first launch.</change>
             </prerelease>
