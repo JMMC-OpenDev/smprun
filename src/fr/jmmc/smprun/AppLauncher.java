@@ -20,9 +20,11 @@ import fr.jmmc.jmcs.gui.component.ResizableTextViewFactory;
 import fr.jmmc.jmcs.util.JnlpStarter;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
+import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.astrogrid.samp.client.SampException;
@@ -49,6 +51,10 @@ public class AppLauncher extends App {
             + "- You can easily provide (greatly appreciated) feedback and bug reports to us from the dedicated entry in the Help menu.<BR/>"
             + "<BR/>"
             + "<B>We hope you will appreciate using AppLauncher as much as we had fun making it !</B>";
+    /** AppLauncherTester stub name */
+    private final static String APP_LAUNCHER_TESTER = "AppLauncherTester";
+    /** AppLauncherTester auto test timeout in milliseconds */
+    private final static long APPLAUNCHER_TESTER_TIMEOUT = 2 * 60 * 1000L;
     /** Logger */
     protected static final Logger _logger = LoggerFactory.getLogger(AppLauncher.class.getName());
     /** Launch JNLP/SAMP Auto-Test action (menu) */
@@ -215,7 +221,7 @@ public class AppLauncher extends App {
     }
 
     /**
-     * @return true if the test went fine, false otherwise
+     * Perform first run tests if needed
      */
     private void performFirstRunTasks() {
 
@@ -231,13 +237,12 @@ public class AppLauncher extends App {
         ResizableTextViewFactory.createHtmlWindow(WELCOME_MESSAGE, "Welcome to AppLauncher !!!", true);
 
         // Run JNLP/SAMP abilities test
-        // TODO : Do not work anymore ?!?
         if (!checkJnlpSampAbilities()) {
-            _logger.error("Could not succesfully perform JNLP/SAMP auto-test, aborting.");
+            _logger.error("Could not successfully perform JNLP/SAMP auto-test, aborting.");
             return;
         }
 
-        _logger.info("Succesfully performed first run tasks.");
+        _logger.info("Successfully performed first run tasks.");
 
         // Create preference file to skip this test for future starts
         try {
@@ -256,14 +261,27 @@ public class AppLauncher extends App {
         // First wait for stubs to finish startup
         HubMonitor.getInstance().waitForStubsStartup();
 
-        // TODO: BUG = No Samp client registered for AppLauncherTester !
+        boolean success = false;
 
         // Try to send a SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH to AppLauncherTester stub to test our whole machinery
-        List<String> clientIds = SampManager.getClientIdsForName("AppLauncherTester");
+        List<String> clientIds = SampManager.getClientIdsForName(APP_LAUNCHER_TESTER);
         if (!clientIds.isEmpty()) {
 
             // TODO : Should only send this message to our own stub
-            String appLauncherTesterClientId = clientIds.get(0);
+            final String appLauncherTesterClientId = clientIds.get(0);
+
+            // REtrieve corresponding stub (if any)
+            final ClientStub testerStub = HubPopulator.retrieveClientStub(APP_LAUNCHER_TESTER);
+            if (testerStub == null) {
+                _logger.warn("Client stub [{}] not found.", APP_LAUNCHER_TESTER);
+                return false;
+            }
+
+            // ClientStub: LISTENING
+            if (!testerStub.isConnected()) {
+                _logger.warn("Client stub [{}] not connected to SAMP.", APP_LAUNCHER_TESTER);
+                return false;
+            }
 
             // try to send the dedicated test message to our stub:
 
@@ -275,18 +293,22 @@ public class AppLauncher extends App {
                 final String appLauncherTesterMType = SampCapability.APPLAUNCHERTESTER_TRY_LAUNCH.mType();
                 SampManager.sendMessageTo(appLauncherTesterMType, appLauncherTesterClientId, null);
 
+                // Wait for tester stub to succeed (LAUNCH -> SEEK -> FORWARD -> DISCONNECT -> DYE)
+                testerStub.waitForSuccess(APPLAUNCHER_TESTER_TIMEOUT);
+
+                success = true;
+
             } catch (SampException se) {
                 FeedbackReport.openDialog(se);
-                return false;
+            } catch (TimeoutException te) {
+                FeedbackReport.openDialog(te);
             } finally {
                 // restore Javaws verbose setting:
                 JnlpStarter.setJavaWebStartVerbose(jnlpVerbose);
             }
-
-            // Should wait for application startup and delivery ??
         }
 
-        return true;
+        return success;
     }
 
     protected class LaunchJnlpSampAutoTestAction extends RegisteredAction {
