@@ -129,11 +129,17 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
-     * Return the name of the emulated application
-     * @return the name of the emulated application
+     * @return the name of the emulated application.
      */
     public String getApplicationName() {
         return _applicationName;
+    }
+
+    /**
+     * @return the description of the emulated application, null otherwise.
+     */
+    public String getDescription() {
+        return _description.getDescriptionText();
     }
 
     /**

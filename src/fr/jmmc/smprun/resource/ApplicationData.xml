@@ -9,9 +9,9 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.0b14"/>
+    <program name="AppLauncher" version="1.0b15"/>
 
-    <compilation date="18/04/2012" compiler="JDK 1.5.0_16"/>
+    <compilation date="27/04/2012" compiler="JDK 1.5.0_16"/>
 
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools</text>
 
@@ -27,6 +27,9 @@
 
     <releasenotes>
         <release version="1.0">
+            <prerelease version="1.0b15" tag="AL_V1_0b15">
+                <change type="FEATURE">Added application description as tooltip in Dock window.</change>
+            </prerelease>
             <prerelease version="1.0b14" tag="AL_V1_0b14">
                 <change type="FEATURE">Added an entry in Help menu to launch Java WebStart viewer.</change>
                 <change type="BUGFIX" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/3">Added a 5 minutes timeout to kill and clean stuck applications in case something went wrong during launch.</change>

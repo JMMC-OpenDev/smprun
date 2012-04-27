@@ -326,6 +326,11 @@ public class DockWindow extends JFrame implements Observer {
         button.setVerticalTextPosition(SwingConstants.BOTTOM);
         button.setHorizontalTextPosition(SwingConstants.CENTER);
         button.setBorder(border);
+        //Add tooltip if any description available
+        final String tooltip = client.getDescription();
+        if (tooltip != null) {
+            button.setToolTipText(tooltip);
+        }
 
         return button;
     }
