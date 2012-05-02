@@ -6,21 +6,20 @@ package fr.jmmc.smprun;
 import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
+import fr.jmmc.jmcs.gui.util.WindowUtils;
+import fr.jmmc.jmcs.resource.image.ResourceImage;
 import fr.jmmc.jmcs.util.ImageUtils;
 import fr.jmmc.smprsc.data.list.StubRegistry;
 import fr.jmmc.smprsc.data.list.model.Category;
+import fr.jmmc.smprun.preference.ApplicationListSelectionView;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.util.*;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -64,6 +63,8 @@ public class DockWindow extends JFrame implements Observer {
     private final Preferences _preferences;
     /** Unique application button action listener */
     private final ActionListener _buttonActionListener;
+    /** to display application descriptions */
+    private final ApplicationListSelectionView _applicationDescriptionFactory;
 
     /**
      * Return the DockWindow singleton 
@@ -111,6 +112,8 @@ public class DockWindow extends JFrame implements Observer {
             }
         };
 
+        _applicationDescriptionFactory = new ApplicationListSelectionView();
+
         prepareFrame();
     }
 
@@ -119,6 +122,8 @@ public class DockWindow extends JFrame implements Observer {
         update(null, null);
 
         _preferences.addObserver(this);
+
+        _applicationDescriptionFactory.init();
 
         // Show the user the app is ready to be used
         StatusBar.show("application ready.");
@@ -226,10 +231,6 @@ public class DockWindow extends JFrame implements Observer {
         final JPanel horizontalRowPane = new JPanel();
         horizontalRowPane.setLayout(new BoxLayout(horizontalRowPane, BoxLayout.X_AXIS));
 
-        // @TODO : fixes spaces to actually work !!!
-        final Component emptyRigidArea = Box.createRigidArea(new Dimension(100, 0));
-        horizontalRowPane.add(emptyRigidArea);
-
         // Get the list of visible applications for current category
         final List<String> visibleClientNames = StubRegistry.getCategoryVisibleApplicationNames(family);
         if (visibleClientNames == null) {
@@ -246,7 +247,7 @@ public class DockWindow extends JFrame implements Observer {
                 continue; // Skip its creation
             }
 
-            // REtrieve corresponding stub (if any)
+            // Retrieve corresponding stub (if any)
             final ClientStub clientStub = HubPopulator.retrieveClientStub(visibleClientName);
             if (clientStub == null) {
                 _logger.error("Could not get '{}' stub.", visibleClientName);
@@ -258,16 +259,17 @@ public class DockWindow extends JFrame implements Observer {
             if (button == null) {
                 continue; // Skip GUI stuff creation
             }
-
             categoryIsEmpty = false;
-
+            button.addActionListener(_buttonActionListener);
+            horizontalRowPane.add(button);
             _clientButtons.put(button, clientStub);
             _buttonClients.put(clientStub, button);
 
-            button.addActionListener(_buttonActionListener);
 
-            horizontalRowPane.add(button);
-            horizontalRowPane.add(emptyRigidArea);
+            JButton infoButton = buildInfoButtonForApplication(visibleClientName);
+            horizontalRowPane.add(infoButton);
+
+            horizontalRowPane.add(Box.createRigidArea(new Dimension(10, 0)));
         }
 
         if (categoryIsEmpty) {
@@ -351,6 +353,73 @@ public class DockWindow extends JFrame implements Observer {
                 }
             });
         }
+    }
+
+    private JButton buildInfoButtonForApplication(final String applicationName) {
+
+        JButton infoButton = new JButton();
+
+        ImageIcon icon = ResourceImage.INFO_ICON.icon();
+        icon = ImageUtils.getScaledImageIcon(icon, 13, 13);
+        infoButton.setIcon(icon);
+
+        ImageIcon disabled_icon = ResourceImage.DISABLED_INFO_ICON.icon();
+        disabled_icon = ImageUtils.getScaledImageIcon(disabled_icon, 13, 13);
+        infoButton.setDisabledIcon(disabled_icon);
+        infoButton.setEnabled(false);
+
+        final Border border = new EmptyBorder(68, 0, 0, 0);
+        infoButton.setBorder(border);
+
+        // Enable icon on mouse proximity
+        infoButton.addMouseListener(new MouseListener() {
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                enableIcon(e, true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                enableIcon(e, false);
+            }
+
+            private void enableIcon(MouseEvent e, boolean state) {
+                JButton infoButton = (JButton) e.getSource();
+                if (infoButton != null) {
+                    infoButton.setEnabled(state);
+                }
+            }
+        });
+
+        // Show application description when clicked
+        infoButton.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JFrame frame = new JFrame();
+                frame.add(_applicationDescriptionFactory.retrieveDescriptionPanelForApplication(applicationName));
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                frame.pack();
+                frame.setVisible(true);
+                WindowUtils.centerOnMainScreen(frame);
+                WindowUtils.setClosingKeyboardShortcuts(frame);
+            }
+        });
+
+        return infoButton;
     }
 }
 /*___oOo___*/
