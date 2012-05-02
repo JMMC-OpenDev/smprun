@@ -413,9 +413,9 @@ public class DockWindow extends JFrame implements Observer {
                 frame.add(_applicationDescriptionFactory.retrieveDescriptionPanelForApplication(applicationName));
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.pack();
-                frame.setVisible(true);
                 WindowUtils.centerOnMainScreen(frame);
                 WindowUtils.setClosingKeyboardShortcuts(frame);
+                frame.setVisible(true);
             }
         });
 
