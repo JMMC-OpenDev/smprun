@@ -8,6 +8,7 @@ import fr.jmmc.smprsc.data.list.ApplicationListSelectionPanel;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import javax.swing.JScrollPane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,15 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
         if (selectedApplicationList != null) {
             setCheckedApplicationNames(selectedApplicationList);
         }
+    }
+
+    /**
+     * @return A panel describing the application of given name.
+     * @param applicationName application name to describe.
+     */
+    public JScrollPane retrieveDescriptionPanelForApplication(String applicationName) {
+        fillApplicationDescriptionPane(applicationName);
+        return _descriptionScrollPane;
     }
 
     @Override
