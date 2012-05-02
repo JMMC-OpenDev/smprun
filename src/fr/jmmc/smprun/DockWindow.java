@@ -255,7 +255,7 @@ public class DockWindow extends JFrame implements Observer {
             }
 
             // If the current stub should remain invisble
-            final JButton button = buildClientButton(clientStub);
+            final JButton button = buildApplicationButton(clientStub);
             if (button == null) {
                 continue; // Skip GUI stuff creation
             }
@@ -295,7 +295,7 @@ public class DockWindow extends JFrame implements Observer {
      * @param client client stub instance
      * @return created button, or null if not visible.
      */
-    private JButton buildClientButton(final ClientStub client) {
+    private JButton buildApplicationButton(final ClientStub client) {
 
         final String clientName = client.getApplicationName();
         ImageIcon clientIcon = client.getApplicationIcon();
