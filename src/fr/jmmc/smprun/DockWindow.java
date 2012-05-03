@@ -15,23 +15,11 @@ import fr.jmmc.smprun.preference.ApplicationListSelectionView;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import fr.jmmc.smprun.stub.ClientStub;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JViewport;
-import javax.swing.SwingConstants;
+import java.util.List;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import org.slf4j.Logger;
@@ -266,7 +254,7 @@ public class DockWindow extends JFrame implements Observer {
             _buttonClients.put(clientStub, button);
 
 
-            JButton infoButton = buildInfoButtonForApplication(visibleClientName);
+            Component infoButton = buildInfoButtonForApplication(visibleClientName);
             horizontalRowPane.add(infoButton);
 
             horizontalRowPane.add(Box.createRigidArea(new Dimension(10, 0)));
@@ -355,9 +343,9 @@ public class DockWindow extends JFrame implements Observer {
         }
     }
 
-    private JButton buildInfoButtonForApplication(final String applicationName) {
+    private Component buildInfoButtonForApplication(final String applicationName) {
 
-        JButton infoButton = new JButton();
+        JLabel infoButton = new JLabel();
 
         ImageIcon icon = ResourceImage.INFO_ICON.icon();
         icon = ImageUtils.getScaledImageIcon(icon, 13, 13);
@@ -367,15 +355,22 @@ public class DockWindow extends JFrame implements Observer {
         disabled_icon = ImageUtils.getScaledImageIcon(disabled_icon, 13, 13);
         infoButton.setDisabledIcon(disabled_icon);
         infoButton.setEnabled(false);
-
-        final Border border = new EmptyBorder(68, 0, 0, 0);
-        infoButton.setBorder(border);
-
+                                
+        infoButton.setBorder(BorderFactory.createEmptyBorder(68,1,0,0));        
+        
         // Enable icon on mouse proximity
         infoButton.addMouseListener(new MouseListener() {
 
+            // Show application description when clicked
             @Override
             public void mouseClicked(MouseEvent e) {
+                JFrame frame = new JFrame();
+                frame.add(_applicationDescriptionFactory.retrieveDescriptionPanelForApplication(applicationName));
+                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                frame.pack();
+                WindowUtils.centerOnMainScreen(frame);
+                WindowUtils.setClosingKeyboardShortcuts(frame);
+                frame.setVisible(true);
             }
 
             @Override
@@ -397,28 +392,13 @@ public class DockWindow extends JFrame implements Observer {
             }
 
             private void enableIcon(MouseEvent e, boolean state) {
-                JButton infoButton = (JButton) e.getSource();
+                JLabel infoButton = (JLabel) e.getSource();
                 if (infoButton != null) {
                     infoButton.setEnabled(state);
                 }
             }
         });
-
-        // Show application description when clicked
-        infoButton.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JFrame frame = new JFrame();
-                frame.add(_applicationDescriptionFactory.retrieveDescriptionPanelForApplication(applicationName));
-                frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                frame.pack();
-                WindowUtils.centerOnMainScreen(frame);
-                WindowUtils.setClosingKeyboardShortcuts(frame);
-                frame.setVisible(true);
-            }
-        });
-
+                
         return infoButton;
     }
 }
