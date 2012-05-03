@@ -9,7 +9,7 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.0b15"/>
+    <program name="AppLauncher" version="1.0b16"/>
 
     <compilation date="3/5/2012" compiler="JDK 1.5.0_16"/>
 
@@ -27,6 +27,9 @@
 
     <releasenotes>
         <release version="1.0">
+            <prerelease version="1.0b16" tag="AL_V1_0b16">
+                <change type="CHANGE" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/22">Updated LITpro and SearchCal XML description.</change>
+            </prerelease>
             <prerelease version="1.0b15" tag="AL_V1_0b15">
                 <change type="FEATURE" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/18">Added support for web applications such as CDS Simbad or VizieR.</change>
                 <change type="FEATURE" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/19">Made URL clickable in application description view.</change>
