@@ -5,12 +5,12 @@ package fr.jmmc.smprun;
 
 import fr.jmmc.smprsc.data.list.StubRegistry;
 import fr.jmmc.smprsc.data.list.model.Category;
-import fr.jmmc.smprun.stub.ClientStub;
-import fr.jmmc.smprun.stub.StubMonitor;
 import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
+import fr.jmmc.smprun.stub.ClientStub;
+import fr.jmmc.smprun.stub.StubMonitor;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
