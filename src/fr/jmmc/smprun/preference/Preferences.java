@@ -22,7 +22,7 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
     /** Singleton instance */
     private static Preferences _instance = null;
     /** Default selected application list */
-    private static final List<String> _defaultSelectedApplicationList = Arrays.asList("Aspro2", "SearchCal", "LITpro", "topcat", "Aladin");
+    private static final List<String> _defaultSelectedApplicationList = Arrays.asList("Aspro2", "SearchCal", "LITpro", "topcat", "Aladin", "Simbad", "VizieR");
     /** Constant to detect that no application is deselected */
     public List<String> ALL_APPLICATIONS_SELECTED = null;
 

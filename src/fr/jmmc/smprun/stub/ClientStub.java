@@ -4,6 +4,7 @@
 package fr.jmmc.smprun.stub;
 
 import fr.jmmc.jmcs.gui.component.StatusBar;
+import fr.jmmc.jmcs.network.BrowserLauncher;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
@@ -91,7 +92,7 @@ public final class ClientStub extends Observable implements JobListener {
 
         // Retrieve real application name, JNLP URL and startup delay
         _applicationName = _description.getName();
-        _logPrefix = "Stub['" + _applicationName + "'] ";
+        _logPrefix = "Stub['" + _applicationName + "'] : ";
         _sleepDelayBeforeNotify = data.getLag().intValue();
 
         // Add a custom flag to all our created STUB for later skipping while looking for real recipients
@@ -163,7 +164,7 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
-     * @return the good JNLP URL, whether production or beta one according to user preferences current state.
+     * @return the good JNLP URL (whether production or beta one according to user preferences current state), null otherwise.
      */
     public String getFinalJnlpUrl() {
 
@@ -174,6 +175,17 @@ public final class ClientStub extends Observable implements JobListener {
             sampFinalJnlpId = SampMetaData.JNLP_BETA_URL;
         }
 
+        return _description.getString(sampFinalJnlpId.id());
+    }
+
+    /**
+     * @return the web application URL, null otherwise.
+     */
+    public String getWebApplicationUrl() {
+
+        final List<String> betaApplicationNames = Preferences.getInstance().getBetaApplicationNames();
+
+        SampMetaData sampFinalJnlpId = SampMetaData.WEBAPP_URL;
         return _description.getString(sampFinalJnlpId.id());
     }
 
@@ -238,12 +250,17 @@ public final class ClientStub extends Observable implements JobListener {
      * Perform initialization (connect to hub, register MTypes ...)
      */
     public void connect() {
-        _logger.info("{}connect()", _logPrefix);
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
             if (_status == ClientStubState.UNDEFINED || _status == ClientStubState.DIYING) {
                 setState(ClientStubState.INITIALIZING);
+
+                // If the client is a web app (no SAMP capability at all)
+                if (_mTypes.length <= 0) {
+                    _logger.info("{}Web application ready.", _logPrefix);
+                    return; // Skip SAMP stub connection
+                }
 
                 // Try to connect
                 if (!connectToHub()) {
@@ -254,39 +271,18 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
-     * 
-     * @param timeout timeout in milliseconds
-     * @throws TimeoutException if the stub did not succeed in time
-     */
-    public void waitForSuccess(final long timeout) throws TimeoutException {
-        final long start = System.nanoTime();
-
-        // Wait for this client stub to die:
-        while (!getState().equals(ClientStubState.DIYING)) {
-            _logger.debug("Waiting for stub to succeed ...");
-            try {
-                Thread.sleep(100L);
-            } catch (InterruptedException ie) {
-                _logger.error("Interrupted while waiting for success.", ie);
-            }
-
-            final long time = (System.nanoTime() - start) / 1000000; // ms
-            
-            if (time > timeout) {
-                throw new TimeoutException("Stub did not succeed in time !");
-            }
-        }
-    }
-
-    /**
      * @return true only if this client stub is really connected to the hub, false otherwise 
      */
     public boolean isConnected() {
+
         boolean connected = false;
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
-            if (_status.after(ClientStubState.INITIALIZING) && _status.before(ClientStubState.DISCONNECTING)) {
+            // If the client is a web app (no SAMP capability at all)
+            if (_mTypes.length <= 0) {
+                connected = true; // Always fake it is connected
+            } else if (_status.after(ClientStubState.INITIALIZING) && _status.before(ClientStubState.DISCONNECTING)) {
                 connected = _connector.isConnected();
             }
         }
@@ -297,8 +293,6 @@ public final class ClientStub extends Observable implements JobListener {
      * Disconnect from hub 
      */
     public void disconnect() {
-        _logger.info("{}disconnect()", _logPrefix);
-
         // Reentrance / concurrency checks
         synchronized (_lock) {
             if (_status.after(ClientStubState.INITIALIZING) && _status.before(ClientStubState.DISCONNECTING)) {
@@ -327,15 +321,26 @@ public final class ClientStub extends Observable implements JobListener {
      * Launch the real application
      */
     public void launchRealApplication() {
-        _logger.info("{}launchRealApplication()", _logPrefix);
+        _logger.info("{}Launching real application ...", _logPrefix);
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
             // Note: when the javaws does not start correctly the application => it will never connect to SAMP; let the user retry ...
 
-            StatusBar.show("starting '" + getApplicationName() + "' recipient...");
+            final String finalJnlpUrl = getFinalJnlpUrl();
+            if (finalJnlpUrl == null) {
+                // Get WebApp URL
+                final String webAppURL = getWebApplicationUrl();
+                if (webAppURL != null) {
+                    StatusBar.show("opening '" + getApplicationName() + "' web application...");
+                    _logger.info("{}Opening web application at URL '{}' ...", _logPrefix, webAppURL);
+                    BrowserLauncher.openURL(webAppURL);
+                }
+                return;
+            }
 
-            _logger.info("{}Launching JNLP '{}' ...", _logPrefix, getFinalJnlpUrl());
+            StatusBar.show("starting '" + getApplicationName() + "' recipient...");
+            _logger.info("{}Launching JNLP '{}' ...", _logPrefix, finalJnlpUrl);
 
             // stub is connected i.e. monitoring samp messages ...
             if (isConnected()) {
@@ -345,10 +350,35 @@ public final class ClientStub extends Observable implements JobListener {
                 setClientButtonEnabled(false);
 
                 // get the process context to be able to kill it later ...
-                setJobContextId(JnlpStarter.launch(getFinalJnlpUrl(), this));
+                setJobContextId(JnlpStarter.launch(finalJnlpUrl, this));
             } else {
                 // just start application without callbacks:
-                JnlpStarter.launch(getFinalJnlpUrl());
+                JnlpStarter.launch(finalJnlpUrl);
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param timeout timeout in milliseconds
+     * @throws TimeoutException if the stub did not succeed in time
+     */
+    public void waitForSuccess(final long timeout) throws TimeoutException {
+        final long start = System.nanoTime();
+
+        // Wait for this client stub to die:
+        while (!getState().equals(ClientStubState.DIYING)) {
+            _logger.debug("{}Waiting for stub to succeed ...", _logPrefix);
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException ie) {
+                _logger.error("{}Interrupted while waiting for success.", _logPrefix, ie);
+            }
+
+            final long time = (System.nanoTime() - start) / 1000000; // ms
+
+            if (time > timeout) {
+                throw new TimeoutException("Stub did not succeed in time !");
             }
         }
     }
@@ -357,7 +387,7 @@ public final class ClientStub extends Observable implements JobListener {
      * Cancel or kill the launch of the real application 
      */
     public void killRealApplication() {
-        _logger.info("{}killRealApplication()", _logPrefix);
+        _logger.info("{}Killing real application ...", _logPrefix);
 
         cleanup(false);
     }
@@ -367,7 +397,7 @@ public final class ClientStub extends Observable implements JobListener {
      * @param success true for success
      */
     private void cleanup(final boolean success) {
-        _logger.info("{}cleanup()", _logPrefix);
+        _logger.info("{}Cleaning up ...", _logPrefix);
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
@@ -381,9 +411,7 @@ public final class ClientStub extends Observable implements JobListener {
                  * but it tricky again
                  */
 
-                if (_logger.isDebugEnabled()) {
-                    _logger.debug("{}cleanup(): cancelOrKillJob = {}", _logPrefix, _jobContextId);
-                }
+                _logger.debug("{}cleanup(): cancelOrKillJob = {}", _logPrefix, _jobContextId);
 
                 LocalLauncher.cancelOrKillJob(_jobContextId);
                 setJobContextId(null);
@@ -392,9 +420,7 @@ public final class ClientStub extends Observable implements JobListener {
             // check current state to avoid reporting failure twice or incorrect state:
             final boolean doFail = !success && (_status.after(ClientStubState.PROCESSING) && _status.before(ClientStubState.DISCONNECTING));
 
-            if (_logger.isDebugEnabled()) {
-                _logger.debug("{}cleanup(): doFail = {}", _logPrefix, doFail);
-            }
+            _logger.debug("{}cleanup(): doFail = {}", _logPrefix, doFail);
 
             if (doFail) {
                 // Report failure
@@ -437,7 +463,7 @@ public final class ClientStub extends Observable implements JobListener {
 
         setState(ClientStubState.CONNECTING);
 
-        _logger.info("{}connecting to hub ...", _logPrefix);
+        _logger.info("{}Connecting to hub ...", _logPrefix);
 
         // Set connector up
         _connector.declareMetadata(_description);
@@ -446,7 +472,7 @@ public final class ClientStub extends Observable implements JobListener {
         _connector.setActive(true);
 
         if (!_connector.isConnected()) {
-            _logger.info("{}could not connect to an existing hub.", _logPrefix);
+            _logger.info("{}Could not connect to an existing hub.", _logPrefix);
             return false;
         }
 
@@ -455,7 +481,7 @@ public final class ClientStub extends Observable implements JobListener {
 
         registerStubCapabilities();
 
-        _logger.info("{}connected.", _logPrefix);
+        _logger.info("{}Connected.", _logPrefix);
 
         return true;
     }
@@ -488,12 +514,10 @@ public final class ClientStub extends Observable implements JobListener {
                     @Override
                     public final Map<?, ?> processCall(final HubConnection connection, final String senderId, final Message message) throws SampException {
 
-                        _logger.info("{}processCall()", _logPrefix);
+                        _logger.info("{}Received '{}' message from '{}' : '{}'.", new Object[]{_logPrefix, mType.mType(), senderId, message});
 
                         // Backup message and pending queue for later delivery
                         _messages.add(message);
-
-                        _logger.info("{}received '{}' message from '{}' : '{}'.", new Object[]{_logPrefix, mType.mType(), senderId, message});
 
                         // Start application in background:
                         launchRealApplication();
@@ -514,12 +538,15 @@ public final class ClientStub extends Observable implements JobListener {
             }
         }
 
-        // This step is required to update message handlers into the hub:
-        _connector.declareSubscriptions(_connector.computeSubscriptions());
+        // If the client is not a web app (no SAMP capability at all)
+        if (_mTypes.length > 0) {
+            // This step is required to update message handlers into the hub:
+            _connector.declareSubscriptions(_connector.computeSubscriptions());
 
-        _logger.info("{} has declared subscriptions.", _logPrefix);
+            _logger.info("{}Declared SAMP subscriptions.", _logPrefix);
 
-        setState(ClientStubState.LISTENING);
+            setState(ClientStubState.LISTENING);
+        }
     }
 
     /** 
@@ -529,8 +556,6 @@ public final class ClientStub extends Observable implements JobListener {
      * @param recipientId recipient identifier of the real application.
      */
     public void forwardMessagesToRealRecipient(final String recipientId) {
-        _logger.info("{}forwardMessageToRealRecipient()", _logPrefix);
-
         // Reentrance check
         synchronized (_lock) {
             if (_status.after(ClientStubState.REGISTERING) && _status.before(ClientStubState.DISCONNECTING)) {
@@ -568,10 +593,10 @@ public final class ClientStub extends Observable implements JobListener {
                                 setState(ClientStubState.FORWARDING);
                                 try {
                                     _connector.getConnection().notify(recipientId, msg);
+                                    _logger.info("{}Forwarded message ({} / {}).", new Object[]{_logPrefix, messageIndex, nbOfMessages});
                                 } catch (SampException se) {
-                                    _logger.error("{}Samp notication exception:", _logPrefix, se);
+                                    _logger.error("{}SAMP notication exception:", _logPrefix, se);
                                 }
-                                _logger.info("{}Forwarded message ({} / {}).", new Object[]{_logPrefix, messageIndex, nbOfMessages});
                             } else {
                                 _logger.info("{}Could not find '{}' mType ... skipping.", _logPrefix, msg.getMType());
                             }
@@ -600,7 +625,6 @@ public final class ClientStub extends Observable implements JobListener {
     @Override
     @SuppressWarnings("fallthrough")
     public void performJobEvent(final RootContext jobContext) {
-        _logger.debug("{}performJobEvent()", _logPrefix);
 
         ProcessContext pCtx;
 
