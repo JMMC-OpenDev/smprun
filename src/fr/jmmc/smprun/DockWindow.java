@@ -17,8 +17,10 @@ import fr.jmmc.smprun.preference.Preferences;
 import fr.jmmc.smprun.stub.ClientStub;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -355,9 +357,9 @@ public class DockWindow extends JFrame implements Observer {
         disabled_icon = ImageUtils.getScaledImageIcon(disabled_icon, 13, 13);
         infoButton.setDisabledIcon(disabled_icon);
         infoButton.setEnabled(false);
-                                
-        infoButton.setBorder(BorderFactory.createEmptyBorder(68,1,0,0));        
-        
+
+        infoButton.setBorder(BorderFactory.createEmptyBorder(68, 1, 0, 0));
+
         // Enable icon on mouse proximity
         infoButton.addMouseListener(new MouseListener() {
 
@@ -398,7 +400,7 @@ public class DockWindow extends JFrame implements Observer {
                 }
             }
         });
-                
+
         return infoButton;
     }
 }
