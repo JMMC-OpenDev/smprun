@@ -4,14 +4,14 @@
     <company>
         <short_name>JMMC</short_name>
         <legal_name>Jean-Marie Mariotti Center</legal_name>
-        <logo_resource>/fr/jmmc/jmcs/resource/image/jmmc_logo.png</logo_resource>
+        <logo_resource>fr/jmmc/jmcs/resource/image/jmmc_logo.png</logo_resource>
         <homepage_url>http://www.jmmc.fr/</homepage_url>
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.0b16"/>
+    <program name="AppLauncher" version="1.0"/>
 
-    <compilation date="3/5/2012" compiler="JDK 1.5.0_16"/>
+    <compilation date="11/5/2012" compiler="JDK 1.5.0_16"/>
 
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools</text>
 
@@ -28,10 +28,10 @@
     <releasenotes>
         <release version="1.0">
             <prerelease version="1.0b16" tag="AL_V1_0b16">
-                <change type="CHANGE" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/22">Updated LITpro and SearchCal XML description.</change>
+                <change type="CHANGE" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/22">Updated LITpro and SearchCal XML descriptions.</change>
             </prerelease>
             <prerelease version="1.0b15" tag="AL_V1_0b15">
-                <change type="FEATURE" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/18">Added support for web applications such as CDS Simbad or VizieR.</change>
+                <change type="FEATURE" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/18">Added support for Web applications such as CDS Simbad or VizieR.</change>
                 <change type="FEATURE" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/19">Made URL clickable in application description view.</change>
                 <change type="FEATURE" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/20">Added application short description as tooltip in Dock window.</change>
                 <change type="FEATURE">Added application detailed description on 'info' button click in Dock window.</change>
