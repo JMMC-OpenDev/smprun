@@ -36,6 +36,7 @@
         <release version="1.0.1">
             <prerelease version="1.0.1b1" tag="AL_V1_0_1b1">
                 <change type="FEATURE">Added FAQ, RSS and release notes in 'Help' menu.</change>
+                <change type="FEATURE">Added VOPlot essential application.</change>
             </prerelease>
         </release>
         <release version="1.0">
