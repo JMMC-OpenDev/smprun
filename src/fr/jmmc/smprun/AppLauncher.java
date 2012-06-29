@@ -360,11 +360,16 @@ public class AppLauncher extends App {
     @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public static void main(final String[] args) {
 
-        // To ensure the use of TriStateCheckBoxes in the Jide CheckBoxTree
-        LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
-
         // init swing application for science
         SwingSettings.setup();
+
+        // To ensure the use of TriStateCheckBoxes in the Jide CheckBoxTree
+        SwingUtils.invokeAndWaitEDT(new Runnable() {
+
+            public void run() {
+                LookAndFeelFactory.installJideExtension();
+            }
+        });
 
         final long start = System.nanoTime();
         try {
