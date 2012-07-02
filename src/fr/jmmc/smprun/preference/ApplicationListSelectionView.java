@@ -5,10 +5,12 @@ package fr.jmmc.smprun.preference;
 
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.smprsc.data.list.ApplicationListSelectionPanel;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JScrollPane;
+import org.ivoa.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,6 +74,20 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
         _logger.debug("New list of BETA applications received : {}", betaApplicationList);
 
         saveStringListPreference(PreferenceKey.BETA_APPLICATION_LIST, betaApplicationList);
+    }
+
+    @Override
+    protected void applicationCliPathChanged(String applicationName, String cliPath) {
+        System.out.println("applications '" + applicationName + "' CLI path : '" + cliPath + "'.");
+        // TODO : put value to prefs
+    }
+
+    @Override
+    protected String applicationCliPath(String applicationName) {
+        // TODO : get value from prefs
+        final String path = "/usr/X11/bin/xeyes"; // "/tmp/" + applicationName;
+        System.out.println("return applicationCliPath([" + applicationName + "]) = " + path);
+        return path;
     }
 
     private void saveStringListPreference(PreferenceKey preference, List<String> stringList) {
