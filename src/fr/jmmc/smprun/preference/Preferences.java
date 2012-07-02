@@ -116,6 +116,19 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         return false;
     }
 
+    public String getApplicationCliPath(String applicationName) {
+        final String cliPath = getPreference(PreferenceKey.APPLICATION_CLI_PATH_PREFIX + applicationName, true); // Does not thrown exception on missing value
+        return cliPath;
+    }
+
+    public void setApplicationCliPath(String applicationName, String cliPath) {
+        try {
+            setPreference(PreferenceKey.APPLICATION_CLI_PATH_PREFIX + applicationName, cliPath);
+        } catch (PreferencesException ex) {
+            _logger.error("Could not set '{}' application command-line path to '{}' : ", new Object[] {applicationName, cliPath, ex});
+        }
+    }
+
     public static void main(String[] args) {
 
         final Preferences prefs = Preferences.getInstance();

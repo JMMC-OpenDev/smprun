@@ -78,16 +78,18 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
 
     @Override
     protected void applicationCliPathChanged(String applicationName, String cliPath) {
-        System.out.println("applications '" + applicationName + "' CLI path : '" + cliPath + "'.");
-        // TODO : put value to prefs
+        System.out.println("Put to preference : CLI path '" + cliPath + "' for application '" + applicationName + "'.");
+        _preferences.setApplicationCliPath(applicationName, cliPath);
     }
 
     @Override
     protected String applicationCliPath(String applicationName) {
-        // TODO : get value from prefs
-        final String path = "/usr/X11/bin/xeyes"; // "/tmp/" + applicationName;
-        System.out.println("return applicationCliPath([" + applicationName + "]) = " + path);
-        return path;
+        final String cliPath = _preferences.getApplicationCliPath(applicationName); // "/usr/X11/bin/xeyes";
+        System.out.println("Got from preference : CLI path '" + cliPath + "' for application '" + applicationName + "'.");
+        if (cliPath == null) {
+            return "";
+        }
+        return cliPath;
     }
 
     private void saveStringListPreference(PreferenceKey preference, List<String> stringList) {
