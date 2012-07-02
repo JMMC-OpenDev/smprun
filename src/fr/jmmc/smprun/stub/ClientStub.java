@@ -8,36 +8,21 @@ import fr.jmmc.jmcs.network.BrowserLauncher;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
-
-import fr.jmmc.smprsc.data.stub.StubMetaData;
-import fr.jmmc.smprun.DockWindow;
 import fr.jmmc.jmcs.util.JnlpStarter;
+import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
+import fr.jmmc.smprsc.data.stub.model.Type;
+import fr.jmmc.smprun.DockWindow;
 import fr.jmmc.smprun.preference.Preferences;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Queue;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 import javax.swing.ImageIcon;
-
 import org.astrogrid.samp.Message;
 import org.astrogrid.samp.Metadata;
 import org.astrogrid.samp.Subscriptions;
-import org.astrogrid.samp.client.AbstractMessageHandler;
-import org.astrogrid.samp.client.ClientProfile;
-import org.astrogrid.samp.client.DefaultClientProfile;
-import org.astrogrid.samp.client.HubConnection;
-import org.astrogrid.samp.client.HubConnector;
-import org.astrogrid.samp.client.SampException;
+import org.astrogrid.samp.client.*;
 import org.ivoa.util.concurrent.ThreadExecutors;
-import org.ivoa.util.runner.JobListener;
-import org.ivoa.util.runner.LocalLauncher;
-import org.ivoa.util.runner.RootContext;
-import org.ivoa.util.runner.RunContext;
-import org.ivoa.util.runner.RunState;
+import org.ivoa.util.runner.*;
 import org.ivoa.util.runner.process.ProcessContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,8 +43,10 @@ public final class ClientStub extends Observable implements JobListener {
     private final String _applicationName;
     /** Store desired stub SAMP capabilities */
     private final SampCapability[] _mTypes;
-    /** sleep delay in milliseconds before sending the samp message (application startup workaround) */
+    /** sleep delay in milliseconds before sending the SAMP message (application startup workaround) */
     private final long _sleepDelayBeforeNotify;
+    /** application execution type */
+    private final Type _executionType;
     /** log prefix */
     private final String _logPrefix;
     /* state objects */
@@ -94,6 +81,7 @@ public final class ClientStub extends Observable implements JobListener {
         _applicationName = _description.getName();
         _logPrefix = "Stub['" + _applicationName + "'] : ";
         _sleepDelayBeforeNotify = data.getLag().intValue();
+        _executionType = data.getType();
 
         // Add a custom flag to all our created STUB for later skipping while looking for real recipients
         _description.put(SampMetaData.getStubMetaDataId(_applicationName), SampMetaData.STUB_TOKEN);
@@ -183,10 +171,30 @@ public final class ClientStub extends Observable implements JobListener {
      */
     public String getWebApplicationUrl() {
 
-        final List<String> betaApplicationNames = Preferences.getInstance().getBetaApplicationNames();
+        SampMetaData sampWebApppId = SampMetaData.WEBAPP_URL;
+        return _description.getString(sampWebApppId.id());
+    }
 
-        SampMetaData sampFinalJnlpId = SampMetaData.WEBAPP_URL;
-        return _description.getString(sampFinalJnlpId.id());
+    /**
+     * @return the command-line application path, null otherwise.
+     */
+    public String getApplicationCliPath() {
+
+        final String preferedCliPath = Preferences.getInstance().getApplicationCliPath(_applicationName);
+        System.out.println("preferedCliPath = " + preferedCliPath);
+        if ((preferedCliPath != null) && (preferedCliPath.length() > 0)) {
+            return preferedCliPath;
+        }
+
+        SampMetaData sampCliPathId = SampMetaData.CLI_PATH;
+        final String defaultCliPath = _description.getString(sampCliPathId.id());
+        System.out.println("defaultCliPath = " + defaultCliPath);
+        if ((defaultCliPath != null) && (defaultCliPath.length() > 0)) {
+            return defaultCliPath;
+        }
+
+        // TODO : Ask for CLI in a pop up and then save to pref.
+        return null;
     }
 
     /**
@@ -321,40 +329,68 @@ public final class ClientStub extends Observable implements JobListener {
      * Launch the real application
      */
     public void launchRealApplication() {
-        _logger.info("{}Launching real application ...", _logPrefix);
+        _logger.info("{}Launching real '{}' application ...", _logPrefix, _executionType);
 
         // Reentrance / concurrency checks
         synchronized (_lock) {
+
             // Note: when the javaws does not start correctly the application => it will never connect to SAMP; let the user retry ...
 
-            final String finalJnlpUrl = getFinalJnlpUrl();
-            if (finalJnlpUrl == null) {
-                // Get WebApp URL
-                final String webAppURL = getWebApplicationUrl();
-                if (webAppURL != null) {
-                    StatusBar.show("opening '" + getApplicationName() + "' web application...");
-                    _logger.info("{}Opening web application at URL '{}' ...", _logPrefix, webAppURL);
-                    BrowserLauncher.openURL(webAppURL);
-                }
-                return;
+            switch (_executionType) {
+                case JNLP:
+                    final String finalJnlpUrl = getFinalJnlpUrl();
+                    if (finalJnlpUrl != null) {
+                        StatusBar.show("starting '" + _applicationName + "' recipient...");
+                        _logger.info("{}Launching JNLP '{}' ...", _logPrefix, finalJnlpUrl);
+
+                        // stub is connected i.e. monitoring SAMP messages ...
+                        if (isConnected()) {
+                            // only change state if this stub is running:
+                            setState(ClientStubState.LAUNCHING);
+
+                            setClientButtonEnabled(false);
+
+                            // get the process context to be able to kill it later ...
+                            setJobContextId(JnlpStarter.launch(finalJnlpUrl, this));
+                        } else {
+                            // just start application without callbacks:
+                            JnlpStarter.launch(finalJnlpUrl);
+                        }
+                    } else {
+                        _logger.error("{}JNLP URL not found.", _logPrefix);
+                    }
+                    break;
+
+                case WEB:
+                    // Get WebApp URL
+                    final String webAppURL = getWebApplicationUrl();
+                    if (webAppURL != null) {
+                        StatusBar.show("opening '" + _applicationName + "' web application...");
+                        _logger.info("{}Opening web application at URL '{}' ...", _logPrefix, webAppURL);
+                        BrowserLauncher.openURL(webAppURL);
+                    } else {
+                        _logger.error("{}Web URL not found.", _logPrefix);
+                    }
+                    break;
+
+                case CLI:
+                    final String applicationCliPath = getApplicationCliPath();
+                    if (applicationCliPath != null) {
+                        StatusBar.show("starting '" + _applicationName + "' recipient...");
+                        _logger.info("{}Launching command-line path '{}' ...", _logPrefix, applicationCliPath);
+                        // TODO : Launch it !
+                    } else {
+                        _logger.error("{}Command-line path not found.", _logPrefix);
+                    }
+                    System.out.println(_logPrefix + "Launching CLI application '" + _applicationName + "' at path '" + applicationCliPath + "'.");
+                    break;
+
+                default:
+                    _logger.error("{}Could not handle unknown '{}' execution type.", _logPrefix, _executionType);
+                    System.out.println(_logPrefix + "Could not handle unknown '" + _executionType + "' execution type.");
+                    break;
             }
-
-            StatusBar.show("starting '" + getApplicationName() + "' recipient...");
-            _logger.info("{}Launching JNLP '{}' ...", _logPrefix, finalJnlpUrl);
-
-            // stub is connected i.e. monitoring samp messages ...
-            if (isConnected()) {
-                // only change state if this stub is running:
-                setState(ClientStubState.LAUNCHING);
-
-                setClientButtonEnabled(false);
-
-                // get the process context to be able to kill it later ...
-                setJobContextId(JnlpStarter.launch(finalJnlpUrl, this));
-            } else {
-                // just start application without callbacks:
-                JnlpStarter.launch(finalJnlpUrl);
-            }
+            _logger.info("{}Launch done.", _logPrefix);
         }
     }
 
