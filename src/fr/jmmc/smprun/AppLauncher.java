@@ -8,16 +8,16 @@ import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.FeedbackReport;
 import fr.jmmc.jmcs.gui.PreferencesView;
+import fr.jmmc.jmcs.gui.action.RegisteredAction;
+import fr.jmmc.jmcs.gui.component.BooleanPreferencesView;
+import fr.jmmc.jmcs.gui.component.ResizableTextViewFactory;
 import fr.jmmc.jmcs.gui.util.SwingSettings;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.gui.util.WindowUtils;
-import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
-import fr.jmmc.smprun.preference.ApplicationListSelectionView;
-import fr.jmmc.jmcs.gui.component.BooleanPreferencesView;
-import fr.jmmc.jmcs.gui.component.ResizableTextViewFactory;
 import fr.jmmc.jmcs.util.JnlpStarter;
+import fr.jmmc.smprun.preference.ApplicationListSelectionView;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import fr.jmmc.smprun.stub.ClientStub;
@@ -366,6 +366,7 @@ public class AppLauncher extends App {
         // To ensure the use of TriStateCheckBoxes in the Jide CheckBoxTree
         SwingUtils.invokeAndWaitEDT(new Runnable() {
 
+            @Override
             public void run() {
                 LookAndFeelFactory.installJideExtension();
             }
