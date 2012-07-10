@@ -184,14 +184,12 @@ public final class ClientStub extends Observable implements JobListener {
     public String getApplicationCliPath() {
 
         final String preferedCliPath = Preferences.getInstance().getApplicationCliPath(_applicationName);
-        System.out.println("preferedCliPath = " + preferedCliPath);
         if ((preferedCliPath != null) && (preferedCliPath.length() > 0)) {
             return preferedCliPath;
         }
 
         SampMetaData sampCliPathId = SampMetaData.CLI_PATH;
         final String defaultCliPath = _description.getString(sampCliPathId.id());
-        System.out.println("defaultCliPath = " + defaultCliPath);
         if ((defaultCliPath != null) && (defaultCliPath.length() > 0)) {
             return defaultCliPath;
         }
