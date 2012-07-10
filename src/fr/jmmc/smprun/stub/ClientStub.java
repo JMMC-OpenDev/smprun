@@ -3,11 +3,14 @@
  ******************************************************************************/
 package fr.jmmc.smprun.stub;
 
+import fr.jmmc.jmcs.data.preference.PreferencesException;
+import fr.jmmc.jmcs.gui.component.MessagePane;
 import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.network.BrowserLauncher;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
+import fr.jmmc.jmcs.util.CliStarter;
 import fr.jmmc.jmcs.util.JnlpStarter;
 import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
@@ -193,7 +196,22 @@ public final class ClientStub extends Observable implements JobListener {
             return defaultCliPath;
         }
 
-        // TODO : Ask for CLI in a pop up and then save to pref.
+        // Ask user for CLI path in a pop up
+        final String title = "Please give '" + _applicationName + "' command-line path ?";
+        final String message = "AppLauncher tries to start the '" + _applicationName + "' native application.\n"
+                + "As it is a user-installed application, AppLauncher does not know where to find it.\n\n"
+                + "Please enter a straight command-line to launch it (arguments not supported) :";
+        final String userCliPath = MessagePane.showInputMessage(message, title);
+        if ((userCliPath != null) && (userCliPath.length() > 0)) { // User did not canceled the input
+            Preferences.getInstance().setApplicationCliPath(_applicationName, userCliPath);
+            try {
+                Preferences.getInstance().saveToFile();
+            } catch (PreferencesException ex) {
+                _logger.warn("Could not write to preference file.", ex);
+            }
+            return userCliPath;
+        }
+
         return null;
     }
 
@@ -378,16 +396,14 @@ public final class ClientStub extends Observable implements JobListener {
                     if (applicationCliPath != null) {
                         StatusBar.show("starting '" + _applicationName + "' recipient...");
                         _logger.info("{}Launching command-line path '{}' ...", _logPrefix, applicationCliPath);
-                        // TODO : Launch it !
+                        CliStarter.launch(applicationCliPath);
                     } else {
                         _logger.error("{}Command-line path not found.", _logPrefix);
                     }
-                    System.out.println(_logPrefix + "Launching CLI application '" + _applicationName + "' at path '" + applicationCliPath + "'.");
                     break;
 
                 default:
                     _logger.error("{}Could not handle unknown '{}' execution type.", _logPrefix, _executionType);
-                    System.out.println(_logPrefix + "Could not handle unknown '" + _executionType + "' execution type.");
                     break;
             }
             _logger.info("{}Launch done.", _logPrefix);
