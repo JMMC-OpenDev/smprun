@@ -5,12 +5,10 @@ package fr.jmmc.smprun.preference;
 
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.smprsc.data.list.ApplicationListSelectionPanel;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 import javax.swing.JScrollPane;
-import org.ivoa.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +58,6 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
     @Override
     protected void checkedApplicationChanged(List<String> checkedApplicationList) {
         _logger.debug("New list of SELECTED applications received : {}", checkedApplicationList);
-
         saveStringListPreference(PreferenceKey.SELECTED_APPLICATION_LIST, checkedApplicationList);
     }
 
@@ -71,21 +68,22 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
 
     @Override
     protected void betaApplicationChanged(List<String> betaApplicationList) {
-        _logger.debug("New list of BETA applications received : {}", betaApplicationList);
-
+        _logger.debug("New list of BETA applications received : '{}'.", betaApplicationList);
         saveStringListPreference(PreferenceKey.BETA_APPLICATION_LIST, betaApplicationList);
     }
 
     @Override
     protected void applicationCliPathChanged(String applicationName, String cliPath) {
-        System.out.println("Put to preference : CLI path '" + cliPath + "' for application '" + applicationName + "'.");
+        _logger.debug("New CLI path for application '{}' received : '{}'.", applicationName, cliPath);
         _preferences.setApplicationCliPath(applicationName, cliPath);
     }
 
     @Override
     protected String applicationCliPath(String applicationName) {
-        final String cliPath = _preferences.getApplicationCliPath(applicationName); // "/usr/X11/bin/xeyes";
-        System.out.println("Got from preference : CLI path '" + cliPath + "' for application '" + applicationName + "'.");
+
+        final String cliPath = _preferences.getApplicationCliPath(applicationName);
+        _logger.debug("Retrieved CLI path for application '{}' :  '{}'.", applicationName, cliPath);
+
         if (cliPath == null) {
             return "";
         }
