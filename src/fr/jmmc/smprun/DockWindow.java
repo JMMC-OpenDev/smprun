@@ -82,7 +82,6 @@ public class DockWindow extends JFrame implements Observer {
         _preferences = Preferences.getInstance();
 
         _buttonActionListener = new ActionListener() {
-
             /**
              * Start client application when its icon is clicked
              */
@@ -134,7 +133,6 @@ public class DockWindow extends JFrame implements Observer {
 
         // Properly quit the application when main window close button is clicked
         addWindowListener(new WindowAdapter() {
-
             @Override
             public void windowClosing(final WindowEvent e) {
                 // Callback on exit :
@@ -149,7 +147,6 @@ public class DockWindow extends JFrame implements Observer {
         // Using invokeAndWait to be in sync with this thread :
         // note: invokeAndWaitEDT throws an IllegalStateException if any exception occurs
         SwingUtils.invokeAndWaitEDT(new Runnable() {
-
             /**
              * Initializes the swing components with their actions in EDT
              */
@@ -336,7 +333,6 @@ public class DockWindow extends JFrame implements Observer {
         final JButton button = _buttonClients.get(client);
         if (button != null) {
             SwingUtils.invokeEDT(new Runnable() {
-
                 @Override
                 public void run() {
                     button.setEnabled(enabled);
@@ -362,7 +358,6 @@ public class DockWindow extends JFrame implements Observer {
 
         // Enable icon on mouse proximity
         infoButton.addMouseListener(new MouseListener() {
-
             // Show application description when clicked
             @Override
             public void mouseClicked(MouseEvent e) {
