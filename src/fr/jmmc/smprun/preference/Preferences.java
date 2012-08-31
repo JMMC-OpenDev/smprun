@@ -5,6 +5,7 @@ package fr.jmmc.smprun.preference;
 
 import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
+import fr.jmmc.jmcs.util.FileUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +61,8 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         setDefaultPreference(PreferenceKey.START_SELECTED_STUBS, false);
         // By default always show exit warning
         setDefaultPreference(PreferenceKey.SHOW_EXIT_WARNING, true);
+        // By default always ask user's permission before reorting an unknown application
+        setDefaultPreference(PreferenceKey.SILENTLY_REPORT_FLAG, false);
         // By default always show JMMC and ESSENTIALS applications
         setDefaultPreference(PreferenceKey.SELECTED_APPLICATION_LIST, _defaultSelectedApplicationList);
         // By default no application should be used as beta
@@ -92,9 +95,12 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
 
     public boolean isApplicationNameSelected(String applicationName) {
         List<String> selectedApplicationNameList = getSelectedApplicationNames();
-        if ((selectedApplicationNameList == ALL_APPLICATIONS_SELECTED) || (selectedApplicationNameList.contains(applicationName))) {
+        final String applicationId = FileUtils.cleanupFileName(applicationName);
+
+        if ((selectedApplicationNameList == ALL_APPLICATIONS_SELECTED) || (selectedApplicationNameList.contains(applicationId))) {
             return true;
         }
+
         return false;
     }
 
@@ -109,23 +115,25 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         } catch (PreferencesException ex) {
             _logger.error("PreferencesException :", ex);
         }
-
-        if ((betaApplicationNameList == ALL_APPLICATIONS_SELECTED) || (betaApplicationNameList.contains(applicationName))) {
+        final String applicationId = FileUtils.cleanupFileName(applicationName);
+        if ((betaApplicationNameList == ALL_APPLICATIONS_SELECTED) || (betaApplicationNameList.contains(applicationId))) {
             return true;
         }
         return false;
     }
 
     public String getApplicationCliPath(String applicationName) {
-        final String cliPath = getPreference(PreferenceKey.APPLICATION_CLI_PATH_PREFIX + applicationName, true); // Does not thrown exception on missing value
+        final String applicationId = FileUtils.cleanupFileName(applicationName);
+        final String cliPath = getPreference(PreferenceKey.APPLICATION_CLI_PATH_PREFIX + applicationId, true); // Does not thrown exception on missing value
         return cliPath;
     }
 
     public void setApplicationCliPath(String applicationName, String cliPath) {
+        final String applicationId = FileUtils.cleanupFileName(applicationName);
         try {
-            setPreference(PreferenceKey.APPLICATION_CLI_PATH_PREFIX + applicationName, cliPath);
+            setPreference(PreferenceKey.APPLICATION_CLI_PATH_PREFIX + applicationId, cliPath);
         } catch (PreferencesException ex) {
-            _logger.error("Could not set '{}' application command-line path to '{}' : ", new Object[] {applicationName, cliPath, ex});
+            _logger.error("Could not set '{}' application command-line path to '{}' : ", new Object[]{applicationName, cliPath, ex});
         }
     }
 

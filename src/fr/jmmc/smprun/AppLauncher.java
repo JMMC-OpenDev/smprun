@@ -110,7 +110,6 @@ public class AppLauncher extends App {
         // Using invokeAndWait to be in sync with this thread :
         // note: invokeAndWaitEDT throws an IllegalStateException if any exception occurs
         SwingUtils.invokeAndWaitEDT(new Runnable() {
-
             /**
              * Initializes the swing components with their actions in EDT
              */
@@ -140,6 +139,7 @@ public class AppLauncher extends App {
                 // Create general settings pane
                 LinkedHashMap<Object, String> generalSettingsMap = new LinkedHashMap<Object, String>();
                 generalSettingsMap.put(PreferenceKey.SHOW_DOCK_WINDOW, "Show Dock window on startup");
+                generalSettingsMap.put(PreferenceKey.SILENTLY_REPORT_FLAG, "Silently report unknown applications to JMMC");
                 generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Restrict SAMP support to your selected applications on startup");
                 generalSettingsMap.put(PreferenceKey.SHOW_EXIT_WARNING, "Show warning before shuting down SAMP hub while quitting");
                 BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(_preferences, generalSettingsMap, BooleanPreferencesView.SAVE_AND_RESTART_MESSAGE);
@@ -170,7 +170,6 @@ public class AppLauncher extends App {
 
         // If JNLP/SAMP startup test went fine
         SwingUtils.invokeLaterEDT(new Runnable() {
-
             /**
              * Show the application frame using EDT
              */
@@ -325,7 +324,6 @@ public class AppLauncher extends App {
         public void actionPerformed(ActionEvent ae) {
 
             ThreadExecutors.getGenericExecutor().submit(new Runnable() {
-
                 /**
                  * Launch JNLP/SAMP Auto-Test  using dedicated thread (2 minutes timeout)
                  */
@@ -365,7 +363,6 @@ public class AppLauncher extends App {
 
         // To ensure the use of TriStateCheckBoxes in the Jide CheckBoxTree
         SwingUtils.invokeAndWaitEDT(new Runnable() {
-
             @Override
             public void run() {
                 LookAndFeelFactory.installJideExtension();

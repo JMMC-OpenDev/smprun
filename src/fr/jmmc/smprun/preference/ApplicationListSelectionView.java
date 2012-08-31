@@ -4,6 +4,7 @@
 package fr.jmmc.smprun.preference;
 
 import fr.jmmc.jmcs.data.preference.PreferencesException;
+import fr.jmmc.jmcs.util.FileUtils;
 import fr.jmmc.smprsc.data.list.ApplicationListSelectionPanel;
 import java.util.List;
 import java.util.Observable;
@@ -90,11 +91,21 @@ public class ApplicationListSelectionView extends ApplicationListSelectionPanel 
         return cliPath;
     }
 
+    private static void cleanApplicationNameList(final List<String> applicationNameList) {
+        for (int i = 0; i < applicationNameList.size(); i++) {
+            String applicationName = applicationNameList.get(i);
+            final String applicationId = FileUtils.cleanupFileName(applicationName);
+            applicationNameList.set(i, applicationId);
+        }
+    }
+
     private void saveStringListPreference(PreferenceKey preference, List<String> stringList) {
 
         if (stringList == null) {
             return;
         }
+
+        cleanApplicationNameList(stringList);
 
         try {
             _preferences.setPreference(preference, stringList);

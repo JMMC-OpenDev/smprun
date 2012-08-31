@@ -13,6 +13,7 @@ public enum PreferenceKey {
     SHOW_DOCK_WINDOW("show.dock.window"),
     START_SELECTED_STUBS("start.selected.stubs"),
     SHOW_EXIT_WARNING("show.exit.warning"),
+    SILENTLY_REPORT_FLAG("silently.report.flag"),
     APPLICATION_CLI_PATH_PREFIX("command.line.path.for."),
     SELECTED_APPLICATION_LIST("selected.application.list"),
     BETA_APPLICATION_LIST("beta.application.list");

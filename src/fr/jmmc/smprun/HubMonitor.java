@@ -9,6 +9,8 @@ import fr.jmmc.jmcs.network.interop.SampMetaData;
 import fr.jmmc.smprsc.data.list.StubRegistry;
 import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprsc.data.stub.StubMetaData;
+import fr.jmmc.smprun.preference.PreferenceKey;
+import fr.jmmc.smprun.preference.Preferences;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,7 +68,6 @@ public final class HubMonitor {
 
         // Monitor any modification to the capable clients list
         _capableClients.addListDataListener(new ListDataListener() {
-
             @Override
             public void contentsChanged(final ListDataEvent e) {
                 _logger.trace("ListDataListener.contentsChanged");
@@ -151,7 +152,6 @@ public final class HubMonitor {
         }
 
         _executor.submit(new Runnable() {
-
             /**
              * Process hub information about registered client 
              */
@@ -266,7 +266,6 @@ public final class HubMonitor {
     private void handleNewRealRecipientDetection(final ClientStub stub, final String recipientId) {
 
         ThreadExecutors.getGenericExecutor().submit(new Runnable() {
-
             /**
              * Process application registration using dedicated thread (may sleep for few seconds ...)
              */
@@ -287,14 +286,14 @@ public final class HubMonitor {
         final String name = md.getName();
         final Subscriptions subscriptions = client.getSubscriptions();
 
-        // TODO : store previously dismissed apps in preference
+        // TODO : store previously dismissed apps in preference ?
 
         if (!_sniffedRealApplications.containsKey(name)) {
             _logger.info("Sniffed new real application '{}': backed up its metadata and subscriptions.", name);
 
             final StubMetaData stubMetaData = new StubMetaData(md, subscriptions);
             _sniffedRealApplications.put(name, stubMetaData);
-            stubMetaData.reportToCentralRepository();
+            stubMetaData.reportToCentralRepository(Preferences.getInstance(), PreferenceKey.SILENTLY_REPORT_FLAG.toString());
         }
     }
 }
