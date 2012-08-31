@@ -42,7 +42,6 @@ public class StubMonitor implements Observer {
         super();
 
         SwingUtils.invokeEDT(new Runnable() {
-
             /**
              * Synchronized by EDT
              */
@@ -83,7 +82,6 @@ public class StubMonitor implements Observer {
         if (step > minStep) {
 
             SwingUtils.invokeEDT(new Runnable() {
-
                 /**
                  * Synchronized by EDT
                  */
@@ -101,7 +99,6 @@ public class StubMonitor implements Observer {
 
                             // Cancel task used by user or after tiemout:
                             final ActionListener cancelTask = new ActionListener() {
-
                                 /**
                                  * Kill (or detach) the javaws process if the button is clicked
                                  */
@@ -162,7 +159,6 @@ public class StubMonitor implements Observer {
 
                 // Postpone hiding to let the user see the last message
                 final ActionListener hideTask = new ActionListener() {
-
                     @Override
                     public void actionPerformed(ActionEvent e) {
                         if (_window.isVisible()) {
