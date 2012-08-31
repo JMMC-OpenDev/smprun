@@ -553,7 +553,6 @@ public final class ClientStub extends Observable implements JobListener {
 
                 // Create handler for each stub capability
                 _mHandlers[i] = new AbstractMessageHandler(mType.mType()) {
-
                     /**
                      * Implements message processing
                      *
