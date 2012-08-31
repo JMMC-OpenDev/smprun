@@ -38,6 +38,7 @@
                 <change type="FEATURE">Added a preference to silently report unknown applications.</change>
                 <change type="BUG">Now properly handle application names with spaces or accent.</change>
                 <change type="FEATURE">Added SAOImage DS9 essential application.</change>
+                <change type="FEATURE">Added VOSED Web application.</change>
             </prerelease>
             <prerelease version="1.1b1" tag="AL_V1_1b1">
                 <change type="FEATURE">Added support for command-line applications.</change>
