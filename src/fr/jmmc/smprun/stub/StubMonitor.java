@@ -1,6 +1,8 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  * JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
- ******************************************************************************/
+ *****************************************************************************
+ */
 package fr.jmmc.smprun.stub;
 
 import fr.jmmc.jmcs.gui.util.SwingUtils;
@@ -18,21 +20,31 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Monitor Window controller.
- * 
+ *
  * @author Sylvain LAFRASSE, Laurent BOURGES
  */
 public class StubMonitor implements Observer {
 
-    /** Class logger */
+    /**
+     * Class logger
+     */
     private static final Logger _logger = LoggerFactory.getLogger(StubMonitor.class.getName());
-    /** auto hide delay in milliseconds */
+    /**
+     * auto hide delay in milliseconds
+     */
     public final static int AUTO_HIDE_DELAY = 5 * 1000;
-    /** cancel launching delay in milliseconds */
+    /**
+     * cancel launching delay in milliseconds
+     */
     public final static int CANCEL_TIMEOUT = 5 * 60 * 1000;
     /* members */
-    /** Monitor GUI */
+    /**
+     * Monitor GUI
+     */
     private MonitorWindow _window;
-    /** Cancel launching timer (timeout) */
+    /**
+     * Cancel launching timer (timeout)
+     */
     private Timer _cancelTimer = null;
 
     /**
@@ -58,6 +70,7 @@ public class StubMonitor implements Observer {
 
     /**
      * Handle the observable event
+     *
      * @see java.util.Observer
      * @param obj ClientStub instance
      * @param arg ClientStubState instance
@@ -75,7 +88,7 @@ public class StubMonitor implements Observer {
         final int maxStep = ClientStubState.DIYING.step();
 
         if (_logger.isDebugEnabled()) {
-            _logger.debug("StubMonitor['{}'] : '{}' ({} / {}).", new Object[]{applicationName, state.message(), step, maxStep});
+            _logger.debug("StubMonitor['{}'] : '{}' ({} / {}).", applicationName, state.message(), step, maxStep);
         }
 
         // Do not display initialization statuses:
@@ -177,6 +190,7 @@ public class StubMonitor implements Observer {
 
     /**
      * Start/Stop the internal cancel timer
+     *
      * @param enable true to enable it, false otherwise
      */
     private void enableCancelTimer(final boolean enable) {

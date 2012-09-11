@@ -1,6 +1,8 @@
-/*******************************************************************************
+/**
+ * *****************************************************************************
  * JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
- ******************************************************************************/
+ *****************************************************************************
+ */
 package fr.jmmc.smprun.preference;
 
 import fr.jmmc.jmcs.data.preference.MissingPreferenceException;
@@ -14,17 +16,26 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Manage AppLauncher user's default values.
+ *
  * @author Sylvain LAFRASSE
  */
 public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
 
-    /** Logger */
+    /**
+     * Logger
+     */
     private static final Logger _logger = LoggerFactory.getLogger(Preferences.class.getName());
-    /** Singleton instance */
+    /**
+     * Singleton instance
+     */
     private static Preferences _instance = null;
-    /** Default selected application list */
+    /**
+     * Default selected application list
+     */
     private static final List<String> _defaultSelectedApplicationList = Arrays.asList("Aspro2", "SearchCal", "LITpro", "topcat", "Aladin", "Simbad", "VizieR");
-    /** Constant to detect that no application is deselected */
+    /**
+     * Constant to detect that no application is deselected
+     */
     public List<String> ALL_APPLICATIONS_SELECTED = null;
 
     /**
@@ -133,7 +144,7 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         try {
             setPreference(PreferenceKey.APPLICATION_CLI_PATH_PREFIX + applicationId, cliPath);
         } catch (PreferencesException ex) {
-            _logger.error("Could not set '{}' application command-line path to '{}' : ", new Object[]{applicationName, cliPath, ex});
+            _logger.error("Could not set '{}' application command-line path to '{}' : ", applicationName, cliPath, ex);
         }
     }
 
