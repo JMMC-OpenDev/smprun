@@ -9,7 +9,7 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.1b2"/>
+    <program name="AppLauncher" version="1.1"/>
     <compilation date="26/6/2012" compiler="JDK 1.5.0_16"/>
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools.</text>
     <authors>the JMMC Technical Group</authors>
