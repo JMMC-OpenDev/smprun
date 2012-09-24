@@ -123,10 +123,9 @@ public class DockWindow extends JFrame implements Observer {
      */
     private void prepareFrame() {
 
+        setResizable(false);
         setMinimumSize(_windowDimension);
         setMaximumSize(_windowDimension);
-
-        // @TODO : Put it in System Tray ??
 
         // Previous adapter manages the windowClosing(event) :
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -270,6 +269,7 @@ public class DockWindow extends JFrame implements Observer {
         scrollPane.setPreferredSize(_windowDimension);
         scrollPane.setMinimumSize(_windowDimension);
         scrollPane.setMaximumSize(_windowDimension);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 
         JViewport view = scrollPane.getViewport();
         view.add(horizontalRowPane);
