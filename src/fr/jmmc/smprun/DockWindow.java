@@ -306,6 +306,7 @@ public class DockWindow extends JFrame implements Observer {
 
         // Horizontally center application name (with optional beta sign if needed) below its icon
         final JButton button = new JButton(clientIcon);
+        button.setName(clientName); // FEST mapping
         String buttonLabel = clientName;
         if (_preferences.isApplicationReleaseBeta(clientName)) {
             buttonLabel += BETA_SIGN;
