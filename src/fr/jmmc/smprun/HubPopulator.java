@@ -102,6 +102,14 @@ public class HubPopulator {
     }
 
     /**
+     * @return true if initialization is done, false otherwise.
+     */
+    public static boolean isInitialized() {
+
+        return (_singleton == null ? false : true);
+    }
+
+    /**
      * Return the client stub map keyed by application name
      * @return client stub map keyed by application name
      */
