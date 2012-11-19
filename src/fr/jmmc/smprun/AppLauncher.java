@@ -83,12 +83,11 @@ public class AppLauncher extends App {
 
     /**
      * Initialize application objects
-     * @param args ignored arguments
      *
      * @throws RuntimeException if the AppLauncher initialization failed
      */
     @Override
-    protected void init(final String[] args) {
+    protected void init() {
 
         _preferences = Preferences.getInstance();
 
