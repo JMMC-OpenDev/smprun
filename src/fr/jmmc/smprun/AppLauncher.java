@@ -257,7 +257,7 @@ public class AppLauncher extends App {
      */
     private boolean checkJnlpSampAbilities() {
 
-        // First wait for stubs to finish startup
+        // First wait for stubs to shouldFinish startup
         HubMonitor.getInstance().waitForStubsStartup();
 
         boolean success = false;

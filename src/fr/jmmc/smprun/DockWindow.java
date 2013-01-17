@@ -135,7 +135,7 @@ public class DockWindow extends JFrame implements Observer {
             @Override
             public void windowClosing(final WindowEvent e) {
                 // Callback on exit :
-                App.quitAction().actionPerformed(null);
+                App.quit();
             }
         });
     }
