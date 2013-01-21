@@ -201,11 +201,12 @@ public class AppLauncher extends App {
      */
     @Override
     public void cleanup() {
-        // Properly disconnect connected clients:
-        HubPopulator.disconnectAllStubs();
 
-        // Stop job runner:
+        // Stop job runner first to prevent new job submission
         LocalLauncher.shutdown();
+
+        // Properly disconnect connected clients
+        HubPopulator.disconnectAllStubs();
 
         super.cleanup();
     }
@@ -232,24 +233,38 @@ public class AppLauncher extends App {
 
         _logger.info("First time AppLauncher is starting (no preference file found).");
 
-        // Show a modal Welcome pane
-        ResizableTextViewFactory.createHtmlWindow(WELCOME_MESSAGE, "Welcome to AppLauncher !!!", true);
+        SwingUtils.invokeLaterEDT(new Runnable() {
+            @Override
+            public void run() {
 
-        // Run JNLP/SAMP abilities test
-        if (!checkJnlpSampAbilities()) {
-            _logger.error("Could not successfully perform JNLP/SAMP auto-test, aborting.");
-            return;
-        }
+                // Show a modal Welcome pane and wait for OK/close:
+                ResizableTextViewFactory.createHtmlWindow(WELCOME_MESSAGE, "Welcome to AppLauncher !!!", true);
 
-        _logger.info("Successfully performed first run tasks.");
+                // Execute tests in background
+                ThreadExecutors.getGenericExecutor().submit(new Runnable() {
+                    /** Launch JNLP/SAMP Auto-Test using dedicated thread (2 minutes timeout) */
+                    @Override
+                    public void run() {
 
-        // Create preference file to skip this test for future starts
-        try {
-            _preferences.setPreference(PreferenceKey.FIRST_START_FLAG, false);
-            _preferences.saveToFile();
-        } catch (PreferencesException ex) {
-            _logger.warn("Could not write to preference file :", ex);
-        }
+                        // Run JNLP/SAMP abilities test
+                        if (!checkJnlpSampAbilities()) {
+                            _logger.error("Could not successfully perform JNLP/SAMP auto-test, aborting.");
+                            return;
+                        }
+
+                        _logger.info("Successfully performed first run tasks.");
+
+                        // Create preference file to skip this test for future starts
+                        try {
+                            _preferences.setPreference(PreferenceKey.FIRST_START_FLAG, false);
+                            _preferences.saveToFile();
+                        } catch (PreferencesException ex) {
+                            _logger.warn("Could not write to preference file :", ex);
+                        }
+                    }
+                });
+            }
+        });
     }
 
     /**
