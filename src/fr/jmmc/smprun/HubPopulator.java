@@ -24,8 +24,6 @@ public class HubPopulator {
 
     /** Class logger */
     private static final Logger _logger = LoggerFactory.getLogger(HubPopulator.class.getName());
-    /** Resource path prefix */
-    private static final String RESOURCE_PATH_PREFIX = "fr/jmmc/smprun/resource/";
     /** HubPopulator singleton */
     private static HubPopulator _singleton = null;
     /* members */
@@ -33,7 +31,6 @@ public class HubPopulator {
     private EnumMap<Category, List<ClientStub>> _familyLists = new EnumMap<Category, List<ClientStub>>(Category.class);
     /** Client stub map keyed by application name */
     private HashMap<String, ClientStub> _clientStubMap = new HashMap<String, ClientStub>();
-    private static final List<String> ALL = null;
 
     /**
      * Return the HubPopulator singleton
@@ -105,21 +102,19 @@ public class HubPopulator {
      * @return true if initialization is done, false otherwise.
      */
     public static boolean isInitialized() {
-
         return (_singleton == null ? false : true);
     }
 
     /**
-     * Return the client stub map keyed by application name
+     * Return the client stub map keyed by application name.
      * @return client stub map keyed by application name
      */
     public static Map<String, ClientStub> getClientStubMap() {
-
         return start()._clientStubMap;
     }
 
     /**
-     * Return the client stub given its name
+     * Return the client stub given its name.
      * @param name application name to match
      * @return client stub or null if not found
      */
@@ -127,9 +122,7 @@ public class HubPopulator {
         return start()._clientStubMap.get(name);
     }
 
-    /**
-     * Properly disconnect connected clients
-     */
+    /** Properly disconnect connected clients */
     public static void disconnectAllStubs() {
         for (ClientStub client : start()._clientStubMap.values()) {
             client.disconnect();
