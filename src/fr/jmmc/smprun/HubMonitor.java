@@ -7,10 +7,10 @@ import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
 import fr.jmmc.smprsc.data.list.StubRegistry;
-import fr.jmmc.smprun.stub.ClientStub;
 import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
+import fr.jmmc.smprun.stub.ClientStub;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -95,6 +95,10 @@ public final class HubMonitor {
         handleHubEvent();
     }
 
+    public boolean isIdle() {
+        return (_executor.getExecutor().getActiveCount() == 0 ? true : false);
+    }
+
     /**
      * Compute MType array to listen to.
      * 
@@ -144,6 +148,10 @@ public final class HubMonitor {
      */
     private void handleHubEvent() {
 
+        if (!ThreadExecutors.isRunning()) {
+            return;
+        }
+
         // First copy the content of the list model to avoid concurrency issues
         final int size = _capableClients.getSize();
         final Client[] clients = new Client[size];
@@ -168,6 +176,12 @@ public final class HubMonitor {
      * @param clients current hub registered clients
      */
     private void loopOverHubClients(final Client[] clients) {
+
+        if (!ThreadExecutors.isRunning()) {
+            _logger.info("Discarding call - shutdown in progress.");
+            return;
+        }
+
         _logger.info("loopOverHubClients() - start");
 
         final Collection<ClientStub> clientStubList = HubPopulator.getClientStubMap().values();
