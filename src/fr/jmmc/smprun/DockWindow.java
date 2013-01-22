@@ -122,22 +122,10 @@ public class DockWindow extends JFrame implements Observer {
      * Prepare the frame
      */
     private void prepareFrame() {
-
         setResizable(false);
         setMinimumSize(_windowDimension);
         setMaximumSize(_windowDimension);
-
-        // Previous adapter manages the windowClosing(event) :
-        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-        // Properly quit the application when main window close button is clicked
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(final WindowEvent e) {
-                // Callback on exit :
-                App.quit();
-            }
-        });
+        App.setFrame(this);
     }
 
     @Override

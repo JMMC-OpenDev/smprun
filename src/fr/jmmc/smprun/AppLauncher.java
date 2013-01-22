@@ -3,15 +3,14 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
-import com.jidesoft.plaf.LookAndFeelFactory;
 import fr.jmmc.jmcs.App;
+import fr.jmmc.jmcs.Bootstrapper;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.FeedbackReport;
 import fr.jmmc.jmcs.gui.PreferencesView;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.gui.component.BooleanPreferencesView;
 import fr.jmmc.jmcs.gui.component.ResizableTextViewFactory;
-import fr.jmmc.jmcs.gui.util.SwingSettings;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.gui.util.WindowUtils;
 import fr.jmmc.jmcs.network.interop.SampCapability;
@@ -59,13 +58,13 @@ public class AppLauncher extends App {
     /** Logger */
     protected static final Logger _logger = LoggerFactory.getLogger(AppLauncher.class.getName());
     /** Launch JNLP/SAMP Auto-Test action (menu) */
-    public LaunchJnlpSampAutoTestAction _launchJnlpSampAutoTestAction;
+    public LaunchJnlpSampAutoTestAction _launchJnlpSampAutoTestAction = null;
     /** Launch Java WebStart Viewer action (menu) */
-    public LaunchJavaWebStartViewerAction _launchJavaWebStartViewerAction;
+    public LaunchJavaWebStartViewerAction _launchJavaWebStartViewerAction = null;
     /** optional dock window */
     private static DockWindow _dockWindow = null;
     /** preferences instance */
-    private Preferences _preferences;
+    private Preferences _preferences = null;
 
     /**
      * Launch the AppLauncher application.
@@ -94,7 +93,7 @@ public class AppLauncher extends App {
         _launchJnlpSampAutoTestAction = new LaunchJnlpSampAutoTestAction(getClass().getName(), "_launchJnlpSampAutoTestAction");
         _launchJavaWebStartViewerAction = new LaunchJavaWebStartViewerAction(getClass().getName(), "_launchJavaWebStartViewerAction");
 
-        // Start first the SampManager (connect to an existing hub or start a new one)
+        // Start first the SampManager (connect to an existing hub or launch a new one)
         // and check if it is connected to one Hub:
         if (!SampManager.isConnected()) {
             throw new IllegalStateException("Unable to connect to an existing hub or start an internal SAMP hub !");
@@ -184,7 +183,7 @@ public class AppLauncher extends App {
             }
         });
 
-        // Show Welcome pane and perform JNLP/SAMP auto-test on first AppLauncher start
+        // Show Welcome pane and perform JNLP/SAMP auto-test on first AppLauncher launch
         performFirstRunTasks();
     }
 
@@ -369,28 +368,10 @@ public class AppLauncher extends App {
      *
      * @param args command line arguments (open file ...)
      */
-    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public static void main(final String[] args) {
 
-        // init swing application for science
-        SwingSettings.setup();
-
-        // To ensure the use of TriStateCheckBoxes in the Jide CheckBoxTree
-        SwingUtils.invokeAndWaitEDT(new Runnable() {
-            @Override
-            public void run() {
-                LookAndFeelFactory.installJideExtension();
-            }
-        });
-
-        final long start = System.nanoTime();
-        try {
-            // Start application with the command line arguments
-            new AppLauncher(args);
-        } finally {
-            final long time = (System.nanoTime() - start);
-            _logger.debug("Startup duration = {} ms.", 1e-6d * time);
-        }
+        // Start application with the command line arguments
+        Bootstrapper.launch(new AppLauncher(args));
     }
 }
 /*___oOo___*/
