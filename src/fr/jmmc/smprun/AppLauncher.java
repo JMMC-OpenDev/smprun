@@ -80,15 +80,15 @@ public class AppLauncher extends App {
         //super(args, false, true, false);
     }
 
-    /**
-     * Initialize application objects
-     *
-     * @throws RuntimeException if the AppLauncher initialization failed
-     */
     @Override
-    protected void init() {
-
+    protected void initServices() {
         _preferences = Preferences.getInstance();
+        // Initialize job runner
+        LocalLauncher.startUp();
+    }
+
+    @Override
+    protected void setupGui() {
 
         _launchJnlpSampAutoTestAction = new LaunchJnlpSampAutoTestAction(getClass().getName(), "_launchJnlpSampAutoTestAction");
         _launchJavaWebStartViewerAction = new LaunchJavaWebStartViewerAction(getClass().getName(), "_launchJavaWebStartViewerAction");
@@ -99,56 +99,43 @@ public class AppLauncher extends App {
             throw new IllegalStateException("Unable to connect to an existing hub or start an internal SAMP hub !");
         }
 
-        // Initialize job runner:
-        LocalLauncher.startUp();
-
         // First initialize the Client descriptions:
         HubPopulator.start();
 
-        // Using invokeAndWait to be in sync with this thread :
-        // note: invokeAndWaitEDT throws an IllegalStateException if any exception occurs
-        SwingUtils.invokeAndWaitEDT(new Runnable() {
-            /**
-             * Initializes the swing components with their actions in EDT
-             */
-            @Override
-            public void run() {
-                // Prepare dock window
-                _dockWindow = DockWindow.getInstance();
+        // Prepare dock window
+        _dockWindow = DockWindow.getInstance();
 
-                App.setFrame(_dockWindow);
-                WindowUtils.centerOnMainScreen(_dockWindow);
+        App.setFrame(_dockWindow);
+        WindowUtils.centerOnMainScreen(_dockWindow);
 
-                preparePreferencesWindow();
+        preparePreferencesWindow();
 
-                // @TODO : Handle JMMC app mimetypes to open our apps !!!
-            }
+        // @TODO : Handle JMMC app mimetypes to open our apps !!!
+    }
 
-            private void preparePreferencesWindow() {
+    private void preparePreferencesWindow() {
 
-                // Retrieve application preference panes and attach them to their view
-                LinkedHashMap<String, JPanel> panels = new LinkedHashMap<String, JPanel>();
+        // Retrieve application preference panes and attach them to their view
+        LinkedHashMap<String, JPanel> panels = new LinkedHashMap<String, JPanel>();
 
-                // Create application selection pane
-                ApplicationListSelectionView applicationListSelectionView = new ApplicationListSelectionView();
-                applicationListSelectionView.init();
-                panels.put("Application Selection", applicationListSelectionView);
+        // Create application selection pane
+        ApplicationListSelectionView applicationListSelectionView = new ApplicationListSelectionView();
+        applicationListSelectionView.init();
+        panels.put("Application Selection", applicationListSelectionView);
 
-                // Create general settings pane
-                LinkedHashMap<Object, String> generalSettingsMap = new LinkedHashMap<Object, String>();
-                generalSettingsMap.put(PreferenceKey.SHOW_DOCK_WINDOW, "Show Dock window on startup");
-                generalSettingsMap.put(PreferenceKey.SILENTLY_REPORT_FLAG, "Silently report unknown applications to JMMC");
-                generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Restrict SAMP support to your selected applications on startup");
-                generalSettingsMap.put(PreferenceKey.SHOW_EXIT_WARNING, "Show warning before shuting down SAMP hub while quitting");
-                BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(_preferences, generalSettingsMap, BooleanPreferencesView.SAVE_AND_RESTART_MESSAGE);
-                generalSettingsView.init();
-                panels.put("General Settings", generalSettingsView);
+        // Create general settings pane
+        LinkedHashMap<Object, String> generalSettingsMap = new LinkedHashMap<Object, String>();
+        generalSettingsMap.put(PreferenceKey.SHOW_DOCK_WINDOW, "Show Dock window on startup");
+        generalSettingsMap.put(PreferenceKey.SILENTLY_REPORT_FLAG, "Silently report unknown applications to JMMC");
+        generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Restrict SAMP support to your selected applications on startup");
+        generalSettingsMap.put(PreferenceKey.SHOW_EXIT_WARNING, "Show warning before shuting down SAMP hub while quitting");
+        BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(_preferences, generalSettingsMap, BooleanPreferencesView.SAVE_AND_RESTART_MESSAGE);
+        generalSettingsView.init();
+        panels.put("General Settings", generalSettingsView);
 
-                // Finalize prefence window
-                PreferencesView preferencesView = new PreferencesView(_preferences, panels);
-                preferencesView.init();
-            }
-        });
+        // Finalize prefence window
+        PreferencesView preferencesView = new PreferencesView(_preferences, panels);
+        preferencesView.init();
     }
 
     /**
