@@ -5,7 +5,6 @@ package fest;
 
 import fest.common.JmcsApplicationSetup;
 import fest.common.JmcsFestSwingJUnitTestCase;
-import fr.jmmc.jmcs.App;
 import fr.jmmc.jmcs.Bootstrapper;
 import fr.jmmc.smprun.HubMonitor;
 import fr.jmmc.smprun.HubPopulator;
@@ -111,7 +110,7 @@ public class AppLauncherJUnitTest extends JmcsFestSwingJUnitTestCase {
         // TODO : confirmSampMessage
         //confirmDialogDontSave();
 
-        App.exit(1);
+        Bootstrapper.stopApp(1);
     }
 
     private void waitHubTasks() {
