@@ -186,15 +186,13 @@ public class AppLauncher extends App {
      * @see App#exit(int)
      */
     @Override
-    public void cleanup() {
+    protected void cleanup() {
 
         // Stop job runner first to prevent new job submission
         LocalLauncher.shutdown();
 
         // Properly disconnect connected clients
         HubPopulator.disconnectAllStubs();
-
-        super.cleanup();
     }
 
     /**
@@ -358,7 +356,7 @@ public class AppLauncher extends App {
     public static void main(final String[] args) {
 
         // Start application with the command line arguments
-        Bootstrapper.launch(new AppLauncher(args));
+        Bootstrapper.launchApp(new AppLauncher(args));
     }
 }
 /*___oOo___*/

@@ -6,6 +6,7 @@ package fest;
 import fest.common.JmcsApplicationSetup;
 import fest.common.JmcsFestSwingJUnitTestCase;
 import fr.jmmc.jmcs.App;
+import fr.jmmc.jmcs.Bootstrapper;
 import fr.jmmc.smprun.HubMonitor;
 import fr.jmmc.smprun.HubPopulator;
 import fr.jmmc.smprun.preference.Preferences;
