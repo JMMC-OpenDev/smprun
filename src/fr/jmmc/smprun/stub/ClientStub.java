@@ -12,7 +12,7 @@ import fr.jmmc.jmcs.network.BrowserLauncher;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
-import fr.jmmc.jmcs.util.CliStarter;
+import fr.jmmc.jmcs.util.CommandLineUtils;
 import fr.jmmc.jmcs.util.JnlpStarter;
 import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
@@ -427,7 +427,7 @@ public final class ClientStub extends Observable implements JobListener {
                     if (applicationCliPath != null) {
                         StatusBar.show("starting '" + _applicationName + "' recipient...");
                         _logger.info("{}Launching command-line path '{}' ...", _logPrefix, applicationCliPath);
-                        CliStarter.launch(applicationCliPath);
+                        CommandLineUtils.exec(applicationCliPath);
                     } else {
                         _logger.error("{}Command-line path not found.", _logPrefix);
                     }
