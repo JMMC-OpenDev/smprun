@@ -34,7 +34,7 @@ public enum ClientStubState {
     DISCONNECTING(9, "Cleaning up"),
     /** end state means disabled */
     DIYING(10, "Done"),
-    /** failure state means an error occured when starting the application */
+    /** failure state means an error occurred when starting the application */
     FAILING(11, "Failed to start the application");
     /* members */
     /** the numerical order of the internal progress (steps equal to zero don't trigger GUI updates) */
