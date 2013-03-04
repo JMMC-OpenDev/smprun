@@ -42,14 +42,14 @@ public class AppLauncher extends App {
     /** welcome message */
     private final static String WELCOME_MESSAGE = "<HTML><HEAD></HEAD><BODY>"
             + "<CENTER><H2>Welcome to AppLauncher !!!</H2></CENTER>"
-            + "<BR/>"
-            + "And thank you for your confidence in the JMMC automatic SAMP application launcher.<BR/>"
-            + "<BR/>"
-            + "- First, an auto-test procedure will proceed (after you clicked OK) to confirm everything is fine for AppLauncher to work well;<BR/>"
-            + "- You can customize (among other things) which applications are shown in the Dock using the preferences window;<BR/>"
-            + "- Further documentation is available directly from the Help menu, so don't hesitate to have a look;<BR/>"
-            + "- You can easily provide (greatly appreciated) feedback and bug reports to us from the dedicated entry in the Help menu.<BR/>"
-            + "<BR/>"
+            + "<BR>"
+            + "And thank you for your confidence in the JMMC automatic SAMP application launcher.<BR>"
+            + "<BR>"
+            + "- First, an auto-test procedure will proceed (after you clicked OK) to confirm everything is fine for AppLauncher to work well;<BR>"
+            + "- You can customize (among other things) which applications are shown in the Dock using the preferences window;<BR>"
+            + "- Further documentation is available directly from the Help menu, so don't hesitate to have a look;<BR>"
+            + "- You can easily provide (greatly appreciated) feedback and bug reports to us from the dedicated entry in the Help menu.<BR>"
+            + "<BR>"
             + "<B>We hope you will appreciate using AppLauncher as much as we had fun making it !</B>";
     /** AppLauncherTester stub name */
     private final static String APP_LAUNCHER_TESTER = "AppLauncherTester";
