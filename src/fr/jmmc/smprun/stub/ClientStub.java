@@ -5,11 +5,6 @@
  */
 package fr.jmmc.smprun.stub;
 
-import fr.jmmc.jmcs.util.runner.LocalLauncher;
-import fr.jmmc.jmcs.util.runner.RootContext;
-import fr.jmmc.jmcs.util.runner.JobListener;
-import fr.jmmc.jmcs.util.runner.RunContext;
-import fr.jmmc.jmcs.util.runner.RunState;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.component.MessagePane;
 import fr.jmmc.jmcs.gui.component.StatusBar;
@@ -17,8 +12,15 @@ import fr.jmmc.jmcs.network.BrowserLauncher;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
+import fr.jmmc.jmcs.service.JnlpStarter;
 import fr.jmmc.jmcs.util.CommandLineUtils;
-import fr.jmmc.jmcs.util.JnlpStarter;
+import fr.jmmc.jmcs.util.concurrent.ThreadExecutors;
+import fr.jmmc.jmcs.util.runner.JobListener;
+import fr.jmmc.jmcs.util.runner.LocalLauncher;
+import fr.jmmc.jmcs.util.runner.RootContext;
+import fr.jmmc.jmcs.util.runner.RunContext;
+import fr.jmmc.jmcs.util.runner.RunState;
+import fr.jmmc.jmcs.util.runner.process.ProcessContext;
 import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
 import fr.jmmc.smprsc.data.stub.model.Type;
@@ -31,8 +33,6 @@ import org.astrogrid.samp.Message;
 import org.astrogrid.samp.Metadata;
 import org.astrogrid.samp.Subscriptions;
 import org.astrogrid.samp.client.*;
-import fr.jmmc.jmcs.util.concurrent.ThreadExecutors;
-import fr.jmmc.jmcs.util.runner.process.ProcessContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
