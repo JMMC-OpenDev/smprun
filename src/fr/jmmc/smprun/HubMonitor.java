@@ -23,7 +23,7 @@ import org.astrogrid.samp.Client;
 import org.astrogrid.samp.Metadata;
 import org.astrogrid.samp.Subscriptions;
 import org.astrogrid.samp.gui.SubscribedClientListModel;
-import org.ivoa.util.concurrent.ThreadExecutors;
+import fr.jmmc.jmcs.util.concurrent.ThreadExecutors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

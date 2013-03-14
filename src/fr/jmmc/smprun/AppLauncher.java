@@ -27,15 +27,15 @@ import java.util.concurrent.TimeoutException;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.astrogrid.samp.client.SampException;
-import org.ivoa.util.concurrent.ThreadExecutors;
-import org.ivoa.util.runner.LocalLauncher;
+import fr.jmmc.jmcs.util.concurrent.ThreadExecutors;
+import fr.jmmc.jmcs.util.runner.LocalLauncher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * AppLauncher main class.
  * 
- * @author Sylvain LAFRASSE, Laurent BOURGES
+ * @author Sylvain LAFRASSE, Laurent BOURGES.
  */
 public class AppLauncher extends App {
 

@@ -5,6 +5,11 @@
  */
 package fr.jmmc.smprun.stub;
 
+import fr.jmmc.jmcs.util.runner.LocalLauncher;
+import fr.jmmc.jmcs.util.runner.RootContext;
+import fr.jmmc.jmcs.util.runner.JobListener;
+import fr.jmmc.jmcs.util.runner.RunContext;
+import fr.jmmc.jmcs.util.runner.RunState;
 import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.component.MessagePane;
 import fr.jmmc.jmcs.gui.component.StatusBar;
@@ -26,9 +31,8 @@ import org.astrogrid.samp.Message;
 import org.astrogrid.samp.Metadata;
 import org.astrogrid.samp.Subscriptions;
 import org.astrogrid.samp.client.*;
-import org.ivoa.util.concurrent.ThreadExecutors;
-import org.ivoa.util.runner.*;
-import org.ivoa.util.runner.process.ProcessContext;
+import fr.jmmc.jmcs.util.concurrent.ThreadExecutors;
+import fr.jmmc.jmcs.util.runner.process.ProcessContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
