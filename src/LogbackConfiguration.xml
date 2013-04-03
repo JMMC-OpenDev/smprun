@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<!-- Application specific configuration -->
+<included>
+
+    <!-- AppLauncher -->
+    <logger name="fr.jmmc.smprun" level="INFO"/>
+
+</included>
