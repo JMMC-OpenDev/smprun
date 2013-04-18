@@ -26,7 +26,6 @@ import java.awt.event.ActionEvent;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import org.astrogrid.samp.client.SampException;
 import org.slf4j.Logger;
@@ -104,9 +103,7 @@ public class AppLauncher extends App {
 
         // Prepare dock window
         _dockWindow = DockWindow.getInstance();
-
         App.setFrame(_dockWindow);
-        WindowUtils.centerOnMainScreen(_dockWindow);
 
         preparePreferencesWindow();
 
@@ -153,6 +150,8 @@ public class AppLauncher extends App {
     @Override
     protected void execute() {
 
+        WindowUtils.centerOnMainScreen(_dockWindow);
+
         // If JNLP/SAMP startup test went fine
         SwingUtils.invokeLaterEDT(new Runnable() {
             /**
@@ -163,9 +162,8 @@ public class AppLauncher extends App {
                 _logger.debug("Setting AppLauncher GUI up.");
 
                 // Show Dock window if not hidden
-                if (_dockWindow != null) {
-                    final JFrame frame = getFrame();
-                    frame.setVisible(true);
+                if (_dockWindow == null) {
+                    getFrame().setVisible(false);
                 }
             }
         });
@@ -193,6 +191,11 @@ public class AppLauncher extends App {
 
         // Properly disconnect connected clients
         HubPopulator.disconnectAllStubs();
+
+        _launchJnlpSampAutoTestAction = null;
+        _launchJavaWebStartViewerAction = null;
+        _dockWindow = null;
+        _preferences = null;
     }
 
     /**
