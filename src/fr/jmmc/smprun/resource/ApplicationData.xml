@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ApplicationData link="http://www.jmmc.fr/AppLauncher/" faqlink="http://www.jmmc.fr/AppLauncher/faq" rsslink="http://www.jmmc.fr/applauncher/applauncher.rss" releaselink="http://www.jmmc.fr/applauncher/releasenotes.htm">
+<ApplicationData link="http://www.jmmc.fr/AppLauncher/" faqlink="http://www.jmmc.fr/AppLauncher/faq" rsslink="http://www.jmmc.fr/applauncher/applauncher.rss">
 
     <company>
         <short_name>JMMC</short_name>
@@ -34,7 +34,7 @@
 
     <releasenotes>
         <release version="1.1.1">
-             <prerelease version="1.1.1b2" tag="AL_V1_1_1b2">
+            <prerelease version="1.1.1b2" tag="AL_V1_1_1b2">
                 <change type="BUGFIX" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/40">Now properly display missing documentation screen shots.</change>
                 <change type="CHANGE">Use a JPG icon instead of the PNG previous one to work around a known bug onto Mac OS X / Java 7.</change>
             </prerelease>
@@ -42,7 +42,8 @@
                 <change type="CHANGE">Removed irrelevant dock window resizability.</change>
             </prerelease>
         </release>
-        <release version="1.1"><pubDate>Wed, 19 Sep 2012 14:46:30 GMT</pubDate>
+        <release version="1.1">
+            <pubDate>Wed, 19 Sep 2012 14:46:30 GMT</pubDate>
             <prerelease version="1.1b2" tag="AL_V1_1b2">
                 <change type="FEATURE">Added a preference to silently report unknown applications.</change>
                 <change type="BUGFIX">Now properly handle application names with spaces or accent.</change>
@@ -53,13 +54,15 @@
                 <change type="FEATURE">Added support for command-line applications.</change>
             </prerelease>
         </release>
-        <release version="1.0.1"><pubDate>Thu, 24 May 2012 21:35:26 GMT</pubDate>
+        <release version="1.0.1">
+            <pubDate>Thu, 24 May 2012 21:35:26 GMT</pubDate>
             <prerelease version="1.0.1b1" tag="AL_V1_0_1b1">
                 <change type="FEATURE">Added FAQ, RSS and release notes in 'Help' menu.</change>
                 <change type="FEATURE">Added VOPlot essential application.</change>
             </prerelease>
         </release>
-        <release version="1.0"><pubDate>Fri, 11 May 2012 15:48:10 GMT</pubDate>
+        <release version="1.0">
+            <pubDate>Fri, 11 May 2012 15:48:10 GMT</pubDate>
             <prerelease version="1.0b16" tag="AL_V1_0b16">
                 <change type="CHANGE" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/22">Updated LITpro and SearchCal XML descriptions.</change>
             </prerelease>
