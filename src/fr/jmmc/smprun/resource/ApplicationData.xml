@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ApplicationData link="http://www.jmmc.fr/AppLauncher/" faqlink="http://www.jmmc.fr/AppLauncher/faq" rsslink="http://www.jmmc.fr/applauncher/applauncher.rss">
+<ApplicationData link="http://www.jmmc.fr/AppLauncher/" faqlink="http://www.jmmc.fr/AppLauncher/faq" rsslink="http://trac.jmmc.fr/jmmc-applauncher/timeline?format=rss">
 
     <company>
         <short_name>JMMC</short_name>
@@ -36,6 +36,7 @@
         <release version="1.1.2">
             <prerelease version="1.1.2b1">
                 <change type="FEATURE">Added AMDA Web application.</change>
+                <change type="CHANGE">Updated RSS link to TRAC time line.</change>
             </prerelease>
         </release>
         <release version="1.1.1">
