@@ -193,10 +193,8 @@ public final class ClientStub extends Observable implements JobListener {
      */
     public String getFinalJnlpUrl() {
 
-        final List<String> betaApplicationNames = Preferences.getInstance().getBetaApplicationNames();
-
         SampMetaData sampFinalJnlpId = SampMetaData.JNLP_URL;
-        if (betaApplicationNames.contains(_applicationName)) {
+        if (Preferences.getInstance().isApplicationReleaseBeta(_applicationName)) {
             sampFinalJnlpId = SampMetaData.JNLP_BETA_URL;
         }
 
