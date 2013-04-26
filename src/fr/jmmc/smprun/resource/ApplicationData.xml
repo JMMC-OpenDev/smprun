@@ -10,7 +10,7 @@
     </company>
 
     <program name="AppLauncher" version="1.1.2b1"/>
-    <compilation date="27/2/2013" compiler="JDK 1.5.0_16"/>
+    <compilation date="26/4/2013" compiler="JDK 1.6.0_24"/>
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools.</text>
     <authors>the JMMC Technical Group</authors>
 
@@ -33,8 +33,10 @@
     </menubar>
 
     <releasenotes>
-        <release version="1.1.2">
+        <release version="1.1.2" tag="AL_V1_1_2b1">
             <prerelease version="1.1.2b1">
+                <change type="FEATURE">Added OIFits Explorer application.</change>
+                <change type="CHANGE">Updated SearchCal beta URL.</change>
                 <change type="FEATURE">Added AMDA Web application.</change>
                 <change type="CHANGE">Updated RSS link to TRAC time line.</change>
             </prerelease>
