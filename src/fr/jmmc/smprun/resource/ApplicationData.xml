@@ -35,7 +35,7 @@
     <releasenotes>
         <release version="1.1.2" tag="AL_V1_1_2b1">
             <prerelease version="1.1.2b1">
-                <change type="FEATURE">Added OIFits Explorer application.</change>
+                <change type="FEATURE">Added OIFitsExplorer application.</change>
                 <change type="CHANGE">Updated SearchCal beta URL.</change>
                 <change type="FEATURE">Added AMDA Web application.</change>
                 <change type="CHANGE">Updated RSS link to TRAC time line.</change>
