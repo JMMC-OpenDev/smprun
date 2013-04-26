@@ -100,8 +100,8 @@ JARFILES       = smprun
 #
 # <brief description of smprun jar files>
 smprun_DIRS     = fr
-smprun_EXTRAS   = LogbackConfiguration.xml
-                  fr/jmmc/smprun/resource/* \
+smprun_EXTRAS   = LogbackConfiguration.xml \
+                  fr/jmmc/smprun/resource/*
 
 #
 # Java programs
