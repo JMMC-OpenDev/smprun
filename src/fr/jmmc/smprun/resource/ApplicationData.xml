@@ -9,8 +9,8 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.1.2b1"/>
-    <compilation date="26/4/2013" compiler="JDK 1.6.0_24"/>
+    <program name="AppLauncher" version="1.1.2"/>
+    <compilation date="29/4/2013" compiler="JDK 1.6.0_24"/>
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools.</text>
     <authors>the JMMC Technical Group</authors>
 
@@ -34,6 +34,7 @@
 
     <releasenotes>
         <release version="1.1.2" tag="AL_V1_1_2b1">
+            <pubDate>Mon, 29 Apr 2013 15:29:46 GMT</pubDate>
             <prerelease version="1.1.2b1">
                 <change type="FEATURE">Added OIFitsExplorer application.</change>
                 <change type="CHANGE">Updated SearchCal beta URL.</change>
@@ -42,6 +43,7 @@
             </prerelease>
         </release>
         <release version="1.1.1">
+            <pubDate>Wed, 27 Feb 2013 11:48:31 GMT</pubDate>
             <prerelease version="1.1.1b2" tag="AL_V1_1_1b2">
                 <change type="BUGFIX" url="http://trac.jmmc.fr/jmmc-applauncher/ticket/40">Now properly display missing documentation screen shots.</change>
                 <change type="CHANGE">Use a JPG icon instead of the PNG previous one to work around a known bug onto Mac OS X / Java 7.</change>
