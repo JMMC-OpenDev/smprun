@@ -6,6 +6,7 @@ package fr.jmmc.smprun;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
+import fr.jmmc.jmcs.util.FileUtils;
 import fr.jmmc.smprsc.data.list.StubRegistry;
 import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprun.preference.PreferenceKey;
@@ -21,9 +22,9 @@ import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import org.astrogrid.samp.Client;
 import org.astrogrid.samp.Metadata;
-import org.astrogrid.samp.Subscriptions;
 import org.astrogrid.samp.gui.SubscribedClientListModel;
 import fr.jmmc.jmcs.util.concurrent.ThreadExecutors;
+import fr.jmmc.smprsc.data.stub.model.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -182,7 +183,7 @@ public final class HubMonitor {
             return;
         }
 
-        _logger.info("loopOverHubClients() - start");
+        _logger.debug("loopOverHubClients() - start");
 
         final Collection<ClientStub> clientStubList = HubPopulator.getClientStubMap().values();
         for (ClientStub stub : clientStubList) {
@@ -228,10 +229,16 @@ public final class HubMonitor {
             if (!recipientFound) {
 
                 if (stub.isConnected()) {
-                    // Could not append !!! If the stub is already connected, a client was necesserarly found.
-                    _logger.info("Found NO recipient at all for '{}': but the STUB is already connected.", stubName);
+                    // Happens for web applications without SAMP capability. If the stub is already connected, a client was necessarly found.
+                    if (stub.getExecutionType() == Type.WEB) {
+                        _logger.debug("Found NO recipient at all for '{}' (web application).", stubName);
+                    } else {
+                        // Could happen until the Samp clients are updated (one event per client) ! 
+                        // If the stub is already connected, a client was necesserarly found.
+                        _logger.debug("Found NO recipient at all for '{}': but the STUB is already connected.", stubName);
+                    }
                 } else {
-                    _logger.info("Found NO recipient at all for '{}': scheduling corresponding STUB startup.", stubName);
+                    _logger.debug("Found NO recipient at all for '{}': scheduling corresponding STUB startup.", stubName);
 
                     // Schedule stub for startup (by adding it to the unique set of client stubs to start asap)
                     _clientStubsToStart.add(stub);
@@ -257,18 +264,9 @@ public final class HubMonitor {
 
         // Check each registered clients for unknown applications
         for (Client client : clients) {
-
-            Metadata md = client.getMetadata();
-            String clientName = md.getName();
-
-            // If the cuurent application is not in the registry yet
-            if (!StubRegistry.isApplicationKnown(clientName)) {
-
-                _logger.info("Detected an unknown application '{}'.", clientName);
-                retrieveRealRecipientMetadata(client);
-            }
+            retrieveRealRecipientMetadata(client);
         }
-        _logger.info("loopOverHubClients() - done");
+        _logger.debug("loopOverHubClients() - done");
     }
 
     /**
@@ -297,17 +295,23 @@ public final class HubMonitor {
      */
     private void retrieveRealRecipientMetadata(final Client client) {
         final Metadata md = client.getMetadata();
-        final String name = md.getName();
-        final Subscriptions subscriptions = client.getSubscriptions();
+        final String clientName = md.getName();
+        
+        final String applicationId = FileUtils.cleanupFileName(clientName);
 
-        // TODO : store previously dismissed apps in preference ?
+        // If the curent application is not in the registry yet
+        if (!StubRegistry.isApplicationKnown(applicationId)) {
+            _logger.info("Detected an unknown application '{}'.", clientName);
 
-        if (!_sniffedRealApplications.containsKey(name)) {
-            _logger.info("Sniffed new real application '{}': backed up its metadata and subscriptions.", name);
+            // TODO : store previously dismissed apps in preference ?
 
-            final StubMetaData stubMetaData = new StubMetaData(md, subscriptions);
-            _sniffedRealApplications.put(name, stubMetaData);
-            stubMetaData.reportToCentralRepository(Preferences.getInstance(), PreferenceKey.SILENTLY_REPORT_FLAG.toString());
+            if (!_sniffedRealApplications.containsKey(clientName)) {
+                _logger.info("Sniffed new real application '{}': backed up its metadata and subscriptions.", clientName);
+
+                final StubMetaData stubMetaData = new StubMetaData(md, client.getSubscriptions());
+                _sniffedRealApplications.put(clientName, stubMetaData);
+                stubMetaData.reportToCentralRepository(Preferences.getInstance(), PreferenceKey.SILENTLY_REPORT_FLAG.toString());
+            }
         }
     }
 }
