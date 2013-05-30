@@ -350,7 +350,7 @@ public class DockWindow extends JFrame implements Observer {
             // Show application description when clicked
             @Override
             public void mouseClicked(MouseEvent e) {
-                JFrame frame = new JFrame();
+                JFrame frame = new JFrame("Description - " + applicationName);
                 frame.add(_applicationDescriptionFactory.retrieveDescriptionPanelForApplication(applicationName));
                 frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 frame.pack();
