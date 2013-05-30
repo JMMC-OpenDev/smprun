@@ -1,8 +1,6 @@
-/**
- * *****************************************************************************
+/*******************************************************************************
  * JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
- *****************************************************************************
- */
+ ******************************************************************************/
 package fr.jmmc.smprun.stub;
 
 import fr.jmmc.jmcs.gui.util.SwingUtils;
@@ -49,8 +47,10 @@ public class StubMonitor implements Observer {
 
     /**
      * Set up the GUI
+     *
+     * @param name application name
      */
-    public StubMonitor() {
+    public StubMonitor(final String name) {
         super();
 
         SwingUtils.invokeEDT(new Runnable() {
@@ -60,7 +60,7 @@ public class StubMonitor implements Observer {
             @Override
             public void run() {
                 _window = new MonitorWindow();
-                _window.setTitle("JMMC AppLauncher");
+                _window.setTitle("Monitor - " + name);
                 _window.setVisible(false);
                 _window.pack();
                 WindowUtils.centerOnMainScreen(_window);
@@ -139,27 +139,30 @@ public class StubMonitor implements Observer {
                     cancelButton.setEnabled(isLaunching);
                     enableCancelTimer(isLaunching);
 
-                    // Bring this application to front
-                    AppLauncher.showFrameToFront();
+                    if (step < ClientStubState.DISCONNECTING.step()) {
 
-                    _window.getLabelMessage().setText("Redirecting to " + applicationName + ":");
+                        // Bring this application to front
+                        AppLauncher.showFrameToFront();
 
-                    final JProgressBar bar = _window.getProgressBar();
+                        _window.getLabelMessage().setText("Redirecting to " + applicationName + ":");
 
-                    bar.setMinimum(0);
-                    bar.setMaximum(maxStep);
-                    bar.setValue(state.step());
+                        final JProgressBar bar = _window.getProgressBar();
 
-                    if (message.length() == 0) {
-                        bar.setStringPainted(false);
-                        bar.setString(null);
-                    } else {
-                        bar.setStringPainted(true);
-                        bar.setString(message + " ...");
-                    }
+                        bar.setMinimum(0);
+                        bar.setMaximum(maxStep);
+                        bar.setValue(state.step());
 
-                    if (!_window.isVisible() && step < ClientStubState.DISCONNECTING.step()) {
-                        _window.setVisible(true);
+                        if (message.length() == 0) {
+                            bar.setStringPainted(false);
+                            bar.setString(null);
+                        } else {
+                            bar.setStringPainted(true);
+                            bar.setString(message + " ...");
+                        }
+
+                        if (!_window.isVisible()) {
+                            _window.setVisible(true);
+                        }
                     }
                 }
             });
@@ -170,20 +173,22 @@ public class StubMonitor implements Observer {
                 // anyway: cancel timer:
                 enableCancelTimer(false);
 
-                // Postpone hiding to let the user see the last message
-                final ActionListener hideTask = new ActionListener() {
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        if (_window.isVisible()) {
-                            _window.setVisible(false);
+                if (_window.isVisible()) {
+                    // Postpone hiding to let the user see the last message
+                    final ActionListener hideTask = new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            if (_window.isVisible()) {
+                                _window.setVisible(false);
+                            }
                         }
-                    }
-                };
+                    };
 
-                // Fire after 3 second
-                final Timer hideTaskTimer = new Timer(AUTO_HIDE_DELAY, hideTask);
-                hideTaskTimer.setRepeats(false);
-                hideTaskTimer.start();
+                    // Fire after 3 second
+                    final Timer hideTaskTimer = new Timer(AUTO_HIDE_DELAY, hideTask);
+                    hideTaskTimer.setRepeats(false);
+                    hideTaskTimer.start();
+                }
             }
         }
     }
@@ -201,12 +206,12 @@ public class StubMonitor implements Observer {
 
         if (enable) {
             if (!_cancelTimer.isRunning()) {
-                _logger.info("Starting timer: {}", _cancelTimer);
+                _logger.debug("Starting timer: {}", _cancelTimer);
                 _cancelTimer.start();
             }
         } else {
             if (_cancelTimer.isRunning()) {
-                _logger.info("Stopping timer: {}", _cancelTimer);
+                _logger.debug("Stopping timer: {}", _cancelTimer);
                 _cancelTimer.stop();
             }
             _cancelTimer = null;
