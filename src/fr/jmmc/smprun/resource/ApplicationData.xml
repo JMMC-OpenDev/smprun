@@ -9,8 +9,8 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.1.2"/>
-    <compilation date="29/4/2013" compiler="JDK 1.6.0_24"/>
+    <program name="AppLauncher" version="1.1.3"/>
+    <compilation date="30/05/2013" compiler="JDK 1.6.0_24"/>
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools.</text>
     <authors>the JMMC Technical Group</authors>
 
@@ -33,6 +33,11 @@
     </menubar>
 
     <releasenotes>
+        <release version="1.1.3">
+            <prerelease version="1.1.3b1">
+                <change type="CHANGE">Minor changes related to frame handling (title, size).</change>
+            </prerelease>
+        </release>
         <release version="1.1.2" tag="AL_V1_1_2b1">
             <pubDate>Mon, 29 Apr 2013 15:29:46 GMT</pubDate>
             <prerelease version="1.1.2b1">
