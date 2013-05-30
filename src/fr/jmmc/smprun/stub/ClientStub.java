@@ -167,6 +167,13 @@ public final class ClientStub extends Observable implements JobListener {
     }
 
     /**
+     * @return application execution type
+     */
+    public Type getExecutionType() {
+        return _executionType;
+    }
+
+    /**
      * Return the name of the emulated application
      *
      * @return the name of the emulated application
