@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * AppLauncher main class.
- * 
+ *
  * @author Sylvain LAFRASSE, Laurent BOURGES.
  */
 public class AppLauncher extends App {
@@ -68,8 +68,8 @@ public class AppLauncher extends App {
     /**
      * Launch the AppLauncher application.
      *
-     * Create all objects needed by AppLauncher and plug event responding
-     * loop (Listener/Listenable, Observer/Observable) in.
+     * Create all objects needed by AppLauncher and plug event responding loop (Listener/Listenable,
+     * Observer/Observable) in.
      *
      * @param args command-line options.
      */
@@ -103,9 +103,12 @@ public class AppLauncher extends App {
 
         // Prepare dock window
         _dockWindow = DockWindow.getInstance();
-        App.setFrame(_dockWindow);
 
-        preparePreferencesWindow();
+        if (_dockWindow != null) {
+            App.setFrame(_dockWindow);
+
+            preparePreferencesWindow();
+        }
 
         // @TODO : Handle JMMC app mimetypes to open our apps !!!
     }
@@ -162,9 +165,7 @@ public class AppLauncher extends App {
                 _logger.debug("Setting AppLauncher GUI up.");
 
                 // Show Dock window if not hidden
-                if (_dockWindow == null) {
-                    getFrame().setVisible(false);
-                }
+                getFrame().setVisible(_dockWindow != null);
             }
         });
 
@@ -181,6 +182,7 @@ public class AppLauncher extends App {
 
     /**
      * Hook to handle operations when exiting application.
+     *
      * @see App#exit(int)
      */
     @Override
@@ -229,7 +231,9 @@ public class AppLauncher extends App {
 
                 // Execute tests in background
                 ThreadExecutors.getGenericExecutor().submit(new Runnable() {
-                    /** Launch JNLP/SAMP Auto-Test using dedicated thread (2 minutes timeout) */
+                    /**
+                     * Launch JNLP/SAMP Auto-Test using dedicated thread (2 minutes timeout)
+                     */
                     @Override
                     public void run() {
 
@@ -326,7 +330,7 @@ public class AppLauncher extends App {
 
             ThreadExecutors.getGenericExecutor().submit(new Runnable() {
                 /**
-                 * Launch JNLP/SAMP Auto-Test  using dedicated thread (2 minutes timeout)
+                 * Launch JNLP/SAMP Auto-Test using dedicated thread (2 minutes timeout)
                  */
                 @Override
                 public void run() {
