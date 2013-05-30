@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Sylvain LAFRASSE, Laurent BOURGES
  */
-public class HubPopulator {
+public final class HubPopulator {
 
     /** Class logger */
     private static final Logger _logger = LoggerFactory.getLogger(HubPopulator.class.getName());
@@ -30,7 +30,7 @@ public class HubPopulator {
     /** Client family  / client stub mapping */
     private EnumMap<Category, List<ClientStub>> _familyLists = new EnumMap<Category, List<ClientStub>>(Category.class);
     /** Client stub map keyed by application name */
-    private HashMap<String, ClientStub> _clientStubMap = new HashMap<String, ClientStub>();
+    HashMap<String, ClientStub> _clientStubMap = new HashMap<String, ClientStub>(32);
 
     /**
      * Return the HubPopulator singleton
@@ -83,7 +83,7 @@ public class HubPopulator {
     /**
      * Create a new Client Stub using given arguments and store it in collections
      * 
-     * @param resourcePath SAMP application data resource path
+     * @param applicationName application name
      * @return client stub 
      */
     private ClientStub createClientStub(final String applicationName) {
@@ -91,7 +91,7 @@ public class HubPopulator {
         SampStub data = StubMetaData.retrieveSampStubForApplication(applicationName);
 
         final ClientStub client = new ClientStub(data);
-        client.addObserver(new StubMonitor());
+        client.addObserver(new StubMonitor(applicationName));
 
         _clientStubMap.put(applicationName, client);
 
