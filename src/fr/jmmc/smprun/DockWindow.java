@@ -125,7 +125,6 @@ public class DockWindow extends JFrame implements Observer {
         setResizable(false);
         setMinimumSize(_windowDimension);
         setMaximumSize(_windowDimension);
-        App.setFrame(this);
     }
 
     @Override
