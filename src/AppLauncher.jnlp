@@ -4,9 +4,9 @@
         <title>AppLauncher</title>
         <vendor>JMMC (Jean-Marie MARIOTTI Center)</vendor>
         <homepage href="http://www.jmmc.fr/Applauncher/"/>
+        <description>Automatic SAMP application launcher</description>
         <description kind="tooltip">AppLauncher</description>
-        <description kind="short">Automatic SAMP application launcher</description>
-        <icon href="AppIcon.jpg"/>
+        <icon href="@GENERATED@/AppIcon.jpg"/>
         <offline-allowed/> 
         <shortcut>
             <desktop/>
@@ -28,7 +28,7 @@
 
         <!-- JMMC libs -->
         <extension href="../JmcsLibs/JmcsLibs.jnlp"/>
-        
+
     </resources>
     <application-desc main-class="fr.jmmc.smprun.AppLauncher"/>
 </jnlp>
