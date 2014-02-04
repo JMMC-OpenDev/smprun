@@ -19,11 +19,11 @@
         <j2se version="1.6+" initial-heap-size="64m" max-heap-size="128m"/>
 
         <!-- Application module first (main class) -->
-        <jar href="jar/smprun.jar" />
+        <jar href="jar/smprun-1.1.5-SNAPSHOT.jar" />
 
         <!-- JMMC modules -->
-        <jar href="jar/jmcs.jar" />
-        <jar href="jar/smprsc.jar" />
+        <jar href="jar/jmcs-1.0.0.jar" />
+        <jar href="jar/smprsc-1.0.0.jar" />
         <jar href="jar/smprun-doc.jar" />
 
         <!-- JMMC libs -->
