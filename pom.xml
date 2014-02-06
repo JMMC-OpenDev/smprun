@@ -35,8 +35,8 @@
             <artifactId>smprun-doc</artifactId>
             <version>1.0.0</version>
         </dependency>
-    </dependencies>
 -->
+    </dependencies>
     <build>
         <resources>
             <resource>
