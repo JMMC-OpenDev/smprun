@@ -29,13 +29,13 @@
             <artifactId>smprsc</artifactId>
             <version>1.0.0</version>
         </dependency>
-<!-- TODO !!!
-        <dependency>
-            <groupId>fr.jmmc.smprun-doc</groupId>
-            <artifactId>smprun-doc</artifactId>
-            <version>1.0.0</version>
-        </dependency>
--->
+        <!-- TODO !!!
+                <dependency>
+                    <groupId>fr.jmmc.smprun-doc</groupId>
+                    <artifactId>smprun-doc</artifactId>
+                    <version>1.0.0</version>
+                </dependency>
+        -->
     </dependencies>
     <build>
         <resources>
@@ -44,7 +44,7 @@
                 <filtering>true</filtering>
                 <includes>
                     <include>META-INF/MANIFEST.MF</include>
-                </includes>            
+                </includes>
             </resource>
             <resource>
                 <directory>src/main/resources</directory>
@@ -131,6 +131,29 @@
                         <goals>
                             <goal>single</goal>
                         </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- To copy dependencies into target/runtime-libs folder -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeScope>runtime</includeScope>
+                            <outputDirectory>${project.build.directory}/runtime-libs</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
