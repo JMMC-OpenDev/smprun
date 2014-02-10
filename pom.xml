@@ -21,7 +21,7 @@
         <dependency>
             <groupId>fr.jmmc.jmcs</groupId>
             <artifactId>jmcs</artifactId>
-            <version>1.0.0</version>
+            <version>1.0.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
@@ -113,6 +113,7 @@
                 </executions>
             </plugin>
 
+            <!-- DO create the 'big jar' -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
