@@ -21,9 +21,11 @@
         <!-- Application module first (main class) -->
         <jar href="jar/smprun-1.1.5-SNAPSHOT.jar" />
 
+        <!-- Configuration module -->
+        <extension href="../AppLauncherConfig/AppLauncherConfig.jnlp"/>
+
         <!-- JMMC modules -->
         <jar href="jar/jmcs-1.0.0.jar" />
-        <jar href="jar/smprsc-1.0.0.jar" />
         <jar href="jar/smprun-doc.jar" />
 
         <!-- JMMC libs -->
