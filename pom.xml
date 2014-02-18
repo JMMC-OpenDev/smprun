@@ -21,13 +21,13 @@
         <dependency>
             <groupId>fr.jmmc.jmcs</groupId>
             <artifactId>jmcs</artifactId>
-            <version>1.0.1-SNAPSHOT</version>
+            <version>TRUNK</version>
         </dependency>
 
         <dependency>
             <groupId>fr.jmmc.smprsc</groupId>
             <artifactId>smprsc</artifactId>
-            <version>1.0.0</version>
+            <version>TRUNK</version>
         </dependency>
         <!-- TODO !!!
                 <dependency>
