@@ -4,10 +4,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-      <groupId>fr.jmmc</groupId>
-      <artifactId>jmmc</artifactId>
-      <version>TRUNK</version>
-      <!--  please install first parent pom from jMCS/parent-pom directory -->
+        <groupId>fr.jmmc</groupId>
+        <artifactId>jmmc</artifactId>
+        <version>TRUNK</version>
+        <!--  please install first parent pom from jMCS/parent-pom directory -->
     </parent>
 
     <groupId>fr.jmmc.smprun</groupId>
@@ -16,12 +16,6 @@
 
     <name>AppLauncher</name>
     <url>http://www.jmmc.fr/applauncher</url>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <timestamp>${maven.build.timestamp}</timestamp>
-        <maven.build.timestamp.format>yyyy/MM/dd HH:mm:ss</maven.build.timestamp.format>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -43,38 +37,5 @@
                 </dependency>
         -->
     </dependencies>
-    <build>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>META-INF/MANIFEST.MF</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-                <excludes>
-                    <exclude>META-INF/MANIFEST.MF</exclude>
-                </excludes>
-            </resource>
-        </resources>
-
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.4</version>
-                <configuration>
-                    <archive>
-                        <manifestFile>target/classes/META-INF/MANIFEST.MF</manifestFile>
-                    </archive>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+ 
 </project>
