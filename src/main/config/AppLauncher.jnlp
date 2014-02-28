@@ -25,7 +25,7 @@
 
 
         <!-- Configuration module -->
-        <extension href="../../AppLauncherConfig/AppLauncherConfig.jnlp"/>
+        <extension href="../../AppLauncherConfig/smprsc/AppLauncherConfig.jnlp"/>
 
 
         <!-- doc module -->
