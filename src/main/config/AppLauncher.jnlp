@@ -29,9 +29,7 @@
 
 
         <!-- doc module -->
-        <!-- TODO
-              <jar href="jar/smprun-doc-1.0.0.jar" />
-        -->
+        <!-- TODO <jar href="jar/smprun-doc-1.0.0.jar" /> -->
 
 
         <!-- JMMC modules -->
