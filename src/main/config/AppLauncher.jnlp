@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<jnlp spec="1.0+" codebase="@GENERATED@" href="@GENERATED@">
+<jnlp spec="1.0+" codebase="@GENERATED@" href="AppLauncher.jnlp">
     <information>
         <title>AppLauncher</title>
         <vendor>JMMC (Jean-Marie MARIOTTI Center)</vendor>
@@ -19,17 +19,17 @@
         <j2se version="1.6+" initial-heap-size="64m" max-heap-size="128m"/>
 
         <!-- Application module first (main class) -->
-        <jar href="jar/smprun-1.1.5-SNAPSHOT.jar" />
+        <jar href="jar/smprun-TRUNK.jar" />
 
         <!-- Configuration module -->
         <extension href="../AppLauncherConfig/AppLauncherConfig.jnlp"/>
 
         <!-- JMMC modules -->
-        <jar href="jar/jmcs-1.0.0.jar" />
+        <jar href="jar/jmcs-TRUNK.jar" />
         <jar href="jar/smprun-doc.jar" />
 
         <!-- JMMC libs -->
-        <extension href="../JmcsLibs/JmcsLibs.jnlp"/>
+        <extension href="../jmcs/Jmcs.jnlp"/>
 
     </resources>
     <application-desc main-class="fr.jmmc.smprun.AppLauncher"/>
