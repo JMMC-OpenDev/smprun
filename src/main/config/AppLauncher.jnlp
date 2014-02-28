@@ -18,17 +18,23 @@
     <resources>
         <j2se version="1.6+" initial-heap-size="64m" max-heap-size="128m"/>
 
+        <!-- MANUALLY EDITED - Should be generated with maven ASAP ! -->
+
         <!-- Application module first (main class) -->
         <jar href="jar/smprun-TRUNK.jar" />
+
 
         <!-- Configuration module -->
         <extension href="../AppLauncherConfig/AppLauncherConfig.jnlp"/>
 
-        <!-- JMMC modules -->
-        <jar href="jar/jmcs-TRUNK.jar" />
-        <jar href="jar/smprun-doc.jar" />
 
-        <!-- JMMC libs -->
+        <!-- doc module -->
+<!-- TODO
+        <jar href="jar/smprun-doc-1.0.0.jar" />
+  -->
+
+
+        <!-- JMMC modules -->
         <extension href="../jmcs/Jmcs.jnlp"/>
 
     </resources>
