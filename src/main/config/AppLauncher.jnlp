@@ -7,7 +7,7 @@
         <description>Automatic SAMP application launcher</description>
         <description kind="tooltip">AppLauncher</description>
         <icon href="@GENERATED@/AppIcon.jpg"/>
-        <offline-allowed/> 
+        <offline-allowed/>
         <shortcut>
             <desktop/>
         </shortcut>
@@ -25,13 +25,13 @@
 
 
         <!-- Configuration module -->
-        <extension href="../AppLauncherConfig/AppLauncherConfig.jnlp"/>
+        <extension href="../../AppLauncherConfig/AppLauncherConfig.jnlp"/>
 
 
         <!-- doc module -->
-<!-- TODO
-        <jar href="jar/smprun-doc-1.0.0.jar" />
-  -->
+        <!-- TODO
+              <jar href="jar/smprun-doc-1.0.0.jar" />
+        -->
 
 
         <!-- JMMC modules -->
