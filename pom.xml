@@ -4,10 +4,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>fr.jmmc</groupId>
-        <artifactId>jmmc</artifactId>
+        <groupId>fr.jmmc.applauncher</groupId>
+        <artifactId>applauncher</artifactId>
         <version>TRUNK</version>
-        <!--  please install first parent pom from jMCS/parent-pom directory -->
     </parent>
 
     <groupId>fr.jmmc.smprun</groupId>
@@ -35,6 +34,7 @@
             <artifactId>smprsc</artifactId>
             <version>TRUNK</version>
         </dependency>
+
         <!-- TODO !!!
                 <dependency>
                     <groupId>fr.jmmc.smprun-doc</groupId>
