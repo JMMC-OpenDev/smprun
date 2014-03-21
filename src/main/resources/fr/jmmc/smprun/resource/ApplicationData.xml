@@ -9,8 +9,8 @@
         <feedback_form_url>http://jmmc.fr/feedback/smprun.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.1.5b1"/>
-    <compilation date="4/2/2014" compiler="JDK 1.6.0_24"/>
+    <program name="AppLauncher" version="1.1.5b2"/>
+    <compilation date="21/3/2014" compiler="JDK 1.6.0_24"/>
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools.</text>
     <authors>the JMMC Technical Group</authors>
 
@@ -27,6 +27,7 @@
 
     <menubar>
         <menu label="Help">
+            <menu label="AppLauncher Registry Release Notes" classpath="fr.jmmc.jmcs.gui.action.ShowReleaseNotesAction" action="_launchRegistryReleaseNotes"/>
             <menu label="Launch JNLP/SAMP Auto-Test" classpath="fr.jmmc.smprun.AppLauncher" action="_launchJnlpSampAutoTestAction"/>
             <menu label="Configure Java WebStart" classpath="fr.jmmc.smprun.AppLauncher" action="_launchJavaWebStartViewerAction"/>
         </menu>
@@ -34,6 +35,9 @@
 
     <releasenotes>
         <release version="1.1.5">
+            <prerelease version="1.1.5b2">
+                <change type="CHANGE">Added a menu to view our Registry release notes.</change>
+            </prerelease>
             <prerelease version="1.1.5b1">
                 <change type="CHANGE">Moved to Maven build system.</change>
             </prerelease>

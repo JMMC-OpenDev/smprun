@@ -9,6 +9,7 @@ import fr.jmmc.jmcs.data.preference.PreferencesException;
 import fr.jmmc.jmcs.gui.FeedbackReport;
 import fr.jmmc.jmcs.gui.PreferencesView;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
+import fr.jmmc.jmcs.gui.action.ShowReleaseNotesAction;
 import fr.jmmc.jmcs.gui.component.BooleanPreferencesView;
 import fr.jmmc.jmcs.gui.component.ResizableTextViewFactory;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
@@ -18,6 +19,7 @@ import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.service.JnlpStarter;
 import fr.jmmc.jmcs.util.concurrent.ThreadExecutors;
 import fr.jmmc.jmcs.util.runner.LocalLauncher;
+import fr.jmmc.smprsc.data.RegistryManager;
 import fr.jmmc.smprun.preference.ApplicationListSelectionView;
 import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
@@ -60,6 +62,8 @@ public class AppLauncher extends App {
     public LaunchJnlpSampAutoTestAction _launchJnlpSampAutoTestAction = null;
     /** Launch Java WebStart Viewer action (menu) */
     public LaunchJavaWebStartViewerAction _launchJavaWebStartViewerAction = null;
+    /** Show Registry Release Notes action (menu) */
+    public ShowReleaseNotesAction _launchRegistryReleaseNotes = null;
     /** optional dock window */
     private static DockWindow _dockWindow = null;
     /** preferences instance */
@@ -91,6 +95,7 @@ public class AppLauncher extends App {
 
         _launchJnlpSampAutoTestAction = new LaunchJnlpSampAutoTestAction(getClass().getName(), "_launchJnlpSampAutoTestAction");
         _launchJavaWebStartViewerAction = new LaunchJavaWebStartViewerAction(getClass().getName(), "_launchJavaWebStartViewerAction");
+        _launchRegistryReleaseNotes = new ShowReleaseNotesAction("_launchRegistryReleaseNotes", "AppLauncher Registry", RegistryManager.getInstance().getDescription());
 
         // Start first the SampManager (connect to an existing hub or launch a new one)
         // and check if it is connected to one Hub:
