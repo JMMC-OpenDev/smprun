@@ -3,6 +3,7 @@
  ******************************************************************************/
 package fr.jmmc.smprun;
 
+import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.network.interop.SampCapability;
 import fr.jmmc.jmcs.network.interop.SampManager;
 import fr.jmmc.jmcs.network.interop.SampMetaData;
@@ -267,6 +268,7 @@ public final class HubMonitor {
             retrieveRealRecipientMetadata(client);
         }
         _logger.debug("loopOverHubClients() - done");
+        StatusBar.show("all applications started.");
     }
 
     /**
@@ -296,7 +298,7 @@ public final class HubMonitor {
     private void retrieveRealRecipientMetadata(final Client client) {
         final Metadata md = client.getMetadata();
         final String clientName = md.getName();
-        
+
         final String applicationId = FileUtils.cleanupFileName(clientName);
 
         // If the curent application is not in the registry yet
