@@ -6,6 +6,7 @@
 package fr.jmmc.smprun.stub;
 
 import fr.jmmc.jmcs.data.preference.PreferencesException;
+import fr.jmmc.jmcs.gui.component.DismissableMessagePane;
 import fr.jmmc.jmcs.gui.component.MessagePane;
 import fr.jmmc.jmcs.gui.component.StatusBar;
 import fr.jmmc.jmcs.network.interop.SampCapability;
@@ -25,6 +26,7 @@ import fr.jmmc.smprsc.data.stub.StubMetaData;
 import fr.jmmc.smprsc.data.stub.model.SampStub;
 import fr.jmmc.smprsc.data.stub.model.Type;
 import fr.jmmc.smprun.DockWindow;
+import fr.jmmc.smprun.preference.PreferenceKey;
 import fr.jmmc.smprun.preference.Preferences;
 import java.util.*;
 import java.util.concurrent.TimeoutException;
@@ -43,10 +45,10 @@ import org.slf4j.LoggerFactory;
  */
 public final class ClientStub extends Observable implements JobListener {
 
-    /**
-     * Class logger
-     */
+    /** Class logger */
     private static final Logger _logger = LoggerFactory.getLogger(ClientStub.class.getName());
+    /** AppLauncher shared preferences */
+    private final Preferences _preferences;
     /* members : app meta data object */
     /**
      * Store desired stub application meta data
@@ -105,6 +107,8 @@ public final class ClientStub extends Observable implements JobListener {
      * @param data XML values
      */
     public ClientStub(final SampStub data) {
+
+        _preferences = Preferences.getInstance();
 
         // Retrieve each serialized SAMP meta data
         _description = new Metadata();
@@ -201,7 +205,7 @@ public final class ClientStub extends Observable implements JobListener {
     public String getFinalJnlpUrl() {
 
         SampMetaData sampFinalJnlpId = SampMetaData.JNLP_URL;
-        if (Preferences.getInstance().isApplicationReleaseBeta(_applicationName)) {
+        if (_preferences.isApplicationReleaseBeta(_applicationName)) {
             sampFinalJnlpId = SampMetaData.JNLP_BETA_URL;
         }
 
@@ -222,7 +226,7 @@ public final class ClientStub extends Observable implements JobListener {
      */
     public String getApplicationCliPath() {
 
-        final String preferedCliPath = Preferences.getInstance().getApplicationCliPath(_applicationName);
+        final String preferedCliPath = _preferences.getApplicationCliPath(_applicationName);
         if ((preferedCliPath != null) && (preferedCliPath.length() > 0)) {
             return preferedCliPath;
         }
@@ -240,9 +244,9 @@ public final class ClientStub extends Observable implements JobListener {
                 + "Please enter a straight command-line to launch it (arguments not supported) :";
         final String userCliPath = MessagePane.showInputMessage(message, title);
         if ((userCliPath != null) && (userCliPath.length() > 0)) { // User did not canceled the input
-            Preferences.getInstance().setApplicationCliPath(_applicationName, userCliPath);
+            _preferences.setApplicationCliPath(_applicationName, userCliPath);
             try {
-                Preferences.getInstance().saveToFile();
+                _preferences.saveToFile();
             } catch (PreferencesException ex) {
                 _logger.warn("Could not write to preference file.", ex);
             }
@@ -608,6 +612,49 @@ public final class ClientStub extends Observable implements JobListener {
                     public final Map<?, ?> processCall(final HubConnection connection, final String senderId, final Message message) throws SampException {
 
                         _logger.info("{}Received '{}' message from '{}' : '{}'.", _logPrefix, mType.mType(), senderId, message);
+
+                        // Is the message coming from a broadcast ?
+                        final String sampBroadcastID = SampMetaData.BROADCAST_MESSAGE_FLAG.id();
+                        final String broadcastToken = ((String) message.getParam(sampBroadcastID));
+                        if (broadcastToken != null) {
+
+                            final Boolean isBroadcasted = broadcastToken.trim().equalsIgnoreCase("true");
+                            if (isBroadcasted) {
+
+                                // Should we discard broadcasts ?
+                                final boolean shouldSilentlyDiscardBroadcast = _preferences.getPreferenceAsBoolean(PreferenceKey.DISCARD_BROADCASTS_FLAG);
+                                if (!shouldSilentlyDiscardBroadcast) {
+                                    try {
+                                        _preferences.setPreference(PreferenceKey.DISCARD_BROADCASTS_FLAG, true);
+                                    } catch (PreferencesException ex) {
+                                        _logger.warn("Could not set preference :", ex);
+                                    }
+
+                                    // First time dismissable pane to inform user
+                                    String broadcastMessageMType = message.getMType();
+                                    SampCapability capability = SampCapability.fromMType(broadcastMessageMType);
+                                    DismissableMessagePane.show("AppLauncher just received a SAMP broadcast message for all '" + capability + "' applications.\n"
+                                            + "We strongly discourage broadcast messages, to avoid multiple application startup simultaneously.\n"
+                                            + "This message will thus be discarded internaly.\n\n"
+                                            + "Please note that already running applications will still receive the message flawlessly.",
+                                            _preferences,
+                                            PreferenceKey.BROADCAST_WARNING_FLAG.toString());
+
+                                    final boolean shouldHideBroadcastWarning = DismissableMessagePane.getPreferenceState(_preferences, PreferenceKey.BROADCAST_WARNING_FLAG.toString());
+                                    try {
+                                        _preferences.setPreference(PreferenceKey.DISCARD_BROADCASTS_FLAG, shouldHideBroadcastWarning);
+                                        _preferences.saveToFile();
+                                    } catch (PreferencesException ex) {
+                                        _logger.warn("Could not set preference :", ex);
+                                    }
+                                }
+
+                                // Always skip stub broadcast
+                                _logger.warn("Broadcast message detected, discarding it.");
+                                StatusBar.show("discarding broadcast messages.");
+                                return null;
+                            }
+                        }
 
                         // Backup message and pending queue for later delivery
                         _messages.add(message);

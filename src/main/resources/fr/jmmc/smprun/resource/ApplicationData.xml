@@ -10,7 +10,7 @@
     </company>
 
     <program name="AppLauncher" version="1.1.5b2"/>
-    <compilation date="21/3/2014" compiler="JDK 1.6.0_24"/>
+    <compilation date="8/4/2014" compiler="JDK 1.6.0_24"/>
     <text>AppLauncher is the JMMC SAMP hub extension, to automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools.</text>
     <authors>the JMMC Technical Group</authors>
 
@@ -36,6 +36,7 @@
     <releasenotes>
         <release version="1.1.5">
             <prerelease version="1.1.5b2">
+                <change type="FEATURE">Added a broadcasted message filter (with its preference) to avoid multiple application startup simultaneously.</change>
                 <change type="CHANGE">Added a menu to view our Registry release notes.</change>
             </prerelease>
             <prerelease version="1.1.5b1">

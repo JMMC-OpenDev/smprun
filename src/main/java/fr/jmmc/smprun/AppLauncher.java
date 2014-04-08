@@ -132,7 +132,8 @@ public class AppLauncher extends App {
         LinkedHashMap<Object, String> generalSettingsMap = new LinkedHashMap<Object, String>();
         generalSettingsMap.put(PreferenceKey.SHOW_DOCK_WINDOW, "Show Dock window on startup");
         generalSettingsMap.put(PreferenceKey.SILENTLY_REPORT_FLAG, "Silently report unknown applications to JMMC");
-        generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Restrict SAMP support to your selected applications on startup");
+        generalSettingsMap.put(PreferenceKey.DISCARD_BROADCASTS_FLAG, "Silently skip SAMP broadcast messages");
+        generalSettingsMap.put(PreferenceKey.START_SELECTED_STUBS, "Restrict automatic startup to your selection of applications");
         generalSettingsMap.put(PreferenceKey.SHOW_EXIT_WARNING, "Show warning before shuting down SAMP hub while quitting");
         BooleanPreferencesView generalSettingsView = new BooleanPreferencesView(_preferences, generalSettingsMap, BooleanPreferencesView.SAVE_AND_RESTART_MESSAGE);
         generalSettingsView.init();

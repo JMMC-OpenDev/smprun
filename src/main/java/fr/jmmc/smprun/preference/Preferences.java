@@ -78,6 +78,8 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
         setDefaultPreference(PreferenceKey.SELECTED_APPLICATION_LIST, _defaultSelectedApplicationList);
         // By default no application should be used as beta
         setDefaultPreference(PreferenceKey.BETA_APPLICATION_LIST, new ArrayList<String>());
+        // By default do not skip broadcasted messages
+        setDefaultPreference(PreferenceKey.DISCARD_BROADCASTS_FLAG, false);
     }
 
     public List<String> getSelectedApplicationNames() {
