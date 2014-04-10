@@ -6,7 +6,7 @@
         <homepage href="http://www.jmmc.fr/Applauncher/"/>
         <description>Automatic SAMP application launcher</description>
         <description kind="tooltip">AppLauncher</description>
-        <icon href="@GENERATED@/AppIcon.jpg"/>
+        <icon href="@GENERATED@/AppIcon.png"/>
         <offline-allowed/>
         <shortcut>
             <desktop/>
