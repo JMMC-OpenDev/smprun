@@ -633,19 +633,22 @@ public final class ClientStub extends Observable implements JobListener {
                                     // First time dismissable pane to inform user
                                     String broadcastMessageMType = message.getMType();
                                     SampCapability capability = SampCapability.fromMType(broadcastMessageMType);
+                                    final String DISMISS_MESSAGE_FLAG = PreferenceKey.BROADCAST_WARNING_FLAG.toString();
+                                    DismissableMessagePane.setPreferenceState(_preferences, DISMISS_MESSAGE_FLAG, false);
                                     DismissableMessagePane.show("AppLauncher just received a SAMP broadcast message for all '" + capability + "' applications.\n"
                                             + "We strongly discourage broadcast messages, to avoid multiple application startup simultaneously.\n"
                                             + "This message will thus be discarded internaly.\n\n"
                                             + "Please note that already running applications will still receive the message flawlessly.",
-                                            _preferences,
-                                            PreferenceKey.BROADCAST_WARNING_FLAG.toString());
+                                            _preferences, DISMISS_MESSAGE_FLAG);
 
-                                    final boolean shouldHideBroadcastWarning = DismissableMessagePane.getPreferenceState(_preferences, PreferenceKey.BROADCAST_WARNING_FLAG.toString());
-                                    try {
-                                        _preferences.setPreference(PreferenceKey.DISCARD_BROADCASTS_FLAG, shouldHideBroadcastWarning);
-                                        _preferences.saveToFile();
-                                    } catch (PreferencesException ex) {
-                                        _logger.warn("Could not set preference :", ex);
+                                    final boolean shouldHideBroadcastWarning = DismissableMessagePane.getPreferenceState(_preferences, DISMISS_MESSAGE_FLAG);
+                                    if (shouldHideBroadcastWarning) {
+                                        try {
+                                            _preferences.setPreference(PreferenceKey.DISCARD_BROADCASTS_FLAG, shouldHideBroadcastWarning);
+                                            _preferences.saveToFile();
+                                        } catch (PreferencesException ex) {
+                                            _logger.warn("Could not set preference :", ex);
+                                        }
                                     }
                                 }
 
