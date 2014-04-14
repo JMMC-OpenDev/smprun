@@ -642,13 +642,11 @@ public final class ClientStub extends Observable implements JobListener {
                                             _preferences, DISMISS_MESSAGE_FLAG);
 
                                     final boolean shouldHideBroadcastWarning = DismissableMessagePane.getPreferenceState(_preferences, DISMISS_MESSAGE_FLAG);
-                                    if (shouldHideBroadcastWarning) {
-                                        try {
-                                            _preferences.setPreference(PreferenceKey.DISCARD_BROADCASTS_FLAG, shouldHideBroadcastWarning);
-                                            _preferences.saveToFile();
-                                        } catch (PreferencesException ex) {
-                                            _logger.warn("Could not set preference :", ex);
-                                        }
+                                    try {
+                                        _preferences.setPreference(PreferenceKey.DISCARD_BROADCASTS_FLAG, shouldHideBroadcastWarning);
+                                        _preferences.saveToFile();
+                                    } catch (PreferencesException ex) {
+                                        _logger.warn("Could not set preference :", ex);
                                     }
                                 }
 
