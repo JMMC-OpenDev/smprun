@@ -188,7 +188,7 @@ public class DockWindow extends JFrame implements Observer {
         }
 
         mainPane.add(verticalListPane, BorderLayout.CENTER);
-        mainPane.add(new StatusBar(), BorderLayout.SOUTH);
+        mainPane.add(StatusBar.getInstance(), BorderLayout.SOUTH);
 
         pack();
     }
