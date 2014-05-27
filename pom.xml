@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
+*******************************************************************************
+* JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
+*******************************************************************************
+-->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -18,9 +23,9 @@
     <url>http://www.jmmc.fr/applauncher</url>
 
     <properties>
-	<!-- do make assembly and copy dependencies -->
-	<assembly.skipAssembly>false</assembly.skipAssembly>
-	<mdep.skip>false</mdep.skip>
+        <!-- do make assembly and copy dependencies -->
+        <assembly.skipAssembly>false</assembly.skipAssembly>
+        <mdep.skip>false</mdep.skip>
     </properties>
 
     <dependencies>
