@@ -1,4 +1,9 @@
 <?xml version="1.0"?>
+<!--
+*******************************************************************************
+* JMMC project ( http://www.jmmc.fr ) - Copyright (C) CNRS.
+*******************************************************************************
+-->
 <jnlp spec="1.0+" codebase="@GENERATED@" href="AppLauncher.jnlp">
     <information>
         <title>AppLauncher</title>
