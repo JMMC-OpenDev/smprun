@@ -80,8 +80,6 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
     protected void setDefaultPreferences() throws PreferencesException {
         // By default always consider it is the first time ever AppLauncher is started
         setDefaultPreference(PreferenceKey.FIRST_START_FLAG, true);
-        // By default always show dock window on startup
-        setDefaultPreference(PreferenceKey.SHOW_DOCK_WINDOW, true);
         // By default always start all stubs
         setDefaultPreference(PreferenceKey.START_SELECTED_STUBS, false);
         // By default always show exit warning
