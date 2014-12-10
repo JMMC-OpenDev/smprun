@@ -20,7 +20,7 @@
 * AppLauncher. If not, see <http://www.gnu.org/licenses/>.
 ********************************************************************************
 -->
-<ApplicationData link="http://www.jmmc.fr/AppLauncher/" faqlink="http://www.jmmc.fr/AppLauncher/faq" rsslink="http://www.jmmc.fr/applauncher/applauncher.rss">
+<ApplicationData link="http://www.jmmc.fr/AppLauncher/" faqlink="https://github.com/JMMC-OpenDev/AppLauncher" rsslink="http://www.jmmc.fr/applauncher/applauncher.rss">
 
     <company>
         <short_name>JMMC</short_name>
@@ -30,9 +30,9 @@
         <feedback_form_url>http://jmmc.fr/feedback/feedback.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.1.5"/>
-    <compilation date="15/5/2014" compiler="JDK 1.6.0_24"/>
-    <text>AppLauncher is the JMMC SAMP hub extension, that automatically start capable applications 'on demand' and provide a 'Dock' window with all JMMC applications and VO compliant tools.</text>
+    <program name="AppLauncher" version="1.1.6b1"/>
+    <compilation date="10/12/2014" compiler="JDK 1.6.0_24"/>
+    <text>AppLauncher is the OpenSource SAMP hub extension from JMMC, that automatically starts capable applications 'on demand' and provides a 'Dock' window with all JMMC applications and VO compliant tools.</text>
     <authors>the JMMC Technical Group</authors>
 
     <dependences>
@@ -55,6 +55,12 @@
     </menubar>
 
     <releasenotes>
+        <release version="1.1.6">
+            <prerelease version="1.1.6b1">
+                <change type="CHANGE" url="http://trac.jmmc.fr/jmmc-sw/ticket/652">Removed deprecated preference option to hide main window on startup.</change>
+                <change type="BUGFIX" url="http://trac.jmmc.fr/jmmc-sw/ticket/651">Fixed broken Feedback Report backend.</change>
+            </prerelease>
+        </release>
         <release version="1.1.5">
             <prerelease version="1.1.5b2">
                 <change type="FEATURE">Added a broadcasted message filter (with its preference) to avoid multiple application startup simultaneously.</change>
