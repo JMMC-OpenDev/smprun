@@ -57,13 +57,11 @@
             <version>TRUNK</version>
         </dependency>
 
-        <!-- TODO !!!
-                <dependency>
-                    <groupId>fr.jmmc.smprun-doc</groupId>
-                    <artifactId>smprun-doc</artifactId>
-                    <version>1.0.0</version>
-                </dependency>
-        -->
+        <dependency>
+            <groupId>fr.jmmc.smprun-doc</groupId>
+            <artifactId>smprun-doc</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
- 
+
 </project>
