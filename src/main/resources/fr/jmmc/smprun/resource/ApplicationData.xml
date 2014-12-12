@@ -59,6 +59,7 @@
             <prerelease version="1.1.6b1">
                 <change type="CHANGE" url="http://trac.jmmc.fr/jmmc-sw/ticket/652">Removed deprecated preference option to hide main window on startup.</change>
                 <change type="BUGFIX" url="http://trac.jmmc.fr/jmmc-sw/ticket/651">Fixed broken Feedback Report backend.</change>
+                <change type="BUGFIX" url="http://trac.jmmc.fr/jmmc-sw/ticket/653">Fixed broken user manual menu.</change>
             </prerelease>
         </release>
         <release version="1.1.5">
