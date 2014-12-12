@@ -44,14 +44,11 @@
         <!-- Application module first (main class) -->
         <jar href="jar/smprun-TRUNK.jar" />
 
-
         <!-- Configuration module -->
         <extension href="../../AppLauncherConfig/smprsc/AppLauncherConfig.jnlp"/>
 
-
         <!-- doc module -->
-        <!-- TODO <jar href="jar/smprun-doc-1.0.0.jar" /> -->
-
+        <jar href="jar/smprun-doc-1.0.0.jar" />
 
         <!-- JMMC modules -->
         <extension href="../jmcs/Jmcs.jnlp"/>
