@@ -30,8 +30,8 @@
         <feedback_form_url>http://jmmc.fr/feedback/feedback.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.1.6"/>
-    <compilation date="15/12/2014" compiler="JDK 1.6.0_24"/>
+    <program name="AppLauncher" version="1.1.7b1"/>
+    <compilation date="01/09/2015" compiler="JDK 1.6.0_24"/>
     <text>AppLauncher is the OpenSource SAMP hub extension from JMMC, that automatically starts capable applications 'on demand' and provides a 'Dock' window with all JMMC applications and VO compliant tools.</text>
     <authors>the JMMC Technical Group</authors>
 
@@ -55,6 +55,12 @@
     </menubar>
 
     <releasenotes>
+        <release version="1.1.7">
+            <prerelease version="1.1.7b1">
+                <change type="BUGFIX" url="http://trac.jmmc.fr/jmmc-sw/ticket/662">Do not show the feedback report but display the message pane
+                    if a timeout occured while performing JNLP/SAMP auto-test.</change>
+            </prerelease>
+        </release>
         <release version="1.1.6">
             <pubDate>Mon, 15 Dec 2014 16:00:00 GMT</pubDate>
             <prerelease version="1.1.6b1">

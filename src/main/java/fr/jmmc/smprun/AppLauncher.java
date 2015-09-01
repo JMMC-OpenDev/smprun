@@ -27,6 +27,7 @@ import fr.jmmc.jmcs.gui.PreferencesView;
 import fr.jmmc.jmcs.gui.action.RegisteredAction;
 import fr.jmmc.jmcs.gui.action.ShowReleaseNotesAction;
 import fr.jmmc.jmcs.gui.component.BooleanPreferencesView;
+import fr.jmmc.jmcs.gui.component.MessagePane;
 import fr.jmmc.jmcs.gui.component.ResizableTextViewFactory;
 import fr.jmmc.jmcs.gui.util.SwingUtils;
 import fr.jmmc.jmcs.gui.util.WindowUtils;
@@ -327,7 +328,9 @@ public class AppLauncher extends App {
             } catch (SampException se) {
                 FeedbackReport.openDialog(se);
             } catch (TimeoutException te) {
-                FeedbackReport.openDialog(te);
+                _logger.info("timeout: ", te);
+                MessagePane.showWarning("A timeout occured while performing JNLP/SAMP auto-test."
+                        + "\n\nPlease check your Java Web Start settings and accept security prompts.");
             } finally {
                 // restore Javaws verbose setting:
                 JnlpStarter.setJavaWebStartVerbose(jnlpVerbose);
@@ -342,7 +345,7 @@ public class AppLauncher extends App {
         /** default serial UID for Serializable interface */
         private static final long serialVersionUID = 1;
 
-        public LaunchJnlpSampAutoTestAction(String classPath, String fieldName) {
+        LaunchJnlpSampAutoTestAction(String classPath, String fieldName) {
             super(classPath, fieldName);
         }
 
@@ -366,7 +369,7 @@ public class AppLauncher extends App {
         /** default serial UID for Serializable interface */
         private static final long serialVersionUID = 1;
 
-        public LaunchJavaWebStartViewerAction(String classPath, String fieldName) {
+        LaunchJavaWebStartViewerAction(String classPath, String fieldName) {
             super(classPath, fieldName);
         }
 
