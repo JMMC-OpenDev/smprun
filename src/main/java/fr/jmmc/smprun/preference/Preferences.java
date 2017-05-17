@@ -46,7 +46,9 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
     /**
      * Default selected application list
      */
-    private static final List<String> _defaultSelectedApplicationList = Arrays.asList("Aspro2", "SearchCal", "LITpro", "OIFitsExplorer", "topcat", "Aladin", "Simbad", "VizieR", "Cassis", "splat", "VOSpec", "VOSED");
+    private static final List<String> _defaultSelectedApplicationList = Arrays.asList("Aspro2", "SearchCal", "LITpro", "OIFitsExplorer", "OImaging",
+            "topcat", "Aladin", "ETC-42", "Cassis", "splat", "VOSpec",
+            "AMDA", "OiDB", "Simbad", "VizieR", "VOSED");
     /**
      * Constant to detect that no application is deselected
      */
