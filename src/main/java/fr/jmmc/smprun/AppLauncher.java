@@ -156,7 +156,7 @@ public class AppLauncher extends App {
         panels.put("General Settings", generalSettingsView);
 
         // Finalize prefence window
-        PreferencesView preferencesView = new PreferencesView(_preferences, panels);
+        PreferencesView preferencesView = new PreferencesView(App.getFrame(), _preferences, panels);
         preferencesView.init();
     }
 
