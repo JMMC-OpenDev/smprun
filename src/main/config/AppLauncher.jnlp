@@ -29,9 +29,8 @@
         <description kind="tooltip">AppLauncher</description>
         <icon href="@GENERATED@/AppIcon.png"/>
         <offline-allowed/>
-        <shortcut online="true" install="true">
+        <shortcut>
             <desktop/>
-            <menu/>
         </shortcut>
     </information>
     <security>
