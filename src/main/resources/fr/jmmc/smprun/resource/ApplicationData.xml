@@ -30,8 +30,8 @@
         <feedback_form_url>http://jmmc.fr/feedback/feedback.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.1.8"/>
-    <compilation date="07/09/2017" compiler="JDK 1.6.0_24"/>
+    <program name="AppLauncher" version="1.1.8 beta 2"/>
+    <compilation date="06/03/2018" compiler="JDK 1.6.0_24"/>
     <text>AppLauncher is the OpenSource SAMP hub extension from JMMC, that automatically starts capable applications 'on demand' and provides a 'Dock' window with all JMMC applications and VO compliant tools.</text>
     <authors>the JMMC Technical Group</authors>
 
@@ -61,8 +61,11 @@
 
     <releasenotes>
         <release version="1.1.8">
-            <pubDate>Thu, 07 Sep 2017 16:00:00 GMT</pubDate>
-            <prerelease version="1.1.8b1">
+            <pubDate>Tue, 06 Mar 2018 13:00:00 GMT</pubDate>
+            <prerelease version="1.1.8 beta 2">
+                <change type="FEATURE">Improved Java support (9 + mac OS X) but Java 7 minimum is now required</change>
+            </prerelease>
+            <prerelease version="1.1.8 beta 1">
                 <change type="BUGFIX">Avoid a NullPointerException </change><!-- part of JMCS -->
             </prerelease>
           </release>
