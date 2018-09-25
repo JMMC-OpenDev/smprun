@@ -106,7 +106,7 @@ public final class HubMonitor {
             }
         });
 
-        // Create deidcated thread executor:
+        // Create dedicated thread executor:
         _executor = ThreadExecutors.getSingleExecutor(getClass().getSimpleName() + "ThreadPool");
 
         // Analize already registered samp clients
