@@ -108,8 +108,6 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
             stringList = getPreferenceAsStringList(preference);
         } catch (MissingPreferenceException ex) {
             _logger.error("MissingPreferenceException :", ex);
-        } catch (PreferencesException ex) {
-            _logger.error("PreferencesException :", ex);
         }
 
         return stringList;
@@ -134,8 +132,6 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
             betaApplicationNameList = getPreferenceAsStringList(PreferenceKey.BETA_APPLICATION_LIST);
         } catch (MissingPreferenceException ex) {
             _logger.error("MissingPreferenceException :", ex);
-        } catch (PreferencesException ex) {
-            _logger.error("PreferencesException :", ex);
         }
         final String applicationId = FileUtils.cleanupFileName(applicationName);
         if ((betaApplicationNameList == ALL_APPLICATIONS_SELECTED) || (betaApplicationNameList.contains(applicationId))) {
@@ -171,8 +167,6 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
             System.out.println("Selected Application List : " + list + "\n---------------");
         } catch (MissingPreferenceException ex) {
             System.out.println("MissingPreferenceException = " + ex);
-        } catch (PreferencesException ex) {
-            System.out.println("PreferencesException = " + ex);
         }
 
         try {
@@ -180,8 +174,6 @@ public class Preferences extends fr.jmmc.jmcs.data.preference.Preferences {
             System.out.println("Beta Application List : " + list + "\n---------------");
         } catch (MissingPreferenceException ex) {
             System.out.println("MissingPreferenceException = " + ex);
-        } catch (PreferencesException ex) {
-            System.out.println("PreferencesException = " + ex);
         }
     }
 }
