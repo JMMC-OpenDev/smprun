@@ -30,8 +30,8 @@
         <feedback_form_url>http://jmmc.fr/feedback/feedback.php</feedback_form_url>
     </company>
 
-    <program name="AppLauncher" version="1.1.9"/>
-    <compilation date="14/10/2021" compiler="JDK 1.8.0"/>
+    <program name="AppLauncher" version="1.1.10 beta 1"/>
+    <compilation date="20/10/2021" compiler="JDK 1.8.0"/>
     <text>AppLauncher is the OpenSource SAMP hub extension from JMMC, that automatically starts capable applications 'on demand' and provides a 'Dock' window with all JMMC applications and VO compliant tools.</text>
     <authors>the JMMC Technical Group</authors>
 
@@ -62,6 +62,13 @@
     </menubar>
 
     <releasenotes>
+        <release version="1.1.10">
+            <pubDate>Thu, 20 Oct 2021 20:00:00 GMT</pubDate>
+            <prerelease version="1.1.10 beta 1">
+                <change type="CHANGE">Update application registry (add new application's mtypes + move all possible urls over https)</change>
+                <change type="CHANGE">Resize the description panel if the preference window is resized</change>
+            </prerelease>
+        </release>
         <release version="1.1.9">
             <pubDate>Thu, 14 Oct 2021 14:00:00 GMT</pubDate>
             <prerelease version="1.1.9 beta 1">
