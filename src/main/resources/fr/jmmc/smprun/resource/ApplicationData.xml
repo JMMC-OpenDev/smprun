@@ -66,6 +66,7 @@
             <pubDate>Thu, 20 Oct 2021 20:00:00 GMT</pubDate>
             <prerelease version="1.1.10 beta 1">
                 <change type="CHANGE">Update application registry (add new application's mtypes + move all possible urls over https)</change>
+                <change type="CHANGE">Add AMHRA as new webapp</change>
                 <change type="CHANGE">Resize the description panel if the preference window is resized</change>
             </prerelease>
         </release>
